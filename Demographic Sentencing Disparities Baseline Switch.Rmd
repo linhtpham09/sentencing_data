@@ -1,0 +1,484 @@
+---
+title: "Demographic Sentencing Disparities Baseline Switch"
+output: word_document
+date: "2022-10-10"
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F, warning = F, message = F)
+
+library(tidyverse)
+library(flextable)
+library(janitor)
+library(scales)
+
+data <- read_csv(here::here("data/io.csv"))
+
+postprotect <- data %>% 
+  filter((!is.na(sentdate) & "2003-05-01"<=sentdate) | (!is.na(sentmonyr) & sentmonyr<"2004-07-01")) #06-24-04
+
+postbooker <- data %>% 
+  filter("2005-01-01"<=sentmonyr & sentmonyr<="2007-12-01") #dates are not right #12-10-2007
+
+postgall <- data %>% 
+  filter("2007-12-01"<=sentmonyr & sentmonyr<="2011-09-01")
+
+postreport <- data %>% 
+  filter("2011-10-01"<=sentmonyr & sentmonyr <="2016-09-01")
+
+
+### add in more recent data
+
+```
+
+## White Male Baseline Regressions
+
+```{r}
+model2 <- function(df){
+  lm(logsplit ~ logmin + 
+               drugtraff +
+               sexual2 + 
+               porn +
+               immigration +
+               othtype2 +
+               whitecoll +
+               upward +
+               downdep +
+               subasst +
+               mandmin2 +
+               NEWCNVTN +
+               custody +
+               relevel(factor(racesex), ref = 8) +
+               agedummy +
+               educ +
+               citizen,
+             df)
+}
+```
+
+### Post-Protect
+
+```{r}
+model2_factor_protect <- model2(postprotect)
+
+as_flextable(model2_factor_protect)
+```
+<br>
+<br>
+
+### Post-Booker
+
+```{r}
+model2_factor_booker <- model2(postbooker)
+
+as_flextable(model2_factor_booker)
+```
+
+```{r, include = F}
+summary(model2_factor_booker)
+```
+<br>
+<br>
+
+### Post-Gall
+
+```{r}
+model2_factor_gall <- model2(postgall)
+
+as_flextable(model2_factor_gall)
+```
+
+```{r, include = F}
+summary(model2_factor_gall)
+```
+<br>
+<br>
+
+### Post-Report
+
+```{r}
+model2_factor_report <- model2(postreport)
+
+as_flextable(model2_factor_report)
+```
+<br>
+<br>
+<br>
+<br style="page-break-before: always">
+
+## Demographic Disparities in Sentencing: Bar Graphs
+
+```{r}
+logtrans <- function(x) {
+  round((exp(as.numeric(x))-1)*100, 1)
+}
+
+demogbar <- function(df){
+  df %>% 
+    ggplot(aes(x = period, y = value, fill = period))+
+    geom_bar(stat="identity")+
+    geom_text(aes(label=value), vjust=-0.3, size=3.5)+
+    labs(y = "Percent", x = "Period",
+         caption = "Values not statistically significant at the 0.01 level are omitted.")+
+    theme_minimal() + 
+    facet_wrap(~demog)+
+    scale_fill_brewer(type = "qual", palette = 6) +
+    theme(axis.text.x=element_blank())
+  
+}
+
+```
+
+
+### White Male Baseline
+
+```{r}
+
+extract_coeffs <- function(df){
+  summary(df)[[4]] %>% 
+    data.frame() %>% 
+    tibble::rownames_to_column("var") %>% 
+    clean_names() %>% 
+    select(var, estimate, pr_t) %>% 
+    filter(str_detect(var, "male")) %>% 
+    mutate(
+      coeff = case_when(
+        pr_t<=0.01 ~ estimate,
+        pr_t>0.01 ~ NA_real_,
+        TRUE ~ NA_real_),
+      value = logtrans(coeff),
+      demog = case_when(
+        str_detect(var, "whitemale") ~ "White Male",
+        str_detect(var, "whitefemale") ~ "White Female",
+        str_detect(var, "blackmale") ~ "Black Male",
+        str_detect(var, "blackfemale") ~ "Black Female",
+        str_detect(var, "hispmale") ~ "Hispanic Male",
+        str_detect(var, "hispfemale") ~ "Hispanic Female",
+        str_detect(var, "othermale") ~ "Other Male",
+        str_detect(var, "otherfemale") ~ "Other Female"
+      )) %>% 
+    select(demog, value)
+}
+
+protect_wm <- extract_coeffs(model2_factor_protect) %>% mutate(period = "Protect")
+booker_wm <- extract_coeffs(model2_factor_booker) %>% mutate(period = "Booker")
+gall_wm <- extract_coeffs(model2_factor_gall) %>% mutate(period = "Gall")
+report_wm <- extract_coeffs(model2_factor_report) %>% mutate(period = "Post-Report")
+
+
+bar_data_wm <- bind_rows(protect_wm,
+                         booker_wm,
+                         gall_wm,
+                         report_wm) %>% 
+  mutate(period = fct_relevel(period, "Protect", "Booker", "Gall", "Post-Report"))
+
+bar_data_wm %>% filter(str_detect(demog, "Female")) %>% demogbar()
+bar_data_wm %>% filter(str_detect(demog, "Male")) %>% demogbar()
+
+
+#add in statistical significance dots
+#fix position of bar labels
+
+```
+<br>
+<br>
+
+### White Female Baseline
+
+```{r}
+model2_wf <- function(df){
+  lm(logsplit ~ logmin + 
+               drugtraff +
+               sexual2 + 
+               porn +
+               immigration +
+               othtype2 +
+               whitecoll +
+               upward +
+               downdep +
+               subasst +
+               mandmin2 +
+               NEWCNVTN +
+               custody +
+               relevel(factor(racesex), ref = 7) +
+               agedummy +
+               educ +
+               citizen,
+             df)
+}
+```
+
+
+```{r}
+model2_protect_wf <- model2_wf(postprotect)
+model2_booker_wf <- model2_wf(postbooker)
+model2_gall_wf <- model2_wf(postgall)
+model2_report_wf <- model2_wf(postreport)
+
+```
+
+```{r}
+protect_wf <- extract_coeffs(model2_protect_wf) %>% mutate(period = "Protect")
+booker_wf <- extract_coeffs(model2_booker_wf) %>% mutate(period = "Booker")
+gall_wf <- extract_coeffs(model2_gall_wf) %>% mutate(period = "Gall")
+report_wf <- extract_coeffs(model2_report_wf) %>% mutate(period = "Post-Report")
+
+
+bar_data_wf <- bind_rows(protect_wf,
+                         booker_wf,
+                         gall_wf,
+                         report_wf) %>% 
+  mutate(period = fct_relevel(period, "Protect", "Booker", "Gall", "Post-Report"))
+
+bar_data_wf %>% filter(str_detect(demog, "Female")) %>% demogbar()
+bar_data_wf %>% filter(str_detect(demog, "Male")) %>% demogbar()
+
+```
+<br>
+<br>
+
+### Hispanic Female Baseline
+
+```{r}
+model2_hf <- function(df){
+  lm(logsplit ~ logmin + 
+               drugtraff +
+               sexual2 + 
+               porn +
+               immigration +
+               othtype2 +
+               whitecoll +
+               upward +
+               downdep +
+               subasst +
+               mandmin2 +
+               NEWCNVTN +
+               custody +
+               relevel(factor(racesex), ref = 3) +
+               agedummy +
+               educ +
+               citizen,
+             df)
+}
+```
+
+```{r}
+model2_protect_hf <- model2_hf(postprotect)
+model2_booker_hf <- model2_hf(postbooker)
+model2_gall_hf <- model2_hf(postgall)
+model2_report_hf <- model2_hf(postreport)
+```
+
+```{r}
+protect_hf <- extract_coeffs(model2_protect_hf) %>% mutate(period = "Protect")
+booker_hf <- extract_coeffs(model2_booker_hf) %>% mutate(period = "Booker")
+gall_hf <- extract_coeffs(model2_gall_hf) %>% mutate(period = "Gall")
+report_hf <- extract_coeffs(model2_report_hf) %>% mutate(period = "Post-Report")
+
+
+bar_data_hf <- bind_rows(protect_hf,
+                         booker_hf,
+                         gall_hf,
+                         report_hf) %>% 
+  mutate(period = fct_relevel(period, "Protect", "Booker", "Gall", "Post-Report"))
+
+bar_data_hf %>% filter(str_detect(demog, "Female")) %>% demogbar()
+bar_data_hf %>% filter(str_detect(demog, "Male")) %>% demogbar()
+```
+<br>
+<br>
+
+
+### Black Female Baseline
+
+```{r}
+model2_bf <- function(df){
+  lm(logsplit ~ logmin + 
+               drugtraff +
+               sexual2 + 
+               porn +
+               immigration +
+               othtype2 +
+               whitecoll +
+               upward +
+               downdep +
+               subasst +
+               mandmin2 +
+               NEWCNVTN +
+               custody +
+               relevel(factor(racesex), ref = 1) +
+               agedummy +
+               educ +
+               citizen,
+             df)
+}
+```
+
+```{r}
+model2_protect_bf <- model2_bf(postprotect)
+model2_booker_bf <- model2_bf(postbooker)
+model2_gall_bf <- model2_bf(postgall)
+model2_report_bf <- model2_bf(postreport)
+```
+
+```{r}
+protect_bf <- extract_coeffs(model2_protect_bf) %>% mutate(period = "Protect")
+booker_bf <- extract_coeffs(model2_booker_bf) %>% mutate(period = "Booker")
+gall_bf <- extract_coeffs(model2_gall_bf) %>% mutate(period = "Gall")
+report_bf <- extract_coeffs(model2_report_bf) %>% mutate(period = "Post-Report")
+
+
+bar_data_bf <- bind_rows(protect_bf,
+                         booker_bf,
+                         gall_bf,
+                         report_bf) %>% 
+  mutate(period = fct_relevel(period, "Protect", "Booker", "Gall", "Post-Report"))
+
+bar_data_bf %>% filter(str_detect(demog, "Female")) %>% demogbar()
+bar_data_bf %>% filter(str_detect(demog, "Male")) %>% demogbar()
+```
+
+\newpage
+
+## Descriptive Tables
+
+```{r}
+#select(SENSPLT0, racesex, violent, sexual, sexual2, porn, drugtraff, othdrug, whitecoll, immigration, drug, othtype, othtype2)
+
+crimetypetable_base <- function(df){
+  df %>% 
+    select(SENSPLT0, racesex, violent, sexual2, porn, drugtraff, whitecoll, immigration, othtype2) %>% 
+    pivot_longer(violent:othtype2, names_to = "crime_type", values_to = "truefalse") %>% 
+    filter(truefalse==TRUE & !is.na(racesex)) %>% 
+    select(-truefalse) %>% 
+    group_by(racesex, crime_type) %>% 
+    summarize(n = n(),
+              avg_sent = round(mean(SENSPLT0, na.rm = T), 1)) %>% 
+    mutate(racesex = case_when(
+        str_detect(racesex, "whitemale") ~ "White Male",
+        str_detect(racesex, "whitefemale") ~ "White Female",
+        str_detect(racesex, "blackmale") ~ "Black Male",
+        str_detect(racesex, "blackfemale") ~ "Black Female",
+        str_detect(racesex, "hispmale") ~ "Hispanic Male",
+        str_detect(racesex, "hispfemale") ~ "Hispanic Female",
+        str_detect(racesex, "othermale") ~ "Other Male",
+        str_detect(racesex, "otherfemale") ~ "Other Female"),
+          crime_type = crime_type %>% 
+          str_replace("drugtraff", "Drug Trafficking") %>% 
+          str_replace("whitecoll", "White Collar") %>% 
+          str_replace("othtype2", "Other Types") %>% 
+          str_replace("sexual2", "Sexual") %>% 
+          str_to_title()) %>% 
+    rename("Crime Type" = "crime_type")
+}
+
+
+crimetypetable_n <- function(df){
+  df %>% 
+    crimetypetable_base() %>% 
+    select(-avg_sent) %>% 
+    pivot_wider(names_from = racesex, values_from = n) %>% 
+    adorn_totals(where = c("row", "col")) %>% 
+    flextable() %>% 
+    fontsize(i = NULL, j = NULL, size = 10, part = "body") %>% 
+    fontsize(i = NULL, j = NULL, size = 10, part = "header") %>% 
+    set_caption("Total Number of Offenders for Each Demographic Group and Crime Type") %>% 
+    set_table_properties(width = .7, layout = "autofit")
+}
+
+crimetypetable_pct <- function(df){
+  df %>% 
+    crimetypetable_base() %>% 
+    select(-avg_sent) %>% 
+    pivot_wider(names_from = racesex, values_from = n) %>% 
+    adorn_percentages("col") %>% 
+    mutate(across('Black Female':'White Male', ~ scales::percent(round(., 3)))) %>% 
+    flextable() %>% 
+    fontsize(i = NULL, j = NULL, size = 10, part = "body") %>% 
+    fontsize(i = NULL, j = NULL, size = 10, part = "header") %>% 
+    set_caption("Offenders by Demographic Group and Crime Type: Percentage of Demographic Group") %>% 
+    set_table_properties(width = .7, layout = "autofit")
+}
+
+crimetypetable_sent <- function(df){
+  df %>% 
+    crimetypetable_base() %>% 
+    select(-n) %>% 
+    pivot_wider(names_from = racesex, values_from = avg_sent) %>% 
+    flextable() %>% 
+    fontsize(i = NULL, j = NULL, size = 10, part = "body") %>% 
+    fontsize(i = NULL, j = NULL, size = 10, part = "header") %>% 
+    set_caption("Average Sentence Length in Months, by Demographic Group and Crime Type") %>% 
+    set_table_properties(width = .7, layout = "autofit")
+}
+
+model2filter <- function(df){
+  df %>% 
+    select(SENSPLT0,
+           logsplit,
+           logmin,
+           violent,
+           drugtraff,
+           sexual2,
+           porn,
+           immigration,
+           othtype2,
+           whitecoll,
+           upward,
+           downdep,
+           subasst,
+           mandmin2,
+           NEWCNVTN,
+           custody,
+           racesex,
+           agedummy,
+           educ,
+           citizen) %>% 
+    filter(if_all(everything(), ~ !is.na(.)))
+    
+}
+```
+
+**Total Number of Individual Offenders and Average Sentence Length, by Demographic Group and Type of Crime**
+
+### Post-Protect
+
+```{r}
+postprotect %>% model2filter() %>%  crimetypetable_n()
+postprotect %>% model2filter() %>%  crimetypetable_pct()
+postprotect %>% model2filter() %>% crimetypetable_sent()
+```
+
+\newpage
+
+### Post-Booker
+
+```{r}
+postbooker %>% model2filter() %>% crimetypetable_n()
+postbooker %>% model2filter() %>%  crimetypetable_pct()
+postbooker %>% model2filter() %>% crimetypetable_sent()
+```
+
+\newpage
+
+### Post-Gall
+
+```{r}
+postgall %>% model2filter() %>% crimetypetable_n()
+postgall %>% model2filter() %>%  crimetypetable_pct()
+postgall %>% model2filter() %>% crimetypetable_sent()
+```
+
+\newpage
+
+### Post-Report
+
+```{r}
+postreport %>% model2filter() %>% crimetypetable_n()
+postreport %>% model2filter() %>%  crimetypetable_pct()
+postreport %>% model2filter() %>% crimetypetable_sent()
+```
+
+
+
