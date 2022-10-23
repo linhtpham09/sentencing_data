@@ -4,28 +4,7 @@ library(glue)
 library(here)
 library(asciiSetupReader)
 
-#works but is too slow
-# fy21 <- read_ascii_setup(data = here::here("opafy21nid/opafy21nid.dat"), setup_file = here::here("opafy21nid/opafy21nid.sps"))
-# fy02 <- read_ascii_setup(data = here::here("opafy02nid/opafy02nid.dat"), setup_file = here::here("opafy02nid/opafy02nid.sps"))
 
-#non-comprehensive
-#justfair <- read_csv(here::here("FinalDataset.csv"), guess_max = 50000)
-
-#too big to do all at once
-# read_io_data <- function(year){
-#   read_csv(here::here(glue("data/individual_offenders/opafy{year}nid.csv")), guess_max = 50000)
-# }
-# yearlist <- c("02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21")
-# io_list_raw <- map(yearlist, read_io_data)
-
-grp1 <- c("02", "03")
-grp3 <- c("05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17")
-grp5 <- c("19", "20", "21")
-
-read_io_data_1 <- function(year){
-  read_csv(here::here(glue("data/individual_offenders/opafy{year}nid.csv")), guess_max = 50000) %>% 
-    select(SENTDATE, SENSPLT0, GLMIN, GDLINEHI, TOTCHPTS, IS924C, WEAPSOC, STATMIN, CAROFFAP, ACCAP, DEPART, SAFE, NEWCNVTN, PRESENT, MITROLHI, AGGROLHI, NEWRACE, MONSEX, AGE, EDUCATN, NEWCIT)
-}
 
 fy02_raw <- read_csv(here::here("data/individual_offenders/opafy02nid.csv"), guess_max = 50000) %>% 
   select(SENTDATE, SENSPLT0, GLMIN, GDLINEHI, TOTCHPTS, IS924C, WEAPSOC, STATMIN, CAROFFAP, ACCAP, DEPART, 
@@ -256,11 +235,10 @@ postprotect %>% filter(MONSEX==0 & NEWRACE==1) %>% mutate(SENSPLT0 = ifelse(is.n
 
 
 #justfair has TOTCHPTS instead of SORCHPT for total criminal history points -- check on the difference
-#also missing DEPART
-#ols
 
 
-#
+
+#this is the old Booker report model
 model1 <- lm(logsplit ~ logmin + 
                sexual + #sexual2 used pg 33 of 2012 Booker Report
                drugtraff +
@@ -290,27 +268,3 @@ model1 <- lm(logsplit ~ logmin +
 
 
 
-model2_protect <- lm(logsplit ~ logmin + 
-                       drugtraff +
-                       sexual2 + 
-                       porn +
-                       immigration +
-                       othtype2 +
-                       whitecoll +
-                       upward +
-                       downdep +
-                       subasst +
-                       mandmin2 +
-                       NEWCNVTN +
-                       custody +
-                       whitefemale +
-                       blackmale +
-                       blackfemale +
-                       hispmale +
-                       hispfemale +
-                       othermale +
-                       otherfemale +
-                       agedummy +
-                       educ +
-                       NEWCIT,
-                     postprotect)
