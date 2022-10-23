@@ -224,18 +224,14 @@ data <- io %>%
 write_csv(data, here::here("data/io.csv"))
 
 
+##### IGNORE BELOW HERE
 
 ##?
 postprotect %>% filter(MONSEX==1 & NEWRACE==1) %>% pull(SENSPLT0) %>% mean(na.rm=T)
 postprotect %>% filter(MONSEX==0 & NEWRACE==1) %>% mutate(SENSPLT0 = ifelse(is.nan(SENSPLT0), NA, SENSPLT0)) %>% pull(SENSPLT0) %>% mean(na.rm=T)
 
 
-
-
-
-
 #justfair has TOTCHPTS instead of SORCHPT for total criminal history points -- check on the difference
-
 
 
 #this is the old Booker report model
