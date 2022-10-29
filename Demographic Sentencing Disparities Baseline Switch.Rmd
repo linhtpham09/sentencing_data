@@ -1,12 +1,12 @@
 ---
 title: "Demographic Sentencing Disparities Baseline Switch"
 output: word_document
-date: "2022-10-10"
+date: "October 29, 2022"
 
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = F, warning = F, message = F)
+knitr::opts_chunk$set(echo = F, warning = F, message = F, fig.width = 14, fig.height = 8)
 
 library(tidyverse)
 library(flextable)
@@ -19,7 +19,7 @@ postprotect <- data %>%
   filter((!is.na(sentdate) & "2003-05-01"<=sentdate) | (!is.na(sentmonyr) & sentmonyr<"2004-07-01")) #06-24-04
 
 postbooker <- data %>% 
-  filter("2005-01-01"<=sentmonyr & sentmonyr<="2007-12-01") #dates are not right #12-10-2007
+  filter("2005-01-01"<=sentmonyr & sentmonyr<="2007-12-01" & (BOOKPOST!=0 | is.na(BOOKPOST))) #dates are not right #12-10-2007
 
 postgall <- data %>% 
   filter("2007-12-01"<=sentmonyr & sentmonyr<="2011-09-01")
@@ -103,10 +103,32 @@ model2_factor_report <- model2(postreport)
 as_flextable(model2_factor_report)
 ```
 <br>
+  
 <br>
+  
 <br>
-<br style="page-break-before: always">
-
+  
+<br>
+  
+<br>
+  
+<br>
+  
+<br>
+  
+<br>
+  
+<br>
+  
+<br>
+  
+<br>
+  
+<br>
+  
+\newpage 
+ 
+ 
 ## Demographic Disparities in Sentencing: Bar Graphs
 
 ```{r}
@@ -118,13 +140,20 @@ demogbar <- function(df){
   df %>% 
     ggplot(aes(x = period, y = value, fill = period))+
     geom_bar(stat="identity")+
-    geom_text(aes(label=value), vjust=-0.3, size=3.5)+
+    geom_text(aes(label=value), vjust=0.3, size = 6)+ 
     labs(y = "Percent", x = "Period",
          caption = "Values not statistically significant at the 0.01 level are omitted.")+
     theme_minimal() + 
     facet_wrap(~demog)+
     scale_fill_brewer(type = "qual", palette = 6) +
-    theme(axis.text.x=element_blank())
+    theme(strip.text = element_text(size = 25),
+          legend.text = element_text(size = 20),
+          legend.title = element_text(size = 22),
+          axis.title.y = element_text(size = 22),
+          axis.title.x = element_text(size = 22),
+          plot.caption = element_text(size = 20),
+          axis.text.y = element_blank(),
+          axis.text.x=element_blank())
   
 }
 
@@ -172,10 +201,15 @@ bar_data_wm <- bind_rows(protect_wm,
                          gall_wm,
                          report_wm) %>% 
   mutate(period = fct_relevel(period, "Protect", "Booker", "Gall", "Post-Report"))
+```
 
+```{r}
 bar_data_wm %>% filter(str_detect(demog, "Female")) %>% demogbar()
+```
+  
+  
+```{r}
 bar_data_wm %>% filter(str_detect(demog, "Male")) %>% demogbar()
-
 
 #add in statistical significance dots
 #fix position of bar labels
@@ -209,7 +243,6 @@ model2_wf <- function(df){
 }
 ```
 
-
 ```{r}
 model2_protect_wf <- model2_wf(postprotect)
 model2_booker_wf <- model2_wf(postbooker)
@@ -232,8 +265,11 @@ bar_data_wf <- bind_rows(protect_wf,
   mutate(period = fct_relevel(period, "Protect", "Booker", "Gall", "Post-Report"))
 
 bar_data_wf %>% filter(str_detect(demog, "Female")) %>% demogbar()
+```
+  
+  
+```{r}
 bar_data_wf %>% filter(str_detect(demog, "Male")) %>% demogbar()
-
 ```
 <br>
 <br>
@@ -284,6 +320,10 @@ bar_data_hf <- bind_rows(protect_hf,
   mutate(period = fct_relevel(period, "Protect", "Booker", "Gall", "Post-Report"))
 
 bar_data_hf %>% filter(str_detect(demog, "Female")) %>% demogbar()
+```
+  
+  
+```{r}
 bar_data_hf %>% filter(str_detect(demog, "Male")) %>% demogbar()
 ```
 <br>
@@ -336,6 +376,10 @@ bar_data_bf <- bind_rows(protect_bf,
   mutate(period = fct_relevel(period, "Protect", "Booker", "Gall", "Post-Report"))
 
 bar_data_bf %>% filter(str_detect(demog, "Female")) %>% demogbar()
+```
+  
+  
+```{r}
 bar_data_bf %>% filter(str_detect(demog, "Male")) %>% demogbar()
 ```
 
