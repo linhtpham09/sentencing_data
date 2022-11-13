@@ -25,8 +25,11 @@ fy04_raw <- read_csv(here::here("data/individual_offenders/opafy04nid.csv"), gue
 
 fy05_raw <- read_csv(here::here("data/individual_offenders/opafy05nid.csv"), guess_max = 50000) %>% 
   select(SENTMON, SENTYR, sensplt0, glmin, gdlinehi, totchpts, is924c, weapsoc, statmin, caroffap, accap, DEPART_A, BookerCD, 
-         safe, newcnvtn, present, mitrolhi, aggrolhi, newrace, monsex, age, educatn, newcit, BOOKPOST) %>% 
+         safe, newcnvtn, present, mitrolhi, aggrolhi, newrace, monsex, age, educatn, newcit, BOOKPOST, REAS1, REAS2, REAS3, 
+         REAS4, REAS5, REAS6, REAS7, REAS8, REAS9, REAS10, REAS11, REAS12) %>% 
   rename_all(str_to_upper)
+#MITCAP not available til 06
+#add: REASON1 - REASONX, MITCAP
 
 fy06_raw <- read_csv(here::here("data/individual_offenders/opafy06nid.csv"), guess_max = 50000) %>% 
   select(SENTMON, SENTYR, SENSPLT0, GLMIN, GDLINEHI, TOTCHPTS, IS924C, WEAPSOC, STATMIN, CAROFFAP, ACCAP, BOOKERCD, 
@@ -74,6 +77,22 @@ fy20_raw <- read_csv(here::here("data/individual_offenders/opafy20nid.csv"), gue
          ACCAP, SENTRNGE, FSASV, NEWCNVTN, PRESENT, MITROLHI, AGGROLHI, NEWRACE, MONSEX, 
          AGE, EDUCATN, NEWCIT)
 
+# write_csv(fy02_raw, "data/io_downselect1/fy02.csv")
+# write_csv(fy03_raw, "data/io_downselect1/fy03.csv")
+# write_csv(fy04_raw, "data/io_downselect1/fy04.csv")
+# write_csv(fy05_raw, "data/io_downselect1/fy05.csv")
+# write_csv(fy06_raw, "data/io_downselect1/fy06.csv")
+# write_csv(fy07_raw, "data/io_downselect1/fy07.csv")
+# write_csv(fy08_raw, "data/io_downselect1/fy08.csv")
+# write_csv(fy09_raw, "data/io_downselect1/fy09.csv")
+# write_csv(fy10_raw, "data/io_downselect1/fy10.csv")
+# write_csv(fy11_raw, "data/io_downselect1/fy11.csv")
+# write_csv(fy12_raw, "data/io_downselect1/fy12.csv")
+# write_csv(fy13_raw, "data/io_downselect1/fy13.csv")
+# write_csv(fy14_raw, "data/io_downselect1/fy14.csv")
+# write_csv(fy15_raw, "data/io_downselect1/fy15.csv")
+# write_csv(fy16_raw, "data/io_downselect1/fy16.csv")
+# write_csv(fy17_raw, "data/io_downselect1/fy17.csv")
 
 #add bookpost into "This field is only available FY2005 (post Booker Supreme Court Decision)-FY2017."
 
@@ -107,6 +126,7 @@ matchwna <- function(string, list){
 
 
 data <- io %>% 
+  remove_empty() %>% 
   mutate(sentdate = SENTDATE %>% 
            str_replace("Jan", "01") %>% 
            str_replace("Feb", "02") %>% 
@@ -141,7 +161,11 @@ data <- io %>%
          whitecoll = matchwna(GDLINEHI, c("2B1.1", "2B1.6", "2B4.1", "2B5.1", "2B5.3", "2F1.1", "2F1.2", "2R1.1", "2S1.1", "2S1.2", "2S1.3", "2S1.4")) | 
            str_detect(GDLINEHI, "^2T\\d{1}\\.\\d{1}$"),
          immigration = str_detect(GDLINEHI, "^2L\\d{1}\\.\\d{1}$")) %>% 
-  mutate(drug = drugtraff | othdrug,
+  mutate(postprotect = (!is.na(sentdate) & "2003-05-01"<=sentdate) | (!is.na(sentmonyr) & sentmonyr<"2004-07-01"),
+         postbooker = "2005-01-01"<=sentmonyr & sentmonyr<="2007-12-01" & (BOOKPOST!=0 | is.na(BOOKPOST)), # excluding december makes the match worse
+         postgall = "2007-12-01"<=sentmonyr & sentmonyr<="2011-09-01",
+         postreport = "2011-10-01"<=sentmonyr & sentmonyr <="2016-09-01",
+         drug = drugtraff | othdrug,
          othtype = !(drugtraff|othdrug|violent|sexual|whitecoll|immigration), 
          othtype2 = !(violent|sexual2|porn|drugtraff|whitecoll|immigration), #incl othdrug, model 2 excludes violent
          mandmin = STATMIN>0,
@@ -204,24 +228,74 @@ data <- io %>%
            MONSEX==1 & NEWRACE==6 ~ "otherfemale",
            is.na(MONSEX) | is.na(NEWRACE) ~ NA_character_
          )) %>%  #NAs are messed up
-  mutate(downdep = case_when(
+  mutate(crime_type = case_when(
+          drugtraff ~ "Drug Trafficking",
+          whitecoll ~ "White Collar",
+          othtype2 ~ "Other Types",
+          sexual2 ~ "Sexual",
+          porn ~ "Porn",
+          violent ~ "Violent",
+          othdrug ~ "Other Drug",
+          immigration ~ "Immigration"),
+         racesex_clean = case_when(
+           str_detect(racesex, "whitemale") ~ "White Male",
+           str_detect(racesex, "whitefemale") ~ "White Female",
+           str_detect(racesex, "blackmale") ~ "Black Male",
+           str_detect(racesex, "blackfemale") ~ "Black Female",
+           str_detect(racesex, "hispmale") ~ "Hispanic Male",
+           str_detect(racesex, "hispfemale") ~ "Hispanic Female",
+           str_detect(racesex, "othermale") ~ "Other Male",
+           str_detect(racesex, "otherfemale") ~ "Other Female"),
+        downdep = case_when(
           DEPART %in% c(2, 4, 6) ~ TRUE,
           DEPART_A %in% c(3, 4, 5) ~ TRUE,
           downgovt ~ TRUE,
           downcourt ~ TRUE,
           DEPART==8 ~ NA,
-          DEPART_A==8 ~ NA,
+          DEPART_A==8 ~ NA, #consider FALSE here?
           !DEPART %in% c(2, 4, 6) & !is.na(DEPART) ~ FALSE,
           !DEPART_A %in% c(3, 4, 5) & !is.na(DEPART_A) ~ FALSE,
           !downgovt & !downcourt ~ FALSE,
           TRUE ~ NA),
         mandmin2 = case_when(
-          (SAFE==1 | SAFE==2) ~ FALSE,
-          STATMIN>0 ~ TRUE,
+          is.na(STATMIN) ~ NA,
           STATMIN==0 ~ FALSE,
-          TRUE ~ NA)) #2012 Booker Report at 32 says BOOKERCD and DEPART used too, but model also uses subassist var?)
+          STATMIN>0 & (SAFE==1 | SAFE==2) ~ FALSE,
+          STATMIN>0 & subasst ~ FALSE,
+          STATMIN>0 ~ TRUE,
+          TRUE ~ NA)) %>%  #2012 Booker Report at 32 says BOOKERCD and DEPART used too, but model also uses subassist var?)
+  mutate(familyties = str_detect(reason, "\\b17\\b"))
 
 write_csv(data, here::here("data/io.csv"))
+
+
+aggregate_reasons <- function(df){
+  df %>% 
+    #rename_all(str_to_upper) %>% 
+    mutate(reason = glue("{REAS1} {REAS2} {REAS3} {REAS4} {REAS5} {REAS6} {REAS7} {REAS8} {REAS9} {REAS10} {REAS11} {REAS12}") %>% 
+           str_remove_all("NA") %>% 
+           str_squish(),
+         .keep = "unused") %>% 
+    remove_empty()
+}
+
+fy05_raw <- read_csv(here::here("data/io_downselect2/opafy05_downselected.csv"), guess_max = 50000) %>% 
+  aggregate_reasons() %>% 
+  rename_all(str_to_upper) %>%
+  rename(reason = REASON) %>% 
+  select(-c(MITROL1:MITROL60, AGGROL1:AGGROL60))
+
+fy06_raw <- read_csv(here::here("data/io_downselect2/opafy06_downselected.csv"), guess_max = 50000) %>% 
+  select(-c(MITROL1:MITROL41, AGGROL1:AGGROL41)) %>% 
+  aggregate_reasons() 
+  
+fy07_raw <- read_csv(here::here("data/io_downselect2/opafy07_downselected.csv"), guess_max = 50000) %>% 
+  select(-c(MITROL1:MITROL100, AGGROL1:AGGROL100)) %>% 
+  aggregate_reasons()
+
+fy08_raw <- read_csv(here::here("data/io_downselect2/opafy08_downselected.csv"), guess_max = 50000) %>% 
+  select(-c(MITROL1:MITROL69, AGGROL1:AGGROL69)) %>% 
+  aggregate_reasons()
 
 
 ##### IGNORE BELOW HERE

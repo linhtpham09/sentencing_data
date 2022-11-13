@@ -1,0 +1,14 @@
+---
+title: "Aggravating and Mitigating Role Adjustments"
+output: word_document
+date: "2022-11-06"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+The revised model (used by the Commission to examine demographic disparities in sentencing starting with the 2010 update to the Booker report) omits aggravating and mitigating role adjustments, along with a handful of other variables, out of concern that the effect of those adjustments is already captured by the presumptive sentence length (GDLINEHI).
+
+
