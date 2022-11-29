@@ -202,8 +202,8 @@ data <- io %>%
            SAFE %in% c(1, 2) ~ TRUE,
            SAFE == 0 ~ FALSE,
            TRUE ~ NA),
-         mitigate = MITROLHI==0,
-         aggravate = AGGROLHI==0,
+         mitigate = MITROLHI!=0,
+         aggravate = AGGROLHI!=0,
          agedummy = AGE>25,
          educ = case_when(
            EDUCATN %in% c(13:16, 23, 24, 34, 35) ~ TRUE,
@@ -228,14 +228,13 @@ data <- io %>%
            MONSEX==1 & NEWRACE==6 ~ "otherfemale",
            is.na(MONSEX) | is.na(NEWRACE) ~ NA_character_
          )) %>%  #NAs are messed up
-  mutate(crime_type = case_when(
+  mutate(crime_type = case_when( # uses the refined model typology
           drugtraff ~ "Drug Trafficking",
           whitecoll ~ "White Collar",
           othtype2 ~ "Other Types",
           sexual2 ~ "Sexual",
           porn ~ "Porn",
           violent ~ "Violent",
-          othdrug ~ "Other Drug",
           immigration ~ "Immigration"),
          racesex_clean = case_when(
            str_detect(racesex, "whitemale") ~ "White Male",

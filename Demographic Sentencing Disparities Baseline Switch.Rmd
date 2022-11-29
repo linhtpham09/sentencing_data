@@ -112,27 +112,8 @@ as_flextable(model2_factor_report)
 ```{r, include = F}
 ### Coefficient Interpretations for All Periods
 
-logtrans <- function(x) {
-  round((exp(as.numeric(x))-1)*100, 2)
-}
+source(here::here("utils_coeffinterps.R"))
 
-loglogtrans <- function(x) {
-  round((1.01^as.numeric(x) - 1)*100, 2)
-}
-
-extract_coeffs <- function(model){
-  summary(model)[[4]] %>% 
-    data.frame() %>% 
-    tibble::rownames_to_column("var") %>% 
-    clean_names() %>% 
-    select(var, estimate, pr_t) %>% 
-    mutate(
-      coeff = case_when(
-        pr_t<=0.01 ~ estimate,
-        pr_t>0.01 ~ NA_real_,
-        TRUE ~ NA_real_),
-      coeffinterp = ifelse(var=="logmin", loglogtrans(coeff), logtrans(coeff))) 
-}
 
 protect_interp <- extract_coeffs(model2_factor_protect) %>% select(var, Protect = coeffinterp)
 booker_interp <- extract_coeffs(model2_factor_booker) %>% select(var, Booker = coeffinterp)

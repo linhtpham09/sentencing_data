@@ -1,14 +1,154 @@
 ---
 title: "Aggravating and Mitigating Role Adjustments"
 output: word_document
-date: "2022-11-06"
+date: "November 28, 2022"
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = F, warning = F, message = F)
+
+library(tidyverse)
+library(flextable)
+
+
+amdata <- read_csv(here::here("data/io.csv")) %>% 
+  filter(sentdate>="2001-10-01" | sentmonyr<="2017-09-01") %>% 
+  mutate(crime_type = crime_type %>% 
+           str_replace("Immigration", "Immig.") %>% 
+           str_replace("Drug Trafficking", "Drug Traff."))
 ```
 
 
-The revised model (used by the Commission to examine demographic disparities in sentencing starting with the 2010 update to the Booker report) omits aggravating and mitigating role adjustments, along with a handful of other variables, out of concern that the effect of those adjustments is already captured by the presumptive sentence length (GDLINEHI).
 
 
+```{r}
+#The revised model (used by the Commission to examine demographic disparities in sentencing starting with the 2010 update to the Booker report) omits aggravating and mitigating role adjustments, along with a handful of other variables, out of concern that the effect of those adjustments is already captured by the presumptive sentence length (GDLINEHI).
+
+flextable_my <- function(x){
+  x %>% 
+    flextable() %>% 
+    width(width = .7) %>% 
+    fontsize(size = 8, part = "header") %>% 
+    fontsize(size = 8, part = "body")
+}
+
+amdata_tbl <- amdata %>% 
+  filter(!is.na(mitigate) | !is.na(aggravate)) %>% 
+  filter(!is.na(racesex) & !is.na(crime_type)) %>% 
+  group_by(racesex_clean, crime_type) %>% 
+  summarize(total = n(),
+            n_agg = sum(aggravate, na.rm=T),
+            n_mit = sum(mitigate, na.rm=T)) %>%
+  mutate(pct_agg = round(n_agg/total, 3),
+         pct_mit = round(n_mit/total, 3)) 
+
+amdata_tbl %>% 
+  select(crime_type, racesex_clean, n_mit) %>% 
+  pivot_wider(names_from = "crime_type", values_from = n_mit) %>% 
+  rename(" " = racesex_clean) %>% 
+  flextable_my() %>% 
+  set_caption("Number of Mitigating Role Adjustments, FY2002-FY2017")
+
+amdata_tbl %>% 
+  select(crime_type, racesex_clean, pct_mit) %>% 
+  pivot_wider(names_from = "crime_type", values_from = pct_mit) %>% 
+  rename(" " = racesex_clean) %>% 
+  flextable_my() %>% 
+  set_caption("Portion of Mitigating Role Adjustments, FY2002-FY2017")
+```
+<br>
+<br>
+ 
+ 
+```{r}
+amdata_tbl %>% 
+  select(crime_type, racesex_clean, n_agg) %>% 
+  pivot_wider(names_from = "crime_type", values_from = n_agg) %>% 
+  rename(" " = racesex_clean) %>% 
+  flextable_my() %>% 
+  set_caption("Number of Aggravating Role Adjustments, FY2002-FY2017")
+
+amdata_tbl %>% 
+  select(crime_type, racesex_clean, pct_agg) %>% 
+  pivot_wider(names_from = "crime_type", values_from = pct_agg) %>% 
+  rename(" " = racesex_clean) %>% 
+  flextable_my() %>% 
+  set_caption("Portion of Aggravating Role Adjustments, FY2002-FY2017")
+  
+  
+```
+
+
+
+```{r}
+amdata_tbl %>% 
+  ggplot() +
+  geom_col(aes(x = racesex_clean, y = pct_mit, fill = racesex_clean))+
+  theme_minimal()+
+  labs(title = "Portion of Mitigating Role Departures by Demographic, Grouped by Crime Type")+
+  theme(#text = element_text(size = 20),
+        title = element_text(size = 8),
+        legend.position = "none",
+        axis.text.x=element_text(angle=-90),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        legend.title = element_blank())+
+  facet_wrap(~crime_type)
+```
+<br>
+ 
+```{r}
+
+amdata_tbl %>% 
+  ggplot() +
+  geom_col(aes(x = crime_type, y = pct_mit, fill = crime_type))+
+  theme_minimal()+
+  labs(title = "Portion of Mitigating Role Departures by Crime Type, Grouped by Demographic")+
+  theme(#text = element_text(size = 20),
+        title = element_text(size = 8),
+        legend.position = "none",
+        axis.text.x=element_text(angle=-90),
+        axis.text.y = element_text(size = 6),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        legend.title = element_blank())+
+  scale_fill_brewer(palette = "Dark2")+
+  facet_wrap(~racesex_clean, ncol = 2)
+
+```
+
+```{r}
+amdata_tbl %>% 
+  ggplot() +
+  geom_col(aes(x = racesex_clean, y = pct_agg, fill = racesex_clean))+
+  theme_minimal()+
+  labs(title = "Portion of Aggravating Role Departures by Demographic, Grouped by Crime Type")+
+  theme(#text = element_text(size = 20),
+        title = element_text(size = 8),
+        legend.position = "none",
+        axis.text.x=element_text(angle=-90),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        legend.title = element_blank())+
+  facet_wrap(~crime_type)
+```
+<br>
+ 
+```{r}
+
+amdata_tbl %>% 
+  ggplot() +
+  geom_col(aes(x = crime_type, y = pct_agg, fill = crime_type))+
+  theme_minimal()+
+  labs(title = "Portion of Aggravating Role Departures by Crime Type, Grouped by Demographic")+
+  theme(title = element_text(size = 8),
+        legend.position = "none",
+        axis.text.x=element_text(angle=-90),
+        axis.text.y = element_text(size = 6),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        legend.title = element_blank())+
+  scale_fill_brewer(palette = "Dark2")+
+  facet_wrap(~racesex_clean, ncol = 2)
+
+```

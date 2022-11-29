@@ -1,0 +1,209 @@
+---
+title: "DRAFT--Family Circumstances"
+output: word_document
+date: "November 28, 2022"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F, warning = F, message = F, fig.width = 14, fig.height = 8)
+
+library(tidyverse)
+library(flextable)
+library(janitor)
+library(scales)
+library(glue)
+library(RColorBrewer)
+
+ftdata <- read_csv(here::here("data/io.csv")) %>% 
+  filter(sentmonyr>="2004-10-01" & sentmonyr<="2008-09-01") %>% 
+  mutate(crime_type = crime_type %>% 
+           str_replace("Immigration", "Immig.") %>% 
+           str_replace("Drug Trafficking", "Drug Traff."))
+
+# note there are no NAs in the reason data, on the theory that an NA in the reason column means no departure was applied (including no family ties departure) rather than indicating missing data
+
+```
+
+**Note that the following tables only include data from fiscal years 2005 through 2008.**
+<br>
+ 
+### Who receives family ties departures, and for what type of crimes?
+<br>
+
+```{r}
+
+flextable_my <- function(x){
+  x %>% 
+    flextable() %>% 
+    width(width = .7) %>% 
+    fontsize(size = 8, part = "header") %>% 
+    fontsize(size = 8, part = "body")
+}
+
+ftdata_demog_tbl <- ftdata %>% filter(!is.na(racesex) & !is.na(crime_type)) %>% 
+  group_by(racesex_clean, crime_type) %>% 
+  summarize(total = n(),
+            n_fam = sum(familyties)) %>%
+  mutate(pct_fam = round(n_fam/total, 3)) 
+
+ftdata_demog_tbl %>% 
+  select(crime_type, racesex_clean, n_fam) %>% 
+  pivot_wider(names_from = "crime_type", values_from = n_fam) %>% 
+  rename(" " = racesex_clean) %>% 
+  flextable_my() %>% 
+  set_caption("Total Number of Family Ties Departures, by Crime Type and Demographic Group, FY05-FY08")
+```
+<br>
+
+```{r}
+
+ftdata_demog_tbl %>% 
+  select(crime_type, racesex_clean, pct_fam) %>% 
+  pivot_wider(names_from = "crime_type", values_from = pct_fam) %>% 
+  rename(" " = racesex_clean) %>% 
+  flextable_my() %>% 
+  set_caption("Portion of Family Ties Departures, by Crime Type and Demographic Group, FY05-FY08")
+```
+<br>
+<br>
+ 
+
+```{r}
+ftdata_demog_tbl %>% 
+  #mutate(ctrs = glue("{crime_type}_{racesex_clean}")) %>% 
+  ggplot() +
+  geom_col(aes(x = racesex_clean, y = pct_fam, fill = racesex_clean))+
+  theme_minimal()+
+  labs(title = "Portion of Family Ties Departures by Demographic Group, Grouped by Crime Type")+
+  theme(text = element_text(size = 20),
+        axis.text.x=element_text(angle=-90),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        legend.title = element_blank())+
+  facet_wrap(~crime_type)
+```
+<br>
+ 
+
+```{r}
+
+ftdata_demog_tbl %>% 
+  #mutate(ctrs = glue("{crime_type}_{racesex_clean}")) %>% 
+  ggplot() +
+  geom_col(aes(x = crime_type, y = pct_fam, fill = crime_type))+
+  theme_minimal()+
+  labs(title = "Portion of Family Ties Departures by Crime Type, Grouped by Demographic")+
+  theme(text = element_text(size = 20),
+        axis.text.x=element_text(angle=-90),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        legend.title = element_blank())+
+  scale_fill_brewer(palette = "Dark2")+
+  facet_wrap(~racesex_clean, ncol = 2)
+
+```
+<br>
+<br>
+
+
+### How long are the sentences of people who receive family ties departures compared to those who don't, roughly controlling for 1) demographic and 2) trumped guideline minimum?
+
+```{r}
+
+ftdata %>% filter(!is.na(racesex) & !is.na(crime_type) & !is.na(GLMIN)) %>% 
+  mutate(glmin_ub = ifelse(GLMIN>470, 470, GLMIN),
+         minbins = cut_interval(glmin_ub, 10)) %>% 
+  group_by(minbins, racesex_clean, familyties) %>% 
+  summarize(avg_sent = round(mean(SENSPLT0, na.rm = T), 2)) %>% 
+  pivot_wider(names_from = racesex_clean, values_from = avg_sent) %>% 
+  rename("Gdln Min" = minbins, "Fam Ties" = familyties) %>% 
+  flextable_my() %>%
+  theme_zebra() %>% 
+  merge_v(j = "Gdln Min", target = "Gdln Min", part = "body", combine = TRUE)
+
+
+# ftdata %>% 
+#   mutate()
+#   filter(!is.na(racesex) & !is.na(crime_type)) %>% 
+#   group_by(racesex_clean, crime_type, familyties) %>% 
+#   summarize(avg_sent = mean(SENSPLT0, na.rm = T))
+
+```
+<br>
+<br>
+ 
+ 
+### How does adding family ties as an indicator to our model affect the coefficients on gender? How much of the effect of gender could be attributable to family ties?
+
+```{r}
+
+model2 <- function(df){
+  lm(logsplit ~ logmin + 
+               drugtraff +
+               sexual2 + 
+               porn +
+               immigration +
+               othtype2 +
+               whitecoll +
+               upward +
+               downdep +
+               subasst +
+               mandmin2 +
+               NEWCNVTN +
+               custody +
+               relevel(factor(racesex), ref = 8) +
+               agedummy +
+               educ +
+               citizen,
+             df)
+}
+
+
+model2_ft <- function(df){
+  lm(logsplit ~ logmin + 
+               drugtraff +
+               sexual2 + 
+               porn +
+               immigration +
+               othtype2 +
+               whitecoll +
+               upward +
+               downdep +
+               subasst +
+               mandmin2 +
+               NEWCNVTN +
+               custody +
+               relevel(factor(racesex), ref = 8) +
+               agedummy +
+               educ +
+               citizen +
+               familyties,
+             df)
+}
+
+noft <- model2(ftdata)
+ft <- model2_ft(ftdata)
+
+source(here::here("utils_coeffinterps.R"))
+
+noft <- extract_coeffs(noft) %>% select(var, "Original Model" = coeffinterp)
+ft <- extract_coeffs(ft) %>% select(var, "With Family Ties" = coeffinterp)
+
+ft_summary_tbl <- noft %>% 
+  full_join(ft, by = "var") %>%
+  mutate(var = var %>% 
+           str_remove_all("TRUE") %>% 
+           str_remove_all("2") %>% 
+           str_remove_all("relevel\\(factor\\(racesex\\)\\, ref = 8\\)")) %>% #could move this to a function
+  rename("                 " = var) %>% 
+  flextable() %>% 
+  width(width = .7) %>% 
+  fontsize(size = 8, part = "header") %>% 
+  fontsize(size = 8, part = "body")
+
+ft_summary_tbl
+
+```
+
+
+
