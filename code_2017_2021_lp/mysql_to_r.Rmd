@@ -1,0 +1,128 @@
+---
+title: "mysql_to_r"
+output: html_document
+date: '2022-10-24'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# GOOGLE BIG QUERY 
+https://solutions.rstudio.com/db/databases/big-query/ 
+
+### BigQuery Sql
+This helps us load in all data as strings 
+```{r, eval = FALSE}
+df <- read.csv("new_data_r/fy12_2.csv", nrows = 2)
+sql <- colnames(df) 
+sql <- paste(sql,":STRING")
+sql <- paste(sql, collapse= ', ')
+write.table(sql, file = 'bq12_2.txt')
+
+df <- read.csv("new_data_r/fy14_1.csv", nrows = 2)
+sql <- colnames(df) 
+sql <- paste(sql,":STRING")
+sql <- paste(sql, collapse= ', ')
+write.table(sql, file = 'bq14_1.txt')
+
+df <- read.csv("new_data_r/fy14_2.csv", nrows = 2)
+sql <- colnames(df) 
+sql <- paste(sql,":STRING")
+sql <- paste(sql, collapse= ', ')
+write.table(sql, file = 'bq14_2.txt')
+
+df <- read.csv("new_data_r/fy14_3.csv", nrows = 2)
+sql <- colnames(df) 
+sql <- paste(sql,":STRING")
+sql <- paste(sql, collapse= ', ')
+write.table(sql, file = 'bq14_3.txt')
+
+df <- read.csv("new_data_r/fy15_1.csv", nrows = 2)
+sql <- colnames(df) 
+sql <- paste(sql,":STRING")
+sql <- paste(sql, collapse= ', ')
+write.table(sql, file = 'bq15_1.txt')
+
+df <- read.csv("new_data_r/fy15_2.csv", nrows = 2)
+sql <- colnames(df) 
+sql <- paste(sql,":STRING")
+sql <- paste(sql, collapse= ', ')
+write.table(sql, file = 'bq15_2.txt')
+
+df <- read.csv("new_data_r/fy16_1.csv", nrows = 2)
+sql <- colnames(df) 
+sql <- paste(sql,":STRING")
+sql <- paste(sql, collapse= ', ')
+write.table(sql, file = 'bq16_1.txt')
+
+df <- read.csv("new_data_r/fy16_2.csv", nrows = 2)
+sql <- colnames(df) 
+sql <- paste(sql,":STRING")
+sql <- paste(sql, collapse= ', ')
+write.table(sql, file = 'bq16_2.txt')
+
+df <- read.csv("new_data_r/fy16_3.csv", nrows = 2)
+sql <- colnames(df) 
+sql <- paste(sql,":STRING")
+sql <- paste(sql, collapse= ', ')
+write.table(sql, file = 'bq16_3.txt')
+
+```
+
+### BigQuery connection 
+```{r, eval = FALSE}
+library(bigrquery)
+library(DBI)
+
+con <- dbConnect(
+  bigrquery::bigquery(),
+  project = "balmy-coral-330818",
+  dataset = "bqtest"
+  )
+
+
+```
+
+### Example code 
+References: 
+https://solutions.rstudio.com/db/getting-started/database-queries/ 
+https://dbi.r-dbi.org/reference/dbsendquery 
+https://bigrquery.r-dbi.org/
+
+```{r, eval = FALSE}
+dbListTables(con)
+
+query = dbSendQuery(con, "select `REASON1` from opafy02nid limit 2")
+data <-  dbFetch(query)
+```
+
+
+
+
+# MySQL 
+```{r, eval = FALSE}
+library(RMySQL)
+library(tidyverse)
+```
+
+MySQL Connection 
+```{r, eval=FALSE}
+mysqlconnection = dbConnect(RMySQL::MySQL(),
+                            dbname='doherty',
+                            host='34.69.48.201',
+                            port=3306,
+                            user='root')
+
+#list tables 
+dbListTables(mysqlconnection)
+```
+
+Sample Query 
+```{r, eval=FALSE}
+io_query = dbSendQuery(mysqlconnection, "select * from io")
+#n = -1 returns all rows 
+data.frame = fetch(io_query, n = -1)
+```
+
+

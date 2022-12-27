@@ -1,0 +1,126 @@
+---
+title: "Columns 2017-2021"
+output: html_document
+---
+
+# Detecting Strings
+Load in Data 
+```{r}
+library(tidyverse)
+main <- read_csv("~/Downloads/research/columns_17_21.csv")
+```
+
+For example, trying to find column names with the substring "REAS" in the year 2018 
+```{r}
+reas <- main %>% filter(year == 2018)%>% filter(str_detect(names, 'REAS'))
+
+reas
+```
+
+
+# Old Prep Work: Putting all the column names in one table 
+```{r setup, eval = FALSE}
+library(stringdist)
+
+#-------Year 2017----------------
+t <- read.csv("~/Downloads/research/new_data_r/fy17_1.csv", nrow= 2)
+n <- colnames(t)
+t2 <- read.csv("~/Downloads/research/new_data_r/fy17_2.csv", nrow= 2)
+n2 <- colnames(t2)
+t3 <- read.csv("~/Downloads/research/new_data_r/fy17_3.csv", nrow= 2)
+n3 <- colnames(t3)
+
+df <- data.frame(names = n, file = 'fy17_1' )
+df2 <- data.frame(names = n2, file = 'fy17_2')
+df3 <- data.frame(names = n3, file = 'fy17_3')
+main17 <- rbind(df, df2, df3)
+
+d <- stringdistmatrix(main17$names, method = 'soundex')
+h <- hclust(d)
+p <- cutree(h, h = .8) # I set it really high because we already had so many groups 
+main17$group.prob = p 
+main17$year <- 2017
+
+#--------------Year 2018----------- 
+
+t <- read.csv("~/Downloads/research/new_data_r/fy18_1.csv", nrow= 2)
+n <- colnames(t)
+t2 <- read.csv("~/Downloads/research/new_data_r/fy18_2.csv", nrow= 2)
+n2 <- colnames(t2)
+t3 <- read.csv("~/Downloads/research/new_data_r/fy18_3.csv", nrow= 2)
+n3 <- colnames(t3)
+
+df <- data.frame(names = n, file = 'fy18_1' )
+df2 <- data.frame(names = n2, file = 'fy18_2')
+df3 <- data.frame(names = n3, file = 'fy18_3')
+main18 <- rbind(df, df2, df3)
+
+d <- stringdistmatrix(main18$names, method = 'soundex')
+h <- hclust(d)
+p <- cutree(h, h = .8) # I set it really high because we already had so many groups 
+main18$group.prob = p 
+main18$year <- 2018
+
+#--------------Year 2019----------- 
+
+t <- read.csv("~/Downloads/research/new_data_r/fy19_1.csv", nrow= 2)
+n <- colnames(t)
+t2 <- read.csv("~/Downloads/research/new_data_r/fy19_2.csv", nrow= 2)
+n2 <- colnames(t2)
+
+df <- data.frame(names = n, file = 'fy19_1' )
+df2 <- data.frame(names = n2, file = 'fy19_2')
+main19 <- rbind(df, df2)
+
+d <- stringdistmatrix(main19$names, method = 'soundex')
+h <- hclust(d)
+p <- cutree(h, h = .8) # I set it really high because we already had so many groups 
+main19$group.prob = p 
+main19$year <- 2019
+
+#--------------Year 2020----------- 
+t <- read.csv("~/Downloads/research/new_data_r/fy20_1.csv", nrow= 2)
+n <- colnames(t)
+t2 <- read.csv("~/Downloads/research/new_data_r/fy20_2.csv", nrow= 2)
+n2 <- colnames(t2)
+
+df <- data.frame(names = n, file = 'fy20_1' )
+df2 <- data.frame(names = n2, file = 'fy20_2')
+main20 <- rbind(df, df2)
+
+d <- stringdistmatrix(main20$names, method = 'soundex')
+h <- hclust(d)
+p <- cutree(h, h = .8) # I set it really high because we already had so many groups 
+main20$group.prob = p 
+main20$year <- 2020
+#--------------Year 2021----------- 
+t <- read.csv("~/Downloads/research/new_data_r/fy21_1.csv", nrow= 2)
+n <- colnames(t)
+t2 <- read.csv("~/Downloads/research/new_data_r/fy21_2.csv", nrow= 2)
+n2 <- colnames(t2)
+t3 <- read.csv("~/Downloads/research/new_data_r/fy21_3.csv", nrow= 2)
+n3 <- colnames(t3)
+
+df <- data.frame(names = n, file = 'fy21_1' )
+df2 <- data.frame(names = n2, file = 'fy21_2')
+df3 <- data.frame(names = n3, file = 'fy21_3')
+main21 <- rbind(df, df2, df3)
+
+d <- stringdistmatrix(main21$names, method = 'soundex')
+h <- hclust(d)
+p <- cutree(h, h = .8) # I set it really high because we already had so many groups 
+main21$group.prob = p 
+main21$year <- 2021
+
+columns_17_21 <- rbind(main17,main18, main19, main20, main21)
+
+#write.csv(columns_17_21, "~/Downloads/research/columns_17_21.csv")
+```
+
+
+
+
+
+
+
+

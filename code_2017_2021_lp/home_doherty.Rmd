@@ -1,0 +1,35 @@
+---
+title: "HOME: DOHERTY RA RESEARCH PROJECT"
+output: html_document
+---
+
+# Dec 26, 2022
+**Last Updated Dec 26, 2022**
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam in volutpat lectus. Phasellus at libero nunc. Donec mollis non metus non lacinia. In euismod, enim sed efficitur molestie, leo elit fringilla nibh, vel dictum diam libero ac metus. Aliquam posuere eget velit ac pretium. Nunc vel sem dignissim, egestas magna ut, gravida eros. Fusce aliquet, elit et tempus viverra, velit justo porttitor risus, nec cursus libero risus vel sapien. Interdum et malesuada fames ac ante ipsum primis in faucibus. Donec lorem ligula, placerat ac ullamcorper et, euismod ut tortor. Nulla facilisi. Pellentesque eros urna, pulvinar sit amet porttitor eget, condimentum eget erat. Nullam tristique turpis eget dolor malesuada, vel hendrerit ligula malesuada. In hac habitasse platea dictumst. Nulla vulputate eu turpis quis lobortis. Nunc sed massa commodo nibh scelerisque ornare eget non lorem. Pellentesque consectetur urna eu est rhoncus dictum.
+
+**-------------------------------------------**
+
+*Date: December 5, 2022*
+
+*To: Professor Fiona Doherty*
+
+*From: Linh Pham* 
+
+*Re: Summary of Google BigQuery and What Linh has Done so Far* 
+
+In order to access data more easily, I uploaded our data files into a google BigQuery database. We had to find a method to easily access our data because most fiscal years had dimensions of 100,000 rows x 10,000 columns. Sometimes even more. When we would try to load in the csv file, it would take about 10 minutes for each year to load in, and sometimes the program could not hold so much data and would quit. This would force us to restart the whole load in process again. 
+
+In Google BigQuery, we would only need to upload our data files once and then we would use a version of Sql Query to pull the columns that we would need. SQL query is another coding language, but it is much more accessible and more similar to a pseudo coding language. It is primarily used to easily pull and access cloud databases. First, I had to split each fiscal year into smaller data files because Google BigQuery only took on files with less than 10,000 columns. Then, I loaded in every column as a string so that we could preserve as much of the data as possible. 
+
+Currently, it seems like Google BigQuery is charging us for accessing the data. The amount of data that we have stored falls under the free limit, but it seems like we are easily surpassing the free tier limit. I have reached out to Google to understand a bit more and see how we can maintain under the free limit. The longest part of this process was splitting the data files, which I already have, so hopefully we are able to find a solution even if Google BigQuery ends up costing a lot of money. 
+
+
+
+
+
+
+
+
+
+
