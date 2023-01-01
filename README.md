@@ -1,10 +1,22 @@
 # Linh's Code 
 
+Guide: 
+
+TOOLS: 
+- **columns2017-2021.Rmd** in *code_2017_2021_lp* and **columns_17_21.Rmd** in *data_files*: Find columns in FY datasets 2017-2021 
+- **mysql_to_r.Rmd**: How I created sql query from R 
+- **prep_split**: How I split the datasets and created id column 
+
 To Linh's code on the Web: 
 
 https://linhtpham09.github.io/sentencing_data_lp_web/index.html 
 
 (Github code for webpage: https://github.com/linhtpham09/sentencing_data_lp_web.git) 
+
+RMD files featured on the web all in *code_2017_2021_lp*
+- demo_baseline_2017_2021.Rmd 
+- crime_type.Rmd
+- agg_miti.Rmd 
 
 
 

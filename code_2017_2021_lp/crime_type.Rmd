@@ -1,0 +1,269 @@
+---
+title: "2017-2021 Crime Type"
+
+fontsize: 12pt
+output: 
+  html_document:
+    toc: yes
+    toc_float:
+      collapsed: no
+    toc_depth: 5
+    number_sections: true
+  pdf_document: default
+urlcolor: magenta
+editor_options: 
+  chunk_output_type: inline
+---
+
+# 2017-2021 Crime Type Breakdown 
+
+Packages 
+```{r, message = FALSE}
+library(tidyverse)
+library(flextable)
+library(janitor)
+library(scales)
+library(readxl)
+```
+
+Data 
+```{r}
+io <- read_csv("~/Downloads/doherty_research/data_files/io_2017_2021.csv")
+crime_name_tbl <- read_xlsx("~/Downloads/doherty_research/data_files/Type of Crime.xlsx")%>% 
+  clean_names() %>% 
+  select(statute, offense) %>% 
+  mutate(offense = offense %>% 
+           str_to_title() %>% 
+           str_trunc(20, "right"))
+head(io)
+head(crime_name_tbl)
+```
+
+Functions 
+```{r}
+highlight_above_avg <- function(ft){
+  ft %>% 
+    bg(i = ~ `Black Male`>Overall, 
+     j = ~ `Black Male`, 
+     bg="#Fba894") %>% 
+    bg(i = ~ `Hispanic Male`>Overall, 
+       j = ~ `Hispanic Male`, 
+       bg="#Fba894") %>% 
+    bg(i = ~ `White Male`>Overall, 
+       j = ~ `White Male`, 
+       bg="#Fba894") %>% 
+    bg(i = ~ `Other Male`>Overall, 
+       j = ~ `Other Male`, 
+       bg="#Fba894") %>% 
+    bg(i = ~ `Black Female`>Overall, 
+       j = ~ `Black Female`, 
+       bg="#Fba894") %>% 
+    bg(i = ~ `Hispanic Female`>Overall, 
+       j = ~ `Hispanic Female`, 
+       bg="#Fba894") %>% 
+    bg(i = ~ `White Female`>Overall, 
+       j = ~ `White Female`, 
+       bg="#Fba894") %>% 
+    bg(i = ~ `Other Female`>Overall, 
+       j = ~ `Other Female`, 
+       bg="#Fba894")
+}
+
+
+crimetypetable_base <- function(df){
+  df %>% 
+    select(SENSPLT0, racesex_clean, violent, sexual2, porn, drugtraff, whitecoll, immigration, othtype2) %>% 
+    pivot_longer(violent:othtype2, names_to = "crime_type", values_to = "truefalse") %>% 
+    filter(truefalse==TRUE & !is.na(racesex_clean)) %>% 
+    select(-truefalse) %>% 
+    group_by(crime_type) %>% 
+    mutate(ov_avg_sent = round(mean(SENSPLT0, na.rm = T), 1)) %>% 
+    group_by(racesex_clean, crime_type, ov_avg_sent) %>% 
+    summarize(n = n(),
+              avg_sent = round(mean(SENSPLT0, na.rm = T), 1)) %>% 
+    #move these both upstream
+    mutate(crime_type = crime_type %>% 
+          str_replace("drugtraff", "Drug Trafficking") %>% 
+          str_replace("whitecoll", "White Collar") %>% 
+          str_replace("othtype2", "Other Types") %>% 
+          str_replace("sexual2", "Sexual") %>% 
+          str_to_title()) %>% 
+    rename("Crime Type" = "crime_type")
+}
+crimetypetable_n <- function(df){
+  df %>% 
+    crimetypetable_base() %>% 
+    select(-avg_sent, -ov_avg_sent) %>% 
+    pivot_wider(names_from = racesex_clean, values_from = n) %>% 
+    adorn_totals(where = c("row", "col")) %>% 
+    flextable() %>% 
+    fontsize(i = NULL, j = NULL, size = 9, part = "body") %>% 
+    fontsize(i = NULL, j = NULL, size = 9, part = "header") %>% 
+    set_caption("Total Number of Offenders for Each Demographic Group and Crime Type") %>% 
+    set_table_properties(width = .65, layout = "autofit")
+}
+crimetypetable_pct <- function(df){
+  df %>% 
+    crimetypetable_base() %>% 
+    select(-avg_sent, -ov_avg_sent) %>% 
+    pivot_wider(names_from = racesex_clean, values_from = n) %>% 
+    adorn_percentages("col") %>% 
+    mutate(across('Black Female':'White Male', ~ round(., 2))) %>% 
+    flextable() %>% 
+    fontsize(i = NULL, j = NULL, size = 9, part = "body") %>% 
+    fontsize(i = NULL, j = NULL, size = 9, part = "header") %>% 
+    set_caption("Offenders by Demographic Group and Crime Type: Portion of Demographic Group") %>% 
+    set_table_properties(width = .65, layout = "autofit") %>% 
+      bg(i = ~ `Black Male`>.40, 
+         j = ~ `Black Male`, 
+         bg="#Fba894") %>% 
+      bg(i = ~ `Hispanic Male`>.40, 
+         j = ~ `Hispanic Male`, 
+         bg="#Fba894") %>% 
+      bg(i = ~ `White Male`>.40, 
+         j = ~ `White Male`, 
+         bg="#Fba894") %>% 
+      bg(i = ~ `Other Male`>.40, 
+         j = ~ `Other Male`, 
+         bg="#Fba894") %>% 
+      bg(i = ~ `Black Female`>.40, 
+         j = ~ `Black Female`, 
+         bg="#Fba894") %>% 
+      bg(i = ~ `Hispanic Female`>.40, 
+         j = ~ `Hispanic Female`, 
+         bg="#Fba894") %>% 
+      bg(i = ~ `White Female`>.40, 
+         j = ~ `White Female`, 
+         bg="#Fba894") %>% 
+      bg(i = ~ `Other Female`>.40, 
+         j = ~ `Other Female`, 
+         bg="#Fba894") %>% 
+    bg(i = ~ `Black Male`<=.40 & `Black Male`>.20, 
+         j = ~ `Black Male`, 
+         bg="#Fbd394") %>% 
+      bg(i = ~ `Hispanic Male`<=.40 & `Hispanic Male`>.20, 
+         j = ~ `Hispanic Male`, 
+         bg="#Fbd394") %>% 
+      bg(i = ~ `White Male`<=.40 & `White Male`>.20, 
+         j = ~ `White Male`, 
+         bg="#Fbd394") %>% 
+      bg(i = ~ `Other Male`<=.40 & `Other Male`>.20, 
+         j = ~ `Other Male`, 
+         bg="#Fbd394") %>% 
+      bg(i = ~ `Black Female`<=.40 & `Black Female`>.20,
+         j = ~ `Black Female`, 
+         bg="#Fbd394") %>% 
+      bg(i = ~ `Hispanic Female`<=.40 & `Hispanic Female`>.20,
+         j = ~ `Hispanic Female`, 
+         bg="#Fbd394") %>% 
+      bg(i = ~ `White Female`<=.40 & `White Female`>.20,
+         j = ~ `White Female`, 
+         bg="#Fbd394") %>% 
+      bg(i = ~ `Other Female`<=.40 & `Other Female`>.20, 
+         j = ~ `Other Female`, 
+         bg="#Fbd394") %>% 
+     add_footer_lines("Red: >40%; Yellow: 20-40%")
+}
+crimetypetable_sent <- function(df){
+  df %>% 
+    crimetypetable_base() %>% 
+    select(-n) %>% 
+    pivot_wider(names_from = racesex_clean, values_from = avg_sent) %>% 
+    select("Crime Type", contains("Male"), "Overall" = ov_avg_sent) %>% 
+    flextable() %>% 
+    fontsize(i = NULL, j = NULL, size = 9, part = "body") %>% 
+    fontsize(i = NULL, j = NULL, size = 9, part = "header") %>% 
+    set_caption("Average Sentence Length in Months, by Demographic Group and Crime Type") %>% 
+    set_table_properties(width = .65, layout = "autofit") %>% 
+    highlight_above_avg() %>% 
+    add_footer_lines("Highlighting: > Overall")
+}
+model2filter <- function(df){
+  df %>% 
+    select(SENSPLT0,
+           logsplit,
+           logmin,
+           violent,
+           drugtraff,
+           sexual2,
+           porn,
+           immigration,
+           othtype2,
+           whitecoll,
+           upward,
+           downdep,
+           subasst,
+           mandmin2,
+           NEWCNVTN,
+           custody,
+           racesex,
+           racesex_clean,
+           agedummy,
+           educ,
+           citizen) %>% 
+    filter(if_all(everything(), ~ !is.na(.)))
+    
+}
+
+```
+<br>
+<br> 
+<br> 
+# Average Sentence, by Demographic Group 
+```{r}
+
+dem_avg <- function(df){
+  df %>% 
+    group_by(racesex_clean) %>% 
+    summarize(avg_sent = mean(SENSPLT0, na.rm=T))
+}
+
+dem_avg(io) %>% flextable()
+
+```
+
+<br> 
+<br>
+<br> 
+
+# Distribution of Crime Categories and Average Sentence Lengths, by Demographic Group
+```{r}
+io%>%model2filter() %>%  crimetypetable_pct()
+```
+<br> 
+```{r}
+io%>%model2filter() %>% crimetypetable_sent()
+```
+
+
+
+<br>
+<br> 
+<br> 
+
+
+# Detailed Sentence Length Breakdown, by Guideline and Demographic Group
+```{r}
+io%>% 
+  select(crime_type, racesex_clean, GDLINEHI, GLMIN)%>% 
+  group_by(crime_type, GDLINEHI) %>% 
+  mutate(gdline_avg = round(mean(GLMIN, na.rm = T))) %>% 
+  group_by(crime_type, gdline_avg, racesex_clean, GDLINEHI) %>% 
+  summarize(glmin_avg = round(mean(GLMIN, na.rm = T))) %>% 
+  ungroup() %>% 
+  pivot_wider(names_from = racesex_clean, values_from = glmin_avg) %>% 
+  select("Crime Type" = crime_type, Guideline = GDLINEHI, contains(" Male"), contains(" Female"), Overall = gdline_avg) %>% 
+  arrange(Guideline) %>% 
+  left_join(crime_name_tbl, by = c("Guideline" = "statute")) %>% 
+  select(`Crime Type`, Guideline, Offense = offense, everything()) %>% 
+  flextable() %>% 
+  set_caption("Average Sentence Length in Months, by Demographic Group and Guideline, FY 2002 - 2017") %>% 
+  fontsize(i = NULL, j = NULL, size = 8.5, part = "body") %>%
+  fontsize(i = NULL, j = NULL, size = 8.5, part = "header") %>%
+  highlight_above_avg() %>% 
+  set_table_properties(width = 1, layout = "autofit")
+```
+
+<br> 
+<br> 
+<br> 
