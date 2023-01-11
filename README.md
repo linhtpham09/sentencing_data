@@ -6,6 +6,7 @@ TOOLS:
 - **columns2017-2021.Rmd** in *code_2017_2021_lp* and **columns_17_21.Rmd** in *data_files*: Find columns in FY datasets 2017-2021 
 - **mysql_to_r.Rmd**: How I created sql query from R 
 - **prep_split**: How I split the datasets and created id column 
+- **Type of Crime.xlsx**: An updated version of type of crime excel sheeet
 
 To Linh's code on the Web: 
 
