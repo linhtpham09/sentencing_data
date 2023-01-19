@@ -1,7 +1,9 @@
 ---
 title: "DRAFT--Family Circumstances"
-output: word_document
-date: "November 28, 2022"
+output:
+    word_document: 
+        reference_docx: "template/template.docx"
+date: "December 22, 2022"
 ---
 
 ```{r setup, include=FALSE}
@@ -24,8 +26,20 @@ ftdata <- read_csv(here::here("data/io.csv")) %>%
 
 ```
 
+**Final Fall 2022 Version**
+
 **Note that the following tables only include data from fiscal years 2005 through 2008.**
 <br>
+ 
+This is a draft document presenting preliminary analysis of the available data on (5H1.6) Family ties and responsibilities departures. A very small percentage of people being sentenced  receive these departures (around 1.5% for the years analyzed here).
+
+Very few of these departures are granted for pornography or sexual crimes; a larger portion are granted for drug trafficking, immigration, and white collar crimes. Women receive these departures at a far higher rate than men across racial groups. Hispanic females in particular tend to receive these departures at a higher rate than other groups for most crime types.
+
+Incorporating family ties departures into the Commission's refined model shows that a small part of the gender disparity between men and women is attributable to family ties departures. Adding that variable into the model, the coefficient on female demographic groups shrinks slightly (as part of the effect being attributed to gender is shifted to family circumstances).
+
+Future work in this area should 1) extrapolate this work to the rest of the available years of data and 2) review existing literature on family ties departures before going further.
+
+Note that we have also contacted the sentencing commission to inquire whether they collect data on family ties variances through 3553(a)(1).
  
 ### Who receives family ties departures, and for what type of crimes?
 <br>

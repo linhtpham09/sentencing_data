@@ -1,7 +1,9 @@
 ---
 title: "Demographic Sentencing Disparities Baseline Switch"
-output: word_document
-date: "October 29, 2022"
+output:
+    word_document: 
+        reference_docx: "template/template.docx"
+date: "December 22, 2022"
 
 ---
 
@@ -33,6 +35,10 @@ postreport <- data %>%
 ### add in more recent data
 
 ```
+
+**Final Fall 2022 Version**
+
+This document attempts to replicate the Commission's "refined model" for estimating demographic disparities in sentencing. For more information about the model and for the reference regressions, see "Demographic Disparities Baseline Switch Reference Docs." For a write-up of findings, see the latest version of the Data Learnings Memo.
 
 ## White Male Baseline Regressions
 
