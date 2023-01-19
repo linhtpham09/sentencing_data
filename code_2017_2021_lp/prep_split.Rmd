@@ -1,13 +1,29 @@
 ---
 title: "Prep: Splitting the Datasets"
 output: html_document
-
+date: January 19, 2023
 ---
 
 # Packages 
 ```{r}
 library(tidyverse)
+library(here)
+#CML: I am a big proponent of using the here package on all R projects, because it 1) makes it much easier for collaborators to replicate your work and 2) makes it so that you can move the whole repository without having to rewrite any of your file paths. See use below.
+
+#CML: might consider doing this as an R script instead of a markdown in the future, since we don't need to be able to display this nicely and there's no extensive commenting. I just find it a little cleaner to use .R files for prep work/ data processing and .Rmd files for final products or results.
+
+#CML: also a good idea to start getting used to tidyverse if you want to keep doing social-sciency R projects. It doesn't make a big difference for tasks like this, but in the long run it ends up being much cleaner to read!
+
+#Linh tasks
+#'add/rename folders and change the filepaths for the rest of the fys to integrate "here"
+#'check out how you would do this using the tidyverse to keep in mind for next time
 ```
+
+# Description
+
+This file loads the raw individual offenders files from the USSC's website into R and splits them into dataframes of no more than 10,000 columns each. The split files are subsequently loaded into Google Bucket Storage, and from there transferred to BigQuery.
+
+*Last edited by Charlotte on Jan 19, 2023.* 
 
 # Regarding 2002, 2003, and 2006 
 2002, 2003, and 2006 had less than 10,000 columns. 
@@ -15,14 +31,24 @@ Thus, they did not need any modification
 
 # 2004 
 ```{r, eval = FALSE}
-fy04 <- read_csv("Downloads/research/export/opafy04nid.csv",guess_max = 50000) #17646
+#CML: you'd need to first move the "export" folder to a new file path within the sentencing_data RProj/repository (which is a good idea anyways in case your Downloads folder gets deleted or something). I suggest the following:
+
+fy04 <- read_csv(here::here("data/full_io_files/opafy04nid.csv"),guess_max = 50000) #17646
 fy04_1 <- fy04[,1:9998]
 fy04_1$id <- seq.int(nrow(fy04_1))
-write.csv(fy04_1, "~/Downloads/research/new_data_r/fy04_1.csv")
+write.csv(fy04_1, here::here("data/new_io_data_r/fy04_1.csv"))
 fy04_2 <- fy04[,9999:17646]
 fy04_2$id <- seq.int(nrow(fy04_2))
-#write.csv(fy04_2, "~/Downloads/research/new_data_r/fy04_2.csv")
+#write.csv(fy04_2, here::here("data/new_io_data_r/fy04_2.csv"))
 
+#CML: rewritten in tidyverse:
+
+read_csv(here::here("data/full_io_files/opafy04nid.csv"),guess_max = 50000) %>% 
+  select(1:9998) %>% 
+  mutate(id = row_number()) %>% 
+  write_csv(here::here("data/new_io_data_r/fy04_1.csv"))
+
+#CML: there may also be a way to automate the selection of rows (ie, to tell the computer to just split the dataframe into groups of no more than 10,000 columns) but I don't know it
 ```
 
 
