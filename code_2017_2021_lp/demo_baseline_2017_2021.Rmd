@@ -1,5 +1,5 @@
 ---
-title: "Demographic Baseline 2017 2021"
+title: "Demographic Baseline 2017-2021"
 fontsize: 12pt
 output: 
   html_document:
@@ -48,21 +48,11 @@ dbListTables(con)
 
 Aggregate Reasons function
 ```{r}
+# CML: especially for functions like this, that you'll use repeatedly within a project like ours, it's important to only write out the function once so that you don't have to make edits to each place it appears! so let's source in from a utils script rather than writing it out here. 
 
-aggregate_reasons <- function(df, num){
-  hold <- c()
-  for (i in 1:num){
-    hold[i] = paste('{REAS', as.character(i), '}', sep = '')
-  }
-  hold <- paste(hold, collapse = ' ')
-  df %>% 
-    #rename_all(str_to_upper) %>% 
-    mutate(reason = glue(hold) %>% 
-           str_remove_all("NA") %>% 
-           str_squish(),
-         .keep = "unused") %>% 
-    remove_empty()
-}
+source(here::here("utils.R"))
+
+
 
 ```
 
@@ -76,7 +66,7 @@ GDLINEHI
 ```{r}
 query2017_1 = dbSendQuery(con, "select `id`,`SENTMON`,`SENTYR`,`SENSPLT0`, `GLMIN`,`TOTCHPTS`,`IS924C`,`WEAPSOC`, `STATMIN`, `CAROFFAP`,`ACCAP`, `SAFE`, `NEWCNVTN`, `PRESENT`, `MITROLHI`, `AGGROLHI`, `NEWRACE`, `MONSEX`, `AGE`, `EDUCATN`, `NEWCIT`, `BOOKERCD`,`REAS1`, `REAS2`, `REAS3`, `REAS4`, `REAS5`, `REAS6`, `REAS7`, `REAS8`, `REAS9`, `REAS10`, `REAS11`, `REAS12`, `REAS13`, `REAS14`, `REAS15`, `REAS16`, `REAS17`,`REAS18`,`REAS19`,`REAS20`,`REAS21`, `REAS22`, `REAS23`, `REAS24`, `REAS25`from fy17_1")
 data2017_1 <-  dbFetch(query2017_1)
-data2017_1 <- aggregate_reasons(data2017_1, 25) 
+data2017_1 <- aggregate_reasons(data2017_1) 
 head(data2017_1)
 
 query2017_2 = dbSendQuery(con, "select `id`, `GDLINEHI` FROM fy17_2 ")

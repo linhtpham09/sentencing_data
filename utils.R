@@ -13,14 +13,18 @@ aggregate_reasons <- function(df){
     colnames() %>% 
     as_tibble() %>% 
     mutate(value = glue("{brace_open}{value}{brace_close}")) %>% 
-    as_vector()
+    as.character()
   df %>% 
     mutate(reason = glue(reas_cols) %>% 
              str_remove_all("NA") %>% 
+             str_remove_all("\\,") %>% 
+             str_remove_all("\"") %>% 
              str_squish(),
            .keep = "unused") %>% 
     remove_empty()#move to beginning?
 }
+
+data2017_1 %>% head() %>% aggregate_reasons() %>% View()
 
 # 
 # aggregate_reasons <- function(df, num){
