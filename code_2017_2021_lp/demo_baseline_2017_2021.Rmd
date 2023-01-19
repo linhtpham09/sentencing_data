@@ -65,21 +65,16 @@ GDLINEHI
 
 ```{r}
 query2017_1 = dbSendQuery(con, "select `id`,`SENTMON`,`SENTYR`,`SENSPLT0`, `GLMIN`,`TOTCHPTS`,`IS924C`,`WEAPSOC`, `STATMIN`, `CAROFFAP`,`ACCAP`, `SAFE`, `NEWCNVTN`, `PRESENT`, `MITROLHI`, `AGGROLHI`, `NEWRACE`, `MONSEX`, `AGE`, `EDUCATN`, `NEWCIT`, `BOOKERCD`,`REAS1`, `REAS2`, `REAS3`, `REAS4`, `REAS5`, `REAS6`, `REAS7`, `REAS8`, `REAS9`, `REAS10`, `REAS11`, `REAS12`, `REAS13`, `REAS14`, `REAS15`, `REAS16`, `REAS17`,`REAS18`,`REAS19`,`REAS20`,`REAS21`, `REAS22`, `REAS23`, `REAS24`, `REAS25`from fy17_1")
-data2017_1 <-  dbFetch(query2017_1)
-data2017_1 <- aggregate_reasons(data2017_1) 
-head(data2017_1)
+data2017_1 <-  dbFetch(query2017_1) %>% 
+  aggregate_reasons()
 
 query2017_2 = dbSendQuery(con, "select `id`, `GDLINEHI` FROM fy17_2 ")
 data2017_2 = dbFetch(query2017_2)
-head(data2017_2)
 
-data2017 <- merge(data2017_1, data2017_2, by = 'id')
-data2017$opafy <- 2017
-
-data2017 <- subset(data2017, select= -c(1))
-
-data2017$SENTRNGE <- NA
-head(data2017)
+data2017 <- merge(data2017_1, data2017_2, by = 'id') %>% 
+  mutate(opafy = 2017,
+         SENTRNGE = NA) %>% 
+  select(-1)
 
 #write.csv(data2017, "~/Downloads/doherty_research/data_files/data2017.csv")
 
