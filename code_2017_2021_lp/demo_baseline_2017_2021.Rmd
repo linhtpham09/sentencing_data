@@ -68,15 +68,16 @@ query2017_1 = dbSendQuery(con, "select `id`,`SENTMON`,`SENTYR`,`SENSPLT0`, `GLMI
 data2017_1 <-  dbFetch(query2017_1) %>% 
   aggregate_reasons()
 
-query2017_2 = dbSendQuery(con, "select `id`, `GDLINEHI` FROM fy17_2 ")
+query2017_2 <- dbSendQuery(con, "select `id`, `GDLINEHI` FROM fy17_2 ")
 data2017_2 = dbFetch(query2017_2)
 
-data2017 <- merge(data2017_1, data2017_2, by = 'id') %>% 
+data2017 <- full_join(data2017_1, data2017_2, by = 'id') %>% 
   mutate(opafy = 2017,
          SENTRNGE = NA) %>% 
   select(-1)
 
-#write.csv(data2017, "~/Downloads/doherty_research/data_files/data2017.csv")
+
+#write_csv(data2017, "data/io_truncated/data2017.csv")
 
 ```
 
@@ -89,7 +90,7 @@ GDLINEHI
 ```{r}
 query2018_1 = dbSendQuery(con, "select `id`,`sentmon`, `sentyr`,`sensplt0`, `glmin`,`totchpts`,`is924c`,`weapsoc`, `statmin`, `caroffap`,`accap`, `safe`, `newcnvtn`, `present`, `mitrolhi`, `aggrolhi`, `newrace`, `monsex`, `age`, `educatn`, `newcit`, `sentrnge`,`REAS1`, `REAS2`, `REAS3`, `REAS4`, `REAS5`, `REAS6`, `REAS7`, `REAS8`, `REAS9`, `REAS10`, `REAS11`, `REAS12`, `REAS13`, `REAS14`, `REAS15`, `REAS16`, `REAS17`,`REAS18`,`REAS19`,`REAS20`,`REAS21`, `REAS22`, `REAS23`, `REAS24`, `REAS25`,`REAS26`,`REAS27`,`REAS28`,`REAS29`,`REAS30`,`REAS31`,`REAS32`,`REAS33`,`REAS34`,`REAS35` from fy18_1")
 data2018_1 <-  dbFetch(query2018_1)
-data2018_1 <- aggregate_reasons(data2018_1,35)
+data2018_1 <- aggregate_reasons(data2018_1)
 head(data2018_1)
 
 query2018_2 = dbSendQuery(con, "select `id`, `GDLINEHI` FROM fy18_3")
@@ -100,6 +101,8 @@ data2018 <- merge(data2018_1, data2018_2, by = 'id')
 
 names(data2018) <- toupper(names(data2018))
 names(data2018)[23] <- tolower(names(data2018)[23])
+
+###CML: swap for rename_at and str_to_upper
 
 data2018$opafy <- 2018
 data2018 <- subset(data2018, select= -c(1))
@@ -112,7 +115,7 @@ head(data2018)
 ```{r}
 query2019_1 = dbSendQuery(con, "select `id`,`SENTMON`, `SENTYR`,`SENSPLT0`, `GLMIN`,`TOTCHPTS`,`IS924C`,`WEAPSOC`, `STATMIN`, `CAROFFAP`,`ACCAP`, `SAFE`, `NEWCNVTN`, `PRESENT`, `MITROLHI`, `AGGROLHI`, `NEWRACE`, `MONSEX`, `AGE`, `EDUCATN`, `NEWCIT`, `SENTRNGE`,`REAS1`, `REAS2`, `REAS3`, `REAS4`, `REAS5`, `REAS6`, `REAS7`, `REAS8`, `REAS9`, `REAS10`, `REAS11`, `REAS12`, `REAS13`, `REAS14`, `REAS15`, `REAS16`, `REAS17`,`REAS18`,`REAS19`,`REAS20`,`REAS21`, `REAS22`, `REAS23`, `REAS24`, `REAS25`,`REAS26`,`REAS27`,`REAS28` from fy19_1")
 data2019_1 <-  dbFetch(query2019_1)
-data2019_1 <- aggregate_reasons(data2019_1, 28)
+data2019_1 <- aggregate_reasons(data2019_1)
 head(data2019_1)
 
 query2019_2 = dbSendQuery(con, "select `id`, `GDLINEHI` FROM fy19_2 ")
@@ -131,7 +134,7 @@ head(data2019)
 ```{r}
 query2020_1 = dbSendQuery(con, "select `id`,`SENTMON`, `SENTYR`,`SENSPLT0`, `GLMIN`,`TOTCHPTS`,`IS924C`,`WEAPSOC`, `STATMIN`, `CAROFFAP`,`ACCAP`, `SAFE`, `NEWCNVTN`, `PRESENT`, `MITROLHI`, `AGGROLHI`, `NEWRACE`, `MONSEX`, `AGE`, `EDUCATN`, `NEWCIT`, `SENTRNGE`,`REAS1`, `REAS2`, `REAS3`, `REAS4`, `REAS5`, `REAS6`, `REAS7`, `REAS8`, `REAS9`, `REAS10`, `REAS11`, `REAS12`, `REAS13`, `REAS14`, `REAS15`, `REAS16`, `REAS17`,`REAS18`,`REAS19`,`REAS20`,`REAS21`, `REAS22`, `REAS23`, `REAS24`, `REAS25`,`REAS26` from fy20_1")
 data2020_1 <-  dbFetch(query2020_1)
-data2020_1 <- aggregate_reasons(data2020_1, 26)
+data2020_1 <- aggregate_reasons(data2020_1)
 head(data2020_1)
 
 query2020_2 = dbSendQuery(con, "select `id`, `GDLINEHI` FROM fy20_2 ")
@@ -152,7 +155,7 @@ head(data2020)
 query2021_1 = dbSendQuery(con, "select `id`,`SENTMON`, `SENTYR`,`SENSPLT0`, `GLMIN`,`TOTCHPTS`,`IS924C`,`WEAPSOC`, `STATMIN`, `CAROFFAP`,`ACCAP`, `SAFE`, `NEWCNVTN`, `PRESENT`, `MITROLHI`, `AGGROLHI`, `NEWRACE`, `MONSEX`, `AGE`, `EDUCATN`, `NEWCIT`, `SENTRNGE`,`REAS1`, `REAS2`, `REAS3`, `REAS4`, `REAS5`, `REAS6`, `REAS7`, `REAS8`, `REAS9`, `REAS10`, `REAS11`, `REAS12`, `REAS13`, `REAS14`, `REAS15`, `REAS16`, `REAS17`,`REAS18`,`REAS19`,`REAS20`,`REAS21`, `REAS22`, `REAS23`, `REAS24`, `REAS25`,`REAS26`,`REAS27`,`REAS28`,`REAS29`,`REAS30` from fy21_1")
 
 data2021_1 <-  dbFetch(query2021_1)
-data2021_1 <- aggregate_reasons(data2021_1, 30)
+data2021_1 <- aggregate_reasons(data2021_1)
 head(data2021_1)
 
 query2021_2 = dbSendQuery(con, "select `id`, `GDLINEHI` FROM fy21_3")
@@ -169,7 +172,18 @@ head(data2021)
 
 ## Merge together 
 ```{r, message=FALSE, warning=FALSE}
-io_raw_2017_2021 <- bind_rows(data2017, data2018, data2019, data2020, data2021)
+#CML rewrite as mutate
+
+
+
+### CML: replace with dplyr/mutate/across
+# io_raw_2017_2021 <- bind_rows(data2017, data2018, data2019, data2020, data2021) %>% 
+#   mutate(across(c(SENTMON, SENTYR, SENSPLT0), as.numeric))
+#     
+#     
+#           SENTMON = as.numeric(SENTMON),
+#          SENTYR = as.numeric(SENTMON))
+
 
 io_raw_2017_2021$SENTMON <- as.numeric(io_raw_2017_2021$SENTMON)
 io_raw_2017_2021$SENTYR <- as.numeric(io_raw_2017_2021$SENTYR)
@@ -214,6 +228,8 @@ In the USSC Public Release Codebook, the variable for Departure states:
 # Step 2: Creating io 2017-2021 
 
 ```{r}
+
+##CML: I haven't looked yet -- let me know when you get to this point
 matchwna <- function(string, list){
   case_when(
     string %in% list ~ TRUE,
