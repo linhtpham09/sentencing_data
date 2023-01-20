@@ -44,7 +44,7 @@ fy04_2$id <- seq.int(nrow(fy04_2))
 #CML: rewritten in tidyverse:
 
 read_csv(here::here("data/full_io_files/opafy04nid.csv"),guess_max = 50000) %>% 
-  select(1:9998) %>% 
+  select(1:9998) %>%
   mutate(id = row_number()) %>% 
   write_csv(here::here("data/new_io_data_r/fy04_1.csv"))
 
