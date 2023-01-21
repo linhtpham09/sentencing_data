@@ -24,7 +24,7 @@ aggregate_reasons <- function(df){
     remove_empty()#move to beginning?
 }
 
-data2017_1 %>% head() %>% aggregate_reasons() %>% View()
+#data2017_1 %>% head() %>% aggregate_reasons() %>% View()
 
 # 
 # aggregate_reasons <- function(df, num){

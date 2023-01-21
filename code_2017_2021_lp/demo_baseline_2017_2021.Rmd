@@ -69,7 +69,7 @@ data2017_1 <-  dbFetch(query2017_1) %>%
   aggregate_reasons()
 
 query2017_2 <- dbSendQuery(con, "select `id`, `GDLINEHI` FROM fy17_2 ")
-data2017_2 = dbFetch(query2017_2)
+data2017_2 <-  dbFetch(query2017_2)
 
 data2017 <- full_join(data2017_1, data2017_2, by = 'id') %>% 
   mutate(opafy = 2017,
@@ -77,7 +77,7 @@ data2017 <- full_join(data2017_1, data2017_2, by = 'id') %>%
   select(-1)
 
 
-#write_csv(data2017, "data/io_truncated/data2017.csv")
+#write_csv(data2017, here::here("data/io_truncated/data2017.csv"))
 
 ```
 
@@ -88,65 +88,54 @@ SENSPLT0, GLMIN, TOTCHPTS, IS924C, WEAPSOC, STATMIN, CAROFFAP, ACCAP, SAFE, NEWC
 In opafy18nid_3: 
 GDLINEHI
 ```{r}
-query2018_1 = dbSendQuery(con, "select `id`,`sentmon`, `sentyr`,`sensplt0`, `glmin`,`totchpts`,`is924c`,`weapsoc`, `statmin`, `caroffap`,`accap`, `safe`, `newcnvtn`, `present`, `mitrolhi`, `aggrolhi`, `newrace`, `monsex`, `age`, `educatn`, `newcit`, `sentrnge`,`REAS1`, `REAS2`, `REAS3`, `REAS4`, `REAS5`, `REAS6`, `REAS7`, `REAS8`, `REAS9`, `REAS10`, `REAS11`, `REAS12`, `REAS13`, `REAS14`, `REAS15`, `REAS16`, `REAS17`,`REAS18`,`REAS19`,`REAS20`,`REAS21`, `REAS22`, `REAS23`, `REAS24`, `REAS25`,`REAS26`,`REAS27`,`REAS28`,`REAS29`,`REAS30`,`REAS31`,`REAS32`,`REAS33`,`REAS34`,`REAS35` from fy18_1")
-data2018_1 <-  dbFetch(query2018_1)
-data2018_1 <- aggregate_reasons(data2018_1)
-head(data2018_1)
+query2018_1 <- dbSendQuery(con, "select `id`,`sentmon`, `sentyr`,`sensplt0`, `glmin`,`totchpts`,`is924c`,`weapsoc`, `statmin`, `caroffap`,`accap`, `safe`, `newcnvtn`, `present`, `mitrolhi`, `aggrolhi`, `newrace`, `monsex`, `age`, `educatn`, `newcit`, `sentrnge`,`REAS1`, `REAS2`, `REAS3`, `REAS4`, `REAS5`, `REAS6`, `REAS7`, `REAS8`, `REAS9`, `REAS10`, `REAS11`, `REAS12`, `REAS13`, `REAS14`, `REAS15`, `REAS16`, `REAS17`,`REAS18`,`REAS19`,`REAS20`,`REAS21`, `REAS22`, `REAS23`, `REAS24`, `REAS25`,`REAS26`,`REAS27`,`REAS28`,`REAS29`,`REAS30`,`REAS31`,`REAS32`,`REAS33`,`REAS34`,`REAS35` from fy18_1")
 
-query2018_2 = dbSendQuery(con, "select `id`, `GDLINEHI` FROM fy18_3")
+data2018_1 <-  dbFetch(query2018_1) %>% aggregate_reasons()
+
+query2018_2 <-  dbSendQuery(con, "select `id`, `GDLINEHI` FROM fy18_3")
 data2018_2 <- dbFetch(query2018_2)
-head(data2018_2)
 
-data2018 <- merge(data2018_1, data2018_2, by = 'id')
+data2018 <- full_join(data2018_1, data2018_2, by = 'id') %>% 
+  mutate(opafy=2018) %>% 
+  select(-1) %>% 
+  rename_at(vars(sentmon:sentrnge), str_to_upper)
 
-names(data2018) <- toupper(names(data2018))
-names(data2018)[23] <- tolower(names(data2018)[23])
-
-###CML: swap for rename_at and str_to_upper
-
-data2018$opafy <- 2018
-data2018 <- subset(data2018, select= -c(1))
 head(data2018)
 
-#write.csv(data2018, "~/Downloads/doherty_research/data_files/data2018.csv")
+#write_csv(data2018, here::here("data/io_truncated/data2018.csv"))
 ```
 
 ## 2019 
 ```{r}
-query2019_1 = dbSendQuery(con, "select `id`,`SENTMON`, `SENTYR`,`SENSPLT0`, `GLMIN`,`TOTCHPTS`,`IS924C`,`WEAPSOC`, `STATMIN`, `CAROFFAP`,`ACCAP`, `SAFE`, `NEWCNVTN`, `PRESENT`, `MITROLHI`, `AGGROLHI`, `NEWRACE`, `MONSEX`, `AGE`, `EDUCATN`, `NEWCIT`, `SENTRNGE`,`REAS1`, `REAS2`, `REAS3`, `REAS4`, `REAS5`, `REAS6`, `REAS7`, `REAS8`, `REAS9`, `REAS10`, `REAS11`, `REAS12`, `REAS13`, `REAS14`, `REAS15`, `REAS16`, `REAS17`,`REAS18`,`REAS19`,`REAS20`,`REAS21`, `REAS22`, `REAS23`, `REAS24`, `REAS25`,`REAS26`,`REAS27`,`REAS28` from fy19_1")
-data2019_1 <-  dbFetch(query2019_1)
-data2019_1 <- aggregate_reasons(data2019_1)
-head(data2019_1)
-
-query2019_2 = dbSendQuery(con, "select `id`, `GDLINEHI` FROM fy19_2 ")
+query2019_1 <-  dbSendQuery(con, "select `id`,`SENTMON`, `SENTYR`,`SENSPLT0`, `GLMIN`,`TOTCHPTS`,`IS924C`,`WEAPSOC`, `STATMIN`, `CAROFFAP`,`ACCAP`, `SAFE`, `NEWCNVTN`, `PRESENT`, `MITROLHI`, `AGGROLHI`, `NEWRACE`, `MONSEX`, `AGE`, `EDUCATN`, `NEWCIT`, `SENTRNGE`,`REAS1`, `REAS2`, `REAS3`, `REAS4`, `REAS5`, `REAS6`, `REAS7`, `REAS8`, `REAS9`, `REAS10`, `REAS11`, `REAS12`, `REAS13`, `REAS14`, `REAS15`, `REAS16`, `REAS17`,`REAS18`,`REAS19`,`REAS20`,`REAS21`, `REAS22`, `REAS23`, `REAS24`, `REAS25`,`REAS26`,`REAS27`,`REAS28` from fy19_1")
+data2019_1 <-  dbFetch(query2019_1) %>% aggregate_reasons()
+query2019_2 <-  dbSendQuery(con, "select `id`, `GDLINEHI` FROM fy19_2 ")
 data2019_2 <- dbFetch(query2019_2)
-head(data2019_2)
 
-data2019 <- merge(data2019_1, data2019_2, by = 'id')
-data2019$opafy <- 2019
-data2019 <- subset(data2019, select= -c(1))
+data2019 <- full_join(data2019_1, data2019_2, by = 'id') %>% 
+  mutate(opafy=2019) %>% 
+  select(-1)
+
 head(data2019)
 
-#write.csv(data2019, "~/Downloads/doherty_research/data_files/data2019.csv")
+#write_csv(data2019, here::here("data/io_truncated/data2019.csv"))
 ```
 
 ## 2020 
 ```{r}
-query2020_1 = dbSendQuery(con, "select `id`,`SENTMON`, `SENTYR`,`SENSPLT0`, `GLMIN`,`TOTCHPTS`,`IS924C`,`WEAPSOC`, `STATMIN`, `CAROFFAP`,`ACCAP`, `SAFE`, `NEWCNVTN`, `PRESENT`, `MITROLHI`, `AGGROLHI`, `NEWRACE`, `MONSEX`, `AGE`, `EDUCATN`, `NEWCIT`, `SENTRNGE`,`REAS1`, `REAS2`, `REAS3`, `REAS4`, `REAS5`, `REAS6`, `REAS7`, `REAS8`, `REAS9`, `REAS10`, `REAS11`, `REAS12`, `REAS13`, `REAS14`, `REAS15`, `REAS16`, `REAS17`,`REAS18`,`REAS19`,`REAS20`,`REAS21`, `REAS22`, `REAS23`, `REAS24`, `REAS25`,`REAS26` from fy20_1")
-data2020_1 <-  dbFetch(query2020_1)
-data2020_1 <- aggregate_reasons(data2020_1)
-head(data2020_1)
+query2020_1 <-  dbSendQuery(con, "select `id`,`SENTMON`, `SENTYR`,`SENSPLT0`, `GLMIN`,`TOTCHPTS`,`IS924C`,`WEAPSOC`, `STATMIN`, `CAROFFAP`,`ACCAP`, `SAFE`, `NEWCNVTN`, `PRESENT`, `MITROLHI`, `AGGROLHI`, `NEWRACE`, `MONSEX`, `AGE`, `EDUCATN`, `NEWCIT`, `SENTRNGE`,`REAS1`, `REAS2`, `REAS3`, `REAS4`, `REAS5`, `REAS6`, `REAS7`, `REAS8`, `REAS9`, `REAS10`, `REAS11`, `REAS12`, `REAS13`, `REAS14`, `REAS15`, `REAS16`, `REAS17`,`REAS18`,`REAS19`,`REAS20`,`REAS21`, `REAS22`, `REAS23`, `REAS24`, `REAS25`,`REAS26` from fy20_1")
+data2020_1 <-  dbFetch(query2020_1) %>% aggregate_reasons()
 
-query2020_2 = dbSendQuery(con, "select `id`, `GDLINEHI` FROM fy20_2 ")
+query2020_2 <-  dbSendQuery(con, "select `id`, `GDLINEHI` FROM fy20_2 ")
 data2020_2 <- dbFetch(query2020_2)
-head(data2020_2)
 
-data2020 <- merge(data2020_1, data2020_2, by = 'id')
-data2020$opafy <- 2020
-data2020 <- subset(data2020, select= -c(1))
+data2020 <- full_join(data2020_1, data2020_2, by = 'id') %>% 
+  mutate(opafy = 2020) %>% 
+  select(-1)
+
 head(data2020)
 
-#write.csv(data2020, "~/Downloads/doherty_research/data_files/data2020.csv")
+#write_csv(data2020, here::here("data/io_truncated/data2020.csv"))
 ```
 
 
@@ -154,65 +143,30 @@ head(data2020)
 ```{r}
 query2021_1 = dbSendQuery(con, "select `id`,`SENTMON`, `SENTYR`,`SENSPLT0`, `GLMIN`,`TOTCHPTS`,`IS924C`,`WEAPSOC`, `STATMIN`, `CAROFFAP`,`ACCAP`, `SAFE`, `NEWCNVTN`, `PRESENT`, `MITROLHI`, `AGGROLHI`, `NEWRACE`, `MONSEX`, `AGE`, `EDUCATN`, `NEWCIT`, `SENTRNGE`,`REAS1`, `REAS2`, `REAS3`, `REAS4`, `REAS5`, `REAS6`, `REAS7`, `REAS8`, `REAS9`, `REAS10`, `REAS11`, `REAS12`, `REAS13`, `REAS14`, `REAS15`, `REAS16`, `REAS17`,`REAS18`,`REAS19`,`REAS20`,`REAS21`, `REAS22`, `REAS23`, `REAS24`, `REAS25`,`REAS26`,`REAS27`,`REAS28`,`REAS29`,`REAS30` from fy21_1")
 
-data2021_1 <-  dbFetch(query2021_1)
-data2021_1 <- aggregate_reasons(data2021_1)
-head(data2021_1)
-
+data2021_1 <-  dbFetch(query2021_1) %>% aggregate_reasons()
 query2021_2 = dbSendQuery(con, "select `id`, `GDLINEHI` FROM fy21_3")
 data2021_2 <- dbFetch(query2021_2)
-head(data2021_2)
 
-data2021 <- merge(data2021_1, data2021_2, by = 'id')
-data2021$opafy <- 2021
-data2021 <- subset(data2021, select= -c(1))
+data2021 <- full_join(data2021_1, data2021_2, by = 'id') %>% 
+  mutate(opafy=2021) %>% 
+  select(-1)
+
 head(data2021)
 
-#write.csv(data2021, "~/Downloads/doherty_research/data_files/data2021.csv")
+#write_csv(data2021, here::here("data/io_truncated/data2021.csv"))
 ```
 
 ## Merge together 
 ```{r, message=FALSE, warning=FALSE}
 #CML rewrite as mutate
 
+io_raw_2017_2021 <- bind_rows(data2017, data2018, data2019, data2020, data2021) %>% 
+  mutate(across(c(SENTMON, SENTYR, SENSPLT0, GLMIN, TOTCHPTS, IS924C,WEAPSOC,STATMIN, CAROFFAP, ACCAP, SAFE,NEWCNVTN, PRESENT,MITROLHI,AGGROLHI,NEWRACE,MONSEX,AGE, EDUCATN,NEWCIT,BOOKERCD,SENTRNGE), as.numeric))
 
-
-### CML: replace with dplyr/mutate/across
-# io_raw_2017_2021 <- bind_rows(data2017, data2018, data2019, data2020, data2021) %>% 
-#   mutate(across(c(SENTMON, SENTYR, SENSPLT0), as.numeric))
-#     
-#     
-#           SENTMON = as.numeric(SENTMON),
-#          SENTYR = as.numeric(SENTMON))
-
-
-io_raw_2017_2021$SENTMON <- as.numeric(io_raw_2017_2021$SENTMON)
-io_raw_2017_2021$SENTYR <- as.numeric(io_raw_2017_2021$SENTYR)
-io_raw_2017_2021$SENSPLT0 <- as.numeric(io_raw_2017_2021$SENSPLT0)
-io_raw_2017_2021$GLMIN <-as.numeric( io_raw_2017_2021$GLMIN)
-io_raw_2017_2021$TOTCHPTS <- as.numeric(io_raw_2017_2021$TOTCHPTS)
-io_raw_2017_2021$IS924C <- as.numeric(io_raw_2017_2021$IS924C)
-io_raw_2017_2021$WEAPSOC <- as.numeric(io_raw_2017_2021$WEAPSOC)
-io_raw_2017_2021$STATMIN <- as.numeric(io_raw_2017_2021$STATMIN)
-io_raw_2017_2021$CAROFFAP <- as.numeric(io_raw_2017_2021$CAROFFAP)
-io_raw_2017_2021$ACCAP <- as.numeric(io_raw_2017_2021$ACCAP)
-io_raw_2017_2021$SAFE <- as.numeric(io_raw_2017_2021$SAFE)#
-io_raw_2017_2021$NEWCNVTN <- as.numeric(io_raw_2017_2021$NEWCNVTN)
-io_raw_2017_2021$PRESENT <- as.numeric(io_raw_2017_2021$PRESENT)
-io_raw_2017_2021$MITROLHI <- as.numeric(io_raw_2017_2021$MITROLHI)
-io_raw_2017_2021$AGGROLHI <- as.numeric(io_raw_2017_2021$AGGROLHI)
-io_raw_2017_2021$NEWRACE <- as.numeric(io_raw_2017_2021$NEWRACE)
-io_raw_2017_2021$MONSEX <- as.numeric(io_raw_2017_2021$MONSEX)
-io_raw_2017_2021$AGE <- as.numeric(io_raw_2017_2021$AGE)
-io_raw_2017_2021$EDUCATN <- as.numeric(io_raw_2017_2021$EDUCATN)
-io_raw_2017_2021$NEWCIT <- as.numeric(io_raw_2017_2021$NEWCIT)
-io_raw_2017_2021$BOOKERCD <- as.numeric(io_raw_2017_2021$BOOKERCD)
-io_raw_2017_2021$SENTRNGE <- as.numeric(io_raw_2017_2021$SENTRNGE)
-
-#write.csv(io_raw_2017_2021,"~/Downloads/doherty_research/data_files/io_raw_2017_2021.csv")
+#write_csv(io_raw_2017_2021,here::here("data/io_truncated/io_raw_2017_2021.csv"))
 ```
 
 ```{r}
-
 str(io_raw_2017_2021)
 ```
 
@@ -406,7 +360,6 @@ as_flextable(model2_2017_2021)
 # Plots 
 ## Functions 
 ```{r}
-source("~/Downloads/doherty_research/code_2017_2021_lp/utils_coeffinterps.R")
 demogbar <- function(df){
   df %>% 
     ggplot(aes(x = period, y = value, fill = period))+
