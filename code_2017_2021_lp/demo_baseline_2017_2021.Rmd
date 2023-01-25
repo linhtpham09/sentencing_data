@@ -18,6 +18,11 @@ editor_options:
 knitr::opts_chunk$set(echo = TRUE)
 ```   
 
+1/25/23 remaining tasks
+* combine code with read_sentencing and baseline switch
+* check that we're not losing any data when the new fys are read in (correct total number of rows, no systematically missing vars, etc)
+* check that after data processing, we have expected numbers of NAs across vars
+* re-do other reports to integrate new fys
 
 ```{r , message=FALSE}
 library(bigrquery)
@@ -208,6 +213,7 @@ data <- io_raw_2017_2021 %>%
            str_replace("11","Nov") %>% 
            str_replace("12","Dec"), 
           sentmonyr = ymd(glue("{SENTYR}-{SENTMON}-01")), #5 failed to parse 
+         #CML: why convert the numeric months to "Jan", "Feb" etc? it's also only working for some rows, because the data seems to be encoded as "1" instead of "01" for instance
          logsplit = case_when(
           SENSPLT0==0.00 ~ log(0.01), 
           SENSPLT0>470 ~ log(470),
@@ -227,7 +233,7 @@ data <- io_raw_2017_2021 %>%
          othdrug = matchwna(GDLINEHI, c("2D2.1", "2D2.2")),
          whitecoll = matchwna(GDLINEHI, c("2B1.1", "2B1.6", "2B4.1", "2B5.1", "2B5.3", "2F1.1", "2F1.2", "2R1.1", "2S1.1", "2S1.2", "2S1.3", "2S1.4")) | 
            str_detect(GDLINEHI, "^2T\\d{1}\\.\\d{1}$"), 
-         immigration = str_detect(GDLINEHI, "^2L\\d{1}\\.\\d{1}$"), # one of the main changes! 
+         immigration = str_detect(GDLINEHI, "^2L\\d{1}\\.\\d{1}$"), # one of the main changes! #CML: what is? immigration var looks the same. just removing the time periods we had in the old one? also note to include a new time period for this data when we integrate with the main data file
       drug = drugtraff | othdrug,
          othtype = !(drugtraff|othdrug|violent|sexual|whitecoll|immigration), 
          othtype2 = !(violent|sexual2|porn|drugtraff|whitecoll|immigration),  
@@ -235,25 +241,29 @@ data <- io_raw_2017_2021 %>%
          custody = PRESENT==1,
          upward = case_when( # another big change here! 
            BOOKERCD %in% c(1:4) ~ TRUE,
-           SENTRNGE==1 ~ TRUE,
+           SENTRNGE %in% c(1, 6) ~ TRUE,
            !BOOKERCD %in% c(1:4) & !is.na(BOOKERCD) ~ FALSE, 
-           SENTRNGE!=1 & !is.na(SENTRNGE) ~ FALSE,
+           !SENTRNGE %in% c(1, 6) & !is.na(SENTRNGE) ~ FALSE,
            TRUE ~ NA),
- downgovt = case_when( 
+         downgovt = case_when( 
            BOOKERCD %in% c(6, 7) ~ TRUE,
+           SENTRNGE %in% c(3, 4, 7) ~ TRUE,
            !BOOKERCD %in% c(6, 7) & !is.na(BOOKERCD) ~ FALSE,
+           !SENTRNGE %in% c(3, 4, 7) & !is.na(SENTRNGE) ~ FALSE, #CML: double check that early disposition/5K3.1 should be classified as downgovt and not downcourt
            TRUE ~ NA), 
- downcourt = case_when(
+         downcourt = case_when(
            BOOKERCD %in% c(8:11) ~ TRUE,
+           SENTRNGE %in% c(5, 8) ~ TRUE,
            !BOOKERCD %in% c(8:11) & !is.na(BOOKERCD) ~ FALSE,
+           !SENTRNGE %in% c(5, 8) & !is.na(SENTRNGE) ~ FALSE,
            TRUE ~ NA),
- subasst = case_when(
+         subasst = case_when(
            BOOKERCD==5 ~ TRUE,
            SENTRNGE ==2 ~ TRUE,
            BOOKERCD !=5 ~ FALSE,
-           !SENTRNGE ==2 & !is.na(SENTRNGE) ~ FALSE,
+           SENTRNGE !=2 ~ FALSE,
            TRUE ~ NA), 
-         valve = case_when(
+         valve = case_when( #CML: may not fully capture valve cases post-2019, see codebook
            SAFE %in% c(1, 2) ~ TRUE,
            SAFE == 0 ~ FALSE,
            TRUE ~ NA),
@@ -302,11 +312,9 @@ data <- io_raw_2017_2021 %>%
       str_detect(racesex, "hispfemale") ~ "Hispanic Female",
       str_detect(racesex, "othermale") ~ "Other Male",
       str_detect(racesex, "otherfemale") ~ "Other Female"),
-    downdep = case_when(
-      SENTRNGE %in% c(3, 4, 5) ~ TRUE,
+    downdep = case_when( ###this is called downdep but really it's all below range sentences, not just those attributable only to departures, so in addition to 3,4,5 you'd want  7, 8 (which is not covered by downcourt and downgovt)
       downgovt ~ TRUE,
       downcourt ~ TRUE,
-      !SENTRNGE %in% c(3, 4, 5) & !is.na(SENTRNGE) ~ FALSE,
       !downgovt & !downcourt ~ FALSE,
       TRUE ~ NA),
     mandmin2 = case_when(
@@ -319,7 +327,7 @@ data <- io_raw_2017_2021 %>%
   familyties =  str_detect(reason, "\\b17\\b"))
          
 
-#write_csv(data, "~/Downloads/doherty_research/data_files/io_2017_2021.csv")
+write_csv(data, here::here("data/io_2017_2021.csv"))
 
 ```
 
