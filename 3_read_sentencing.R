@@ -123,8 +123,10 @@ io <- read_csv(here::here("data/io_raw.csv")) %>%
   filter(!SENTYR %in% c(2017, 2019, 2020) & !(SENTYR==2016 & SENTMON %in% c(10, 11, 12)))
 
 #read in the raw file for FYs 17-21 here
+io_raw_2017_2021 <- read_csv(here::here("data/io_raw_2017_2021.csv"))
 
 #merge the two as "io_combined"
+io_combined <- bind_rows(io, io_raw_2017_2021)
 
 matchwna <- function(string, list){
   case_when(
@@ -134,23 +136,23 @@ matchwna <- function(string, list){
   )
 }
 
-
 data <- io_combined %>% 
   remove_empty() %>% 
-  mutate(sentdate = SENTDATE %>% 
-           str_replace("Jan", "01") %>% 
-           str_replace("Feb", "02") %>% 
-           str_replace("Mar", "03") %>% 
-           str_replace("Apr", "04") %>% 
-           str_replace("May", "05") %>% 
-           str_replace("Jun", "06") %>% 
-           str_replace("Jul", "07") %>% 
-           str_replace("Aug", "08") %>% 
-           str_replace("Sep", "09") %>% 
-           str_replace("Oct", "10") %>% 
-           str_replace("Nov", "11") %>% 
-           str_replace("Dec", "12") %>% 
-           dmy(),
+  mutate(
+        sentdate = SENTDATE %>% 
+          str_replace("Jan", "01") %>% 
+          str_replace("Feb", "02") %>% 
+          str_replace("Mar", "03") %>% 
+          str_replace("Apr", "04") %>% 
+          str_replace("May", "05") %>% 
+          str_replace("Jun", "06") %>% 
+          str_replace("Jul", "07") %>% 
+          str_replace("Aug", "08") %>% 
+          str_replace("Sep", "09") %>% 
+          str_replace("Oct", "10") %>% 
+          str_replace("Nov", "11") %>% 
+          str_replace("Dec", "12") %>% 
+          dmy(), 
          sentmonyr = ymd(glue("{SENTYR}-{SENTMON}-01")),
          logsplit = case_when(
           SENSPLT0==0.00 ~ log(0.01), 
@@ -171,45 +173,58 @@ data <- io_combined %>%
          whitecoll = matchwna(GDLINEHI, c("2B1.1", "2B1.6", "2B4.1", "2B5.1", "2B5.3", "2F1.1", "2F1.2", "2R1.1", "2S1.1", "2S1.2", "2S1.3", "2S1.4")) | 
            str_detect(GDLINEHI, "^2T\\d{1}\\.\\d{1}$"),
          immigration = str_detect(GDLINEHI, "^2L\\d{1}\\.\\d{1}$")) %>% 
-  mutate(postprotect = (!is.na(sentdate) & "2003-05-01"<=sentdate) | (!is.na(sentmonyr) & sentmonyr<"2004-07-01"),
+#note to include a new time period for this data when we integrate with the main data file %>% 
+  mutate(
+    postprotect = (!is.na(sentdate) & "2003-05-01"<=sentdate) | (!is.na(sentdate) & sentmonyr<"2004-07-01"), 
          postbooker = "2005-01-01"<=sentmonyr & sentmonyr<="2007-12-01" & (BOOKPOST!=0 | is.na(BOOKPOST)), # excluding december makes the match worse
          postgall = "2007-12-01"<=sentmonyr & sentmonyr<="2011-09-01",
          postreport = "2011-10-01"<=sentmonyr & sentmonyr <="2016-09-01",
-         present = <daterange>, #Linh Change
+         present = "2017-10-01"<=sentmonyr & sentmonyr<= "2021-09-01", #LP Edit here: Max month was 9 
          drug = drugtraff | othdrug,
          othtype = !(drugtraff|othdrug|violent|sexual|whitecoll|immigration), 
          othtype2 = !(violent|sexual2|porn|drugtraff|whitecoll|immigration), #incl othdrug, model 2 excludes violent
          mandmin = STATMIN>0,
          custody = PRESENT==1,
-         upward = case_when( #Linh changes here
+         upward = case_when(
+           SENTRNGE %in% c(1, 6) ~ TRUE, # LP Edit here 
            BOOKERCD %in% c(1:4) ~ TRUE,
            DEPART==1 ~ TRUE,
            DEPART_A==1 ~ TRUE,
            DEPART==8 ~ NA,
            DEPART_A==8 ~ NA,
+           !SENTRNGE %in% c(1, 6) & !is.na(SENTRNGE) ~ FALSE, #LP Edit here 
            !BOOKERCD %in% c(1:4) & !is.na(BOOKERCD) ~ FALSE, #add 8 to the nots for consistency
            DEPART!=1 & !is.na(DEPART) ~ FALSE,
            DEPART_A!=1 & !is.na(DEPART_A) ~ FALSE,
            TRUE ~ NA),
          downgovt = case_when( #inconsistent with the coding of 8 as NA
+           SENTRNGE %in% c(3, 4, 7) ~ TRUE, # LP Edit here 
            BOOKERCD %in% c(6, 7) ~ TRUE,
+           !SENTRNGE %in% c(3, 4, 7) & !is.na(SENTRNGE) ~ FALSE, #LP Edit here 
+           #CML: double check that early disposition/5K3.1 should be classified as downgovt and not downcourt
            !BOOKERCD %in% c(6, 7) & !is.na(BOOKERCD) ~ FALSE,
            TRUE ~ NA),
          downcourt = case_when(
+           SENTRNGE %in% c(5, 8) ~ TRUE,#LP Edit here 
            BOOKERCD %in% c(8:11) ~ TRUE,
+           !SENTRNGE %in% c(5, 8) & !is.na(SENTRNGE) ~ FALSE, # LP Edit here
            !BOOKERCD %in% c(8:11) & !is.na(BOOKERCD) ~ FALSE,
            TRUE ~ NA),
          subasst = case_when(
+           SENTRNGE ==2 ~ TRUE, # LP Edit here 
            BOOKERCD==5 ~ TRUE,
            DEPART %in% c(3, 5, 7, 9) ~ TRUE,
            DEPART_A==2 ~ TRUE,
            DEPART==8 ~ NA,
            DEPART_A==8 ~ NA,
            BOOKERCD !=5 ~ FALSE,
+           SENTRNGE !=2 ~ FALSE, #LP edit here 
            !DEPART %in% c(3, 5, 7, 9) & !is.na(DEPART) ~ FALSE,#add 8 to the nots for consistency
            DEPART_A!=2 & !is.na(DEPART_A) ~ FALSE,
            TRUE ~ NA),
-         valve = case_when( #Linh copy over note
+         valve = case_when( ##CML: may not fully capture valve cases post-2019, 
+           #see codebook. note to ask prof doherty if she wants this var to 
+           #include expanded safety valve eligibility under the First Step Act (it does not currently)
            SAFE %in% c(1, 2) ~ TRUE,
            SAFE == 0 ~ FALSE,
            TRUE ~ NA),
@@ -256,17 +271,26 @@ data <- io_combined %>%
            str_detect(racesex, "hispfemale") ~ "Hispanic Female",
            str_detect(racesex, "othermale") ~ "Other Male",
            str_detect(racesex, "otherfemale") ~ "Other Female"),
-        downdep = case_when( #Linh changes here
-          DEPART %in% c(2, 4, 6) ~ TRUE,
-          DEPART_A %in% c(3, 4, 5) ~ TRUE,
-          downgovt ~ TRUE,
-          downcourt ~ TRUE,
-          DEPART==8 ~ NA,
-          DEPART_A==8 ~ NA, #consider FALSE here?
-          !DEPART %in% c(2, 4, 6) & !is.na(DEPART) ~ FALSE,
-          !DEPART_A %in% c(3, 4, 5) & !is.na(DEPART_A) ~ FALSE,
-          !downgovt & !downcourt ~ FALSE,
-          TRUE ~ NA),
+        downdep = 
+          case_when( ###this is called downdep but really it's all below range 
+            #sentences, not just those attributable only to departures, 
+            #so in addition to 3,4,5 you'd want  7, 8 (which is not covered by downcourt and downgovt)
+            downgovt ~ TRUE,
+            downcourt ~ TRUE,
+            !downgovt & !downcourt ~ FALSE,
+            TRUE ~ NA),
+        #The original code for this variable is below 
+          # case_when( 
+          # DEPART %in% c(2, 4, 6) ~ TRUE,
+          # DEPART_A %in% c(3, 4, 5) ~ TRUE,
+          # downgovt ~ TRUE,
+          # downcourt ~ TRUE,
+          # DEPART==8 ~ NA,
+          # DEPART_A==8 ~ NA, #consider FALSE here?
+          # !DEPART %in% c(2, 4, 6) & !is.na(DEPART) ~ FALSE,
+          # !DEPART_A %in% c(3, 4, 5) & !is.na(DEPART_A) ~ FALSE,
+          # !downgovt & !downcourt ~ FALSE,
+          # TRUE ~ NA),
         mandmin2 = case_when(
           is.na(STATMIN) ~ NA,
           STATMIN==0 ~ FALSE,
@@ -276,7 +300,7 @@ data <- io_combined %>%
           TRUE ~ NA)) %>%  #2012 Booker Report at 32 says BOOKERCD and DEPART used too, but model also uses subassist var?)
   mutate(familyties = str_detect(reason, "\\b17\\b"))
 
-write_csv(data, here::here("data/io.csv"))
+#write_csv(data, here::here("data/io.csv"))
 
 
 aggregate_reasons <- function(df){
