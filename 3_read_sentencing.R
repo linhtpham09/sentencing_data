@@ -116,6 +116,16 @@ io <- bind_rows(fy02_raw,
 
 write_csv(io, here::here("data/io_raw.csv"))
 
+#long term - read in only the output of Linh's io_download file
+#short term - use output of Linh's io_download file for fy2017-2021
+
+io <- read_csv(here::here("data/io_raw.csv")) %>% 
+  filter(!SENTYR %in% c(2017, 2019, 2020) & !(SENTYR==2016 & SENTMON %in% c(10, 11, 12)))
+
+#read in the raw file for FYs 17-21 here
+
+#merge the two as "io_combined"
+
 matchwna <- function(string, list){
   case_when(
     string %in% list ~ TRUE,
@@ -125,7 +135,7 @@ matchwna <- function(string, list){
 }
 
 
-data <- io %>% 
+data <- io_combined %>% 
   remove_empty() %>% 
   mutate(sentdate = SENTDATE %>% 
            str_replace("Jan", "01") %>% 
@@ -165,12 +175,13 @@ data <- io %>%
          postbooker = "2005-01-01"<=sentmonyr & sentmonyr<="2007-12-01" & (BOOKPOST!=0 | is.na(BOOKPOST)), # excluding december makes the match worse
          postgall = "2007-12-01"<=sentmonyr & sentmonyr<="2011-09-01",
          postreport = "2011-10-01"<=sentmonyr & sentmonyr <="2016-09-01",
+         present = <daterange>, #Linh Change
          drug = drugtraff | othdrug,
          othtype = !(drugtraff|othdrug|violent|sexual|whitecoll|immigration), 
          othtype2 = !(violent|sexual2|porn|drugtraff|whitecoll|immigration), #incl othdrug, model 2 excludes violent
          mandmin = STATMIN>0,
          custody = PRESENT==1,
-         upward = case_when(
+         upward = case_when( #Linh changes here
            BOOKERCD %in% c(1:4) ~ TRUE,
            DEPART==1 ~ TRUE,
            DEPART_A==1 ~ TRUE,
@@ -198,7 +209,7 @@ data <- io %>%
            !DEPART %in% c(3, 5, 7, 9) & !is.na(DEPART) ~ FALSE,#add 8 to the nots for consistency
            DEPART_A!=2 & !is.na(DEPART_A) ~ FALSE,
            TRUE ~ NA),
-         valve = case_when(
+         valve = case_when( #Linh copy over note
            SAFE %in% c(1, 2) ~ TRUE,
            SAFE == 0 ~ FALSE,
            TRUE ~ NA),
@@ -245,7 +256,7 @@ data <- io %>%
            str_detect(racesex, "hispfemale") ~ "Hispanic Female",
            str_detect(racesex, "othermale") ~ "Other Male",
            str_detect(racesex, "otherfemale") ~ "Other Female"),
-        downdep = case_when(
+        downdep = case_when( #Linh changes here
           DEPART %in% c(2, 4, 6) ~ TRUE,
           DEPART_A %in% c(3, 4, 5) ~ TRUE,
           downgovt ~ TRUE,
