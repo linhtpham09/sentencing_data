@@ -20,6 +20,10 @@ knitr::opts_chunk$set(echo = TRUE)
 
 1/25/23 remaining tasks
 * combine code with read_sentencing and baseline switch
+  * make new .R file with all of the bigquery setup that you have at the top here (so, everything through the data <- io_raw_2017_2021 step) 02_io_download
+  * don't forget to source in the utils file and run the aggregate_reasons function over each dataset before you merge them (source(here::here("utils.R")))
+  * have the output of that file save to here::here(data/io_raw_2017_2021.csv)
+  * integrate changes made in your data processing script (vis a vis original read_sentencing)
 * check that we're not losing any data when the new fys are read in (correct total number of rows, no systematically missing vars, etc)
 * check that after data processing, we have expected numbers of NAs across vars
 * re-do other reports to integrate new fys
@@ -213,7 +217,7 @@ data <- io_raw_2017_2021 %>%
            str_replace("11","Nov") %>% 
            str_replace("12","Dec"), 
           sentmonyr = ymd(glue("{SENTYR}-{SENTMON}-01")), #5 failed to parse 
-         #CML: why convert the numeric months to "Jan", "Feb" etc? it's also only working for some rows, because the data seems to be encoded as "1" instead of "01" for instance
+         #CML: why convert the numeric months to "Jan", "Feb" etc? it's also only working for some rows, because the data seems to be encoded as "1" instead of "01" for instance # get rid of this
          logsplit = case_when(
           SENSPLT0==0.00 ~ log(0.01), 
           SENSPLT0>470 ~ log(470),
@@ -263,7 +267,7 @@ data <- io_raw_2017_2021 %>%
            BOOKERCD !=5 ~ FALSE,
            SENTRNGE !=2 ~ FALSE,
            TRUE ~ NA), 
-         valve = case_when( #CML: may not fully capture valve cases post-2019, see codebook
+         valve = case_when( #CML: may not fully capture valve cases post-2019, see codebook. note to ask prof doherty if she wants this var to include expanded safety valve eligibility under the First Step Act (it does not currently)
            SAFE %in% c(1, 2) ~ TRUE,
            SAFE == 0 ~ FALSE,
            TRUE ~ NA),
