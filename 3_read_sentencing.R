@@ -275,22 +275,16 @@ data <- io_combined %>%
           case_when( ###this is called downdep but really it's all below range 
             #sentences, not just those attributable only to departures, 
             #so in addition to 3,4,5 you'd want  7, 8 (which is not covered by downcourt and downgovt)
+            DEPART %in% c(2, 4, 6) ~ TRUE,
+            DEPART_A %in% c(3, 4, 5) ~ TRUE,
             downgovt ~ TRUE,
             downcourt ~ TRUE,
+            !DEPART %in% c(2, 4, 6) & !is.na(DEPART) ~ FALSE,
+            !DEPART_A %in% c(3, 4, 5) & !is.na(DEPART_A) ~ FALSE,
             !downgovt & !downcourt ~ FALSE,
+            DEPART==8 ~ NA,
+            DEPART_A==8 ~ NA, #consider FALSE here?
             TRUE ~ NA),
-        #The original code for this variable is below 
-          # case_when( 
-          # DEPART %in% c(2, 4, 6) ~ TRUE,
-          # DEPART_A %in% c(3, 4, 5) ~ TRUE,
-          # downgovt ~ TRUE,
-          # downcourt ~ TRUE,
-          # DEPART==8 ~ NA,
-          # DEPART_A==8 ~ NA, #consider FALSE here?
-          # !DEPART %in% c(2, 4, 6) & !is.na(DEPART) ~ FALSE,
-          # !DEPART_A %in% c(3, 4, 5) & !is.na(DEPART_A) ~ FALSE,
-          # !downgovt & !downcourt ~ FALSE,
-          # TRUE ~ NA),
         mandmin2 = case_when(
           is.na(STATMIN) ~ NA,
           STATMIN==0 ~ FALSE,
