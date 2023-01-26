@@ -3,7 +3,7 @@ title: "Demographic Sentencing Disparities Baseline Switch"
 output:
     word_document: 
         reference_docx: "template/template.docx"
-date: "December 22, 2022"
+date: "January 26, 2022"
 
 ---
 
@@ -31,12 +31,14 @@ postgall <- data %>%
 postreport <- data %>% 
   filter(postreport)
 
+present <- data %>% 
+  filter(present)
+
 
 ### add in more recent data
 
 ```
 
-**Final Fall 2022 Version**
 
 This document attempts to replicate the Commission's "refined model" for estimating demographic disparities in sentencing. For more information about the model and for the reference regressions, see "Demographic Disparities Baseline Switch Reference Docs." For a write-up of findings, see the latest version of the Data Learnings Memo.
 
@@ -113,23 +115,34 @@ as_flextable(model2_factor_report)
 <br>
 <br>
 
+### Present
 
+```{r}
+model2_factor_present <- model2(present)
+
+as_flextable(model2_factor_present)
+```
+
+<br>
+<br>
 
 ```{r, include = F}
 ### Coefficient Interpretations for All Periods
 
-source(here::here("utils_coeffinterps.R"))
+source(here::here("utils.R"))
 
 
 protect_interp <- extract_coeffs(model2_factor_protect) %>% select(var, Protect = coeffinterp)
 booker_interp <- extract_coeffs(model2_factor_booker) %>% select(var, Booker = coeffinterp)
 gall_interp <- extract_coeffs(model2_factor_gall) %>% select(var, Gall = coeffinterp)
 report_interp <- extract_coeffs(model2_factor_report) %>% select(var, Report = coeffinterp)
+present_interp <- extract_coeffs(model2_factor_present) %>% select(var, Present = coeffinterp)
 
 interp_table <- protect_interp %>% 
   full_join(booker_interp) %>% 
   full_join(gall_interp) %>% 
   full_join(report_interp) %>% 
+  full_join(present_interp) %>% 
   mutate(" " = var %>% 
            str_remove_all("TRUE") %>% 
            str_remove_all("2") %>% 
@@ -140,12 +153,13 @@ select(" ", everything(), -var)
 
 
 graph_table_a <- interp_table %>% 
-  pivot_longer(cols = c(Protect, Booker, Gall, Report), names_to = "period", values_to = "coeffinterp") %>% 
+  pivot_longer(cols = c(Protect, Booker, Gall, Report, Present), names_to = "period", values_to = "coeffinterp") %>% 
   mutate(period = case_when(
     period=="Protect" ~ 1,
     period=="Booker" ~ 2,
     period=="Gall" ~ 3,
-    period=="Report" ~ 4
+    period=="Report" ~ 4,
+    period=="Present" ~ 5,
   )) %>% 
   select(var = " ", period, coeffinterp)
 
@@ -256,13 +270,15 @@ protect_wm <- extract_coeffs_demog(model2_factor_protect) %>% mutate(period = "P
 booker_wm <- extract_coeffs_demog(model2_factor_booker) %>% mutate(period = "Booker")
 gall_wm <- extract_coeffs_demog(model2_factor_gall) %>% mutate(period = "Gall")
 report_wm <- extract_coeffs_demog(model2_factor_report) %>% mutate(period = "Post-Report")
+present_wm <- extract_coeffs_demog(model2_factor_present) %>% mutate(period = "Present")
 
 
 bar_data_wm <- bind_rows(protect_wm,
                          booker_wm,
                          gall_wm,
-                         report_wm) %>% 
-  mutate(period = fct_relevel(period, "Protect", "Booker", "Gall", "Post-Report"))
+                         report_wm,
+                         present_wm) %>% 
+  mutate(period = fct_relevel(period, "Protect", "Booker", "Gall", "Post-Report", "Present"))
 ```
 
 ```{r}
@@ -281,6 +297,8 @@ bar_data_wm %>% filter(str_detect(demog, "Male")) %>% demogbar()
 <br>
 
 ### White Female Baseline
+
+Note the colors are scrambled slightly where no statistically significant difference in groups exists during the Protect period.
 
 ```{r}
 model2_wf <- function(df){
@@ -310,6 +328,8 @@ model2_protect_wf <- model2_wf(postprotect)
 model2_booker_wf <- model2_wf(postbooker)
 model2_gall_wf <- model2_wf(postgall)
 model2_report_wf <- model2_wf(postreport)
+model2_present_wf <- model2_wf(present)
+
 
 ```
 
@@ -318,15 +338,18 @@ protect_wf <- extract_coeffs_demog(model2_protect_wf) %>% mutate(period = "Prote
 booker_wf <- extract_coeffs_demog(model2_booker_wf) %>% mutate(period = "Booker")
 gall_wf <- extract_coeffs_demog(model2_gall_wf) %>% mutate(period = "Gall")
 report_wf <- extract_coeffs_demog(model2_report_wf) %>% mutate(period = "Post-Report")
+present_wf <- extract_coeffs_demog(model2_present_wf) %>% mutate(period = "Present")
 
 
 bar_data_wf <- bind_rows(protect_wf,
                          booker_wf,
                          gall_wf,
-                         report_wf) %>% 
-  mutate(period = fct_relevel(period, "Protect", "Booker", "Gall", "Post-Report"))
+                         report_wf,
+                         present_wf) %>% 
+  mutate(period = fct_relevel(period, "Protect", "Booker", "Gall", "Post-Report", "Present"))
 
-bar_data_wf %>% filter(str_detect(demog, "Female")) %>% demogbar()
+bar_data_wf %>% filter(str_detect(demog, "Female")) %>% demogbar() 
+  
 ```
   
   
@@ -366,6 +389,8 @@ model2_protect_hf <- model2_hf(postprotect)
 model2_booker_hf <- model2_hf(postbooker)
 model2_gall_hf <- model2_hf(postgall)
 model2_report_hf <- model2_hf(postreport)
+model2_present_hf <- model2_hf(present)
+
 ```
 
 ```{r}
@@ -373,13 +398,15 @@ protect_hf <- extract_coeffs_demog(model2_protect_hf) %>% mutate(period = "Prote
 booker_hf <- extract_coeffs_demog(model2_booker_hf) %>% mutate(period = "Booker")
 gall_hf <- extract_coeffs_demog(model2_gall_hf) %>% mutate(period = "Gall")
 report_hf <- extract_coeffs_demog(model2_report_hf) %>% mutate(period = "Post-Report")
+present_hf <- extract_coeffs_demog(model2_present_hf) %>% mutate(period = "Present")
 
 
 bar_data_hf <- bind_rows(protect_hf,
                          booker_hf,
                          gall_hf,
-                         report_hf) %>% 
-  mutate(period = fct_relevel(period, "Protect", "Booker", "Gall", "Post-Report"))
+                         report_hf,
+                         present_hf) %>% 
+  mutate(period = fct_relevel(period, "Protect", "Booker", "Gall", "Post-Report", "Present"))
 
 bar_data_hf %>% filter(str_detect(demog, "Female")) %>% demogbar()
 ```
@@ -422,6 +449,7 @@ model2_protect_bf <- model2_bf(postprotect)
 model2_booker_bf <- model2_bf(postbooker)
 model2_gall_bf <- model2_bf(postgall)
 model2_report_bf <- model2_bf(postreport)
+model2_present_bf <- model2_bf(present)
 ```
 
 ```{r}
@@ -429,13 +457,14 @@ protect_bf <- extract_coeffs_demog(model2_protect_bf) %>% mutate(period = "Prote
 booker_bf <- extract_coeffs_demog(model2_booker_bf) %>% mutate(period = "Booker")
 gall_bf <- extract_coeffs_demog(model2_gall_bf) %>% mutate(period = "Gall")
 report_bf <- extract_coeffs_demog(model2_report_bf) %>% mutate(period = "Post-Report")
-
+present_bf <- extract_coeffs_demog(model2_present_bf) %>% mutate(period = "Present")
 
 bar_data_bf <- bind_rows(protect_bf,
                          booker_bf,
                          gall_bf,
-                         report_bf) %>% 
-  mutate(period = fct_relevel(period, "Protect", "Booker", "Gall", "Post-Report"))
+                         report_bf,
+                         present_bf) %>% 
+  mutate(period = fct_relevel(period, "Protect", "Booker", "Gall", "Post-Report", "Present"))
 
 bar_data_bf %>% filter(str_detect(demog, "Female")) %>% demogbar()
 ```
