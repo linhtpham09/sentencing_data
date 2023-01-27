@@ -45,6 +45,23 @@ names%>% filter(str_detect(names, 'SENT'))
 
 # Old Prep Work: Putting all the column names in one table 
 ```{r setup, eval = FALSE}
+
+#2002 
+t2 <- read.csv(here::here("data/full_io_files/opafy02nid.csv"), nrow = 2)
+t3 <- read.csv(here::here("data/full_io_files/opafy03nid.csv"), nrow = 2)
+t4_1 <- read.csv(here::here("data/new_io_data_r/fy04_1.csv"), nrow = 2) 
+t4_2 <- read.csv(here::here("data/new_io_data_r/fy04_2.csv"), nrow = 2) 
+t5_1 <- read.csv(here::here("data/new_io_data_r/fy05_1.csv"), nrow = 2) 
+t5_2 <- read.csv(here::here("data/new_io_data_r/fy05_2.csv"), nrow = 2) 
+t7_1 <- read.csv(here::here("data/new_io_data_r/fy07_1.csv"), nrow = 2) 
+t7_2 <- read.csv(here::here("data/new_io_data_r/fy07_2.csv"), nrow = 2) 
+t7_3 <- read.csv(here::here("data/new_io_data_r/fy07_3.csv"), nrow = 2) 
+t8_1 <- read.csv(here::here("data/new_io_data_r/fy08_1.csv"), nrow = 2) 
+t8_2 <- read.csv(here::here("data/new_io_data_r/fy08_2.csv"), nrow = 2) 
+t9_1 <- read.csv(here::here("data/new_io_data_r/fy09_1.csv"), nrow = 2) 
+t4_1 <- read.csv(here::here("data/new_io_data_r/fy04_1.csv"), nrow = 2) 
+t4_1 <- read.csv(here::here("data/new_io_data_r/fy04_1.csv"), nrow = 2) 
+
 library(stringdist)
 
 #-------Year 2017----------------

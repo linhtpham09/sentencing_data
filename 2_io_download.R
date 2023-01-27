@@ -6,6 +6,7 @@ library(janitor)
 library(scales)
 library(glue)
 library(lubridate)
+library(here)
 source(here::here("utils.R"))
 
 #connection to google bigquery 
@@ -16,7 +17,74 @@ con <- dbConnect(
 )
 
 #This line allows you to see all of the tables currently 
-#dbListTables(con)
+dbListTables(con)
+# # ----------------------2002-----------------------------------
+# 
+# query2002 <- dbSendQuery(con, "select `SENTDATE`, `SENSPLT0`, `GLMIN`, `GDLINEHI`, 
+# `TOTCHPTS`, `IS924C`, `WEAPSOC`, `STATMIN`, `CAROFFAP`, `ACCAP`, `DEPART`,
+# `SAFE`, `NEWCNVTN`, `PRESENT`, `MITROLHI`,`AGGROLHI`, `NEWRACE`, `MONSEX`, `AGE`, 
+#                          `EDUCATN`, `NEWCIT`from opafy02nid")
+# data2002 <- dbFetch(query2002)
+# data2002 <- data2002 %>% mutate(opafy = 2002)
+# 
+# #write_csv(data2002, here::here("data/io_truncated/data2002.csv"))
+# 
+# 
+# # ----------------------2003-----------------------------------
+# query2003 <- dbSendQuery(con, "select `sentdate`, `sensplt0`, `glmin`,`gdlinehi`, `totchpts`, `is924c`, `weapsoc`, `statmin`, `caroffap`, 
+# `accap`,`depart`, `safe`, `newcnvtn`,`present`, `mitrolhi`, `aggrolhi`, `newrace`, `monsex`, 
+# `age`, `educatn`,`newcit` from opafy03nid")
+# data2003 <- dbFetch(query2003)
+# data2003 <- data2003 %>% mutate(opafy = 2003)
+# #write_csv(data2003, here::here("data/io_truncated/data2003.csv"))
+# 
+# # ----------------------2004-----------------------------------
+# query2004_1 <- dbSendQuery(con ,"select  `sensplt0`, `glmin`,  `totchpts`, `is924c`, `weapsoc`, 
+# `statmin`, `caroffap`, `accap`,`DEPART_A`,  `safe`,  `present`, `mitrolhi`, `aggrolhi`, 
+# `newrace`, `monsex`, `age`, `educatn`,`newcit` from fy04_1")
+# 
+# query2004_2 <- dbSendQuery("select `SENTMON`,`SENTYR`,`gdlinehi`,`newcnvtn` from fy04_2")
+# 
+# 
+# # ----------------------2005-----------------------------------
+# "`SENTMON`, `SENTYR`, `sensplt0`, `glmin`, `gdlinehi`, `totchpts`, `is924c`, `weapsoc`, `statmin`, `caroffap`, 
+# `accap`, `DEPART_A`, `BookerCD`,
+#          `safe`, `newcnvtn`, `present`, `mitrolhi`, `aggrolhi`, `newrace`,`monsex`, 
+#          `age`, `educatn`, `newcit`, `BOOKPOST`, `REAS1`, `REAS2`, `REAS3`,
+#          `REAS4`, `REAS5`, `REAS6`, `REAS7`, `REAS8`, `REAS9`, `REAS10`, `REAS11`, `REAS12`"
+# 
+# 
+# # ----------------------2006-----------------------------------
+# "`SENTMON`, `SENTYR`, `SENSPLT0`,`GLMIN`, `GDLINEHI`, `TOTCHPTS`, `IS924C`, `WEAPSOC`, `STATMIN`, `CAROFFAP`, `ACCAP`, `BOOKERCD`,
+#          `SAFE`, `NEWCNVTN`, `PRESENT`, `MITROLHI`, `AGGROLHI`, NEWRACE, MONSEX, AGE, EDUCATN, NEWCIT from opafy06nid"
+# 
+# # ----------------------2007-----------------------------------
+# "SENTMON, SENTYR, SENSPLT0, GLMIN, GDLINEHI, TOTCHPTS, IS924C, WEAPSOC, STATMIN, CAROFFAP, ACCAP, BOOKERCD,
+#          SAFE, NEWCNVTN, PRESENT, MITROLHI, AGGROLHI, NEWRACE, MONSEX, AGE, EDUCATN, NEWCIT"
+# 
+# # ----------------------2008-----------------------------------
+# "SENTMON, SENTYR, SENSPLT0, GLMIN, GDLINEHI, TOTCHPTS, IS924C, WEAPSOC, STATMIN, CAROFFAP, ACCAP, BOOKERCD,
+#          SAFE, NEWCNVTN, PRESENT, MITROLHI, AGGROLHI, NEWRACE, MONSEX, AGE, EDUCATN, NEWCIT)"
+# 
+# # ----------------------2009-----------------------------------
+# "SENTMON, SENTYR, SENSPLT0, GLMIN, GDLINEHI, TOTCHPTS, IS924C, WEAPSOC, STATMIN, CAROFFAP, ACCAP, BOOKERCD,
+#          SAFE, NEWCNVTN, PRESENT, MITROLHI, AGGROLHI, NEWRACE, MONSEX, AGE, EDUCATN, NEWCIT"
+# # ----------------------2010-----------------------------------
+# 
+# # ----------------------2011-----------------------------------
+# "SENTMON, SENTYR, SENSPLT0, GLMIN, GDLINEHI, TOTCHPTS, IS924C, WEAPSOC, STATMIN, CAROFFAP, ACCAP, BOOKERCD,
+#          SAFE, NEWCNVTN, PRESENT, MITROLHI, AGGROLHI, NEWRACE, MONSEX, AGE, EDUCATN, NEWCIT)"
+# ----------------------2012-----------------------------------
+
+# ----------------------2013-----------------------------------
+
+# ----------------------2014-----------------------------------
+
+# ----------------------2015-----------------------------------
+
+# ----------------------2016-----------------------------------
+
+
 
 # ----------------------2017 -----------------------------------
 query2017_1 = dbSendQuery(con, "select `id`,`SENTMON`,`SENTYR`,`SENSPLT0`,
