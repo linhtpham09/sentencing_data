@@ -182,7 +182,7 @@ ft <- interp_table %>%
           value = as_paragraph(gg_chunk(value = ., height = .25, width = .6)),
           use_dot = TRUE) %>%
   set_table_properties(width = .65, layout = "autofit") %>%
-  add_footer_lines("Note that trend lines do not represent a consistent scale.")
+  add_footer_lines("Trend lines are not-to-scale representions of coefficient magnitude over time.")
 
 save_as_image(ft, here::here("coefficientinterps.png"), zoom = 3, expand = 10, webshot = "webshot")
 

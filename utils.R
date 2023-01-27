@@ -62,7 +62,7 @@ extract_coeffs <- function(model){
     mutate(
       coeff = case_when(
         pr_t<=0.01 ~ estimate,
-        pr_t>0.01 ~ NA_real_,
+        pr_t>0.01 ~ 0,
         TRUE ~ NA_real_),
       coeffinterp = ifelse(var=="logmin", loglogtrans(coeff), logtrans(coeff))) 
 }
