@@ -3,7 +3,7 @@ title: "Crime Type Breakdowns"
 output:
     word_document: 
         reference_docx: "template/template.docx"
-date: "December 22, 2022"
+date: "January 27, 2022"
 ---
 
 ```{r setup, include=FALSE}
@@ -31,6 +31,9 @@ postgall <- data %>%
 
 postreport <- data %>% 
   filter(postreport)
+
+present <- data %>% 
+  filter(present)
 
 #crime names
 crime_name_tbl <- read_excel(here::here("data/Type of Crime.xlsx")) %>% 
@@ -70,8 +73,6 @@ highlight_above_avg <- function(ft){
 
 ```
 
-**Final Fall 2022 Version**
-
 ## Average Sentence, by Demographic Group and Period
 
 ```{r}
@@ -81,13 +82,13 @@ dem_avg <- function(df){
     summarize(avg_sent = mean(SENSPLT0, na.rm=T))
 }
 
-list_periods <- list(postprotect, postbooker, postgall, postreport)
+list_periods <- list(postprotect, postbooker, postgall, postreport, present)
 
 avg_sent_dem_tbl <- map(list_periods, dem_avg) %>% 
   bind_rows(.id = "Period") %>% 
   mutate(avg_sent = round(avg_sent),
          Period = recode(as.character(Period),
-                         "1" = "Protect", "2" = "Booker", "3" = "Gall", "4" = "Post-Report")) %>% 
+                         "1" = "Protect", "2" = "Booker", "3" = "Gall", "4" = "Post-Report", "5" = "Present")) %>% 
   pivot_wider(names_from = Period, values_from = avg_sent) %>% 
   rename("Group" = racesex_clean)
 
@@ -308,11 +309,27 @@ postreport %>% model2filter() %>% crimetypetable_sent()
 \newpage
   
   
+### Present
+
+```{r}
+#postreport %>% model2filter() %>% crimetypetable_n()
+present %>% model2filter() %>%  crimetypetable_pct()
+```
+<br>
+<br>
+
+```{r}
+present %>% model2filter() %>% crimetypetable_sent()
+```
+  
+\newpage
+  
+  
+  
 ## Detailed Sentence Length Breakdown, by Guideline and Demographic Group
 
 ```{r}
 data %>% 
-  filter(sentmonyr<="2017-09-30") %>% 
   select(crime_type, racesex_clean, GDLINEHI, GLMIN) %>% 
   group_by(crime_type, GDLINEHI) %>% 
   mutate(gdline_avg = round(mean(GLMIN, na.rm = T))) %>% 
@@ -325,7 +342,7 @@ data %>%
   left_join(crime_name_tbl, by = c("Guideline" = "statute")) %>% 
   select(`Crime Type`, Guideline, Offense = offense, everything()) %>% 
   flextable() %>% 
-  set_caption("Average Sentence Length in Months, by Demographic Group and Guideline, FY 2002 - 2017") %>% 
+  set_caption("Average Sentence Length in Months, by Demographic Group and Guideline, FY 2002 - 2021") %>% 
   fontsize(i = NULL, j = NULL, size = 8.5, part = "body") %>%
   fontsize(i = NULL, j = NULL, size = 8.5, part = "header") %>%
   highlight_above_avg() %>% 
