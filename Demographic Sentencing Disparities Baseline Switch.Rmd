@@ -35,7 +35,7 @@ present <- data %>%
   filter(present)
 
 
-### add in more recent data
+source(here::here("utils.R"))
 
 ```
 
@@ -129,14 +129,11 @@ as_flextable(model2_factor_present)
 ```{r, include = F}
 ### Coefficient Interpretations for All Periods
 
-source(here::here("utils.R"))
-
-
-protect_interp <- extract_coeffs(model2_factor_protect) %>% select(var, Protect = coeffinterp)
-booker_interp <- extract_coeffs(model2_factor_booker) %>% select(var, Booker = coeffinterp)
-gall_interp <- extract_coeffs(model2_factor_gall) %>% select(var, Gall = coeffinterp)
-report_interp <- extract_coeffs(model2_factor_report) %>% select(var, Report = coeffinterp)
-present_interp <- extract_coeffs(model2_factor_present) %>% select(var, Present = coeffinterp)
+protect_interp <- extract_coeffs_tbl(model2_factor_protect) %>% select(var, Protect = coeffinterp)
+booker_interp <- extract_coeffs_tbl(model2_factor_booker) %>% select(var, Booker = coeffinterp)
+gall_interp <- extract_coeffs_tbl(model2_factor_gall) %>% select(var, Gall = coeffinterp)
+report_interp <- extract_coeffs_tbl(model2_factor_report) %>% select(var, Report = coeffinterp)
+present_interp <- extract_coeffs_tbl(model2_factor_present) %>% select(var, Present = coeffinterp)
 
 interp_table <- protect_interp %>% 
   full_join(booker_interp) %>% 

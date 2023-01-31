@@ -66,3 +66,17 @@ extract_coeffs <- function(model){
         TRUE ~ NA_real_),
       coeffinterp = ifelse(var=="logmin", loglogtrans(coeff), logtrans(coeff))) 
 }
+
+extract_coeffs_tbl <- function(model){
+  summary(model)[[4]] %>% 
+    data.frame() %>% 
+    tibble::rownames_to_column("var") %>% 
+    clean_names() %>% 
+    select(var, estimate, pr_t) %>% 
+    mutate(
+      coeff = case_when(
+        pr_t<=0.01 ~ estimate,
+        pr_t>0.01 ~ NA_real_,
+        TRUE ~ NA_real_),
+      coeffinterp = ifelse(var=="logmin", loglogtrans(coeff), logtrans(coeff))) 
+}

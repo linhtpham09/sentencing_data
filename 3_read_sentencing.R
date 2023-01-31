@@ -174,8 +174,7 @@ data <- io_combined %>%
            str_detect(GDLINEHI, "^2T\\d{1}\\.\\d{1}$"),
          immigration = str_detect(GDLINEHI, "^2L\\d{1}\\.\\d{1}$")) %>% 
 #note to include a new time period for this data when we integrate with the main data file %>% 
-  mutate(
-    postprotect = (!is.na(sentdate) & "2003-05-01"<=sentdate) | (!is.na(sentdate) & sentmonyr<"2004-07-01"), 
+  mutate(postprotect = (!is.na(sentdate) & "2003-05-01"<=sentdate) | (is.na(sentdate) & sentmonyr<"2004-07-01"), 
          postbooker = "2005-01-01"<=sentmonyr & sentmonyr<="2007-12-01" & (BOOKPOST!=0 | is.na(BOOKPOST)), # excluding december makes the match worse
          postgall = "2007-12-01"<=sentmonyr & sentmonyr<="2011-09-01",
          postreport = "2011-10-01"<=sentmonyr & sentmonyr <="2016-09-01",
