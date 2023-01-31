@@ -15,7 +15,7 @@ library(flextable)
 
 
 amdata <- read_csv(here::here("data/io.csv")) %>% 
-  filter(sentdate>="2001-10-01" | sentmonyr<="2017-09-01") %>% 
+  filter(sentdate>="2001-10-01" | !is.na(sentmonyr)) %>% 
   mutate(crime_type = crime_type %>% 
            str_replace("Immigration", "Immig.") %>% 
            str_replace("Drug Trafficking", "Drug Traff."))
@@ -51,14 +51,14 @@ amdata_tbl %>%
   pivot_wider(names_from = "crime_type", values_from = n_mit) %>% 
   rename(" " = racesex_clean) %>% 
   flextable_my() %>% 
-  set_caption("Number of Mitigating Role Adjustments, FY2002-FY2017")
+  set_caption("Number of Mitigating Role Adjustments, FY2002-FY2021")
 
 amdata_tbl %>% 
   select(crime_type, racesex_clean, pct_mit) %>% 
   pivot_wider(names_from = "crime_type", values_from = pct_mit) %>% 
   rename(" " = racesex_clean) %>% 
   flextable_my() %>% 
-  set_caption("Portion of Mitigating Role Adjustments, FY2002-FY2017")
+  set_caption("Portion of Mitigating Role Adjustments, FY2002-FY2021")
 ```
 <br>
 <br>
@@ -70,14 +70,14 @@ amdata_tbl %>%
   pivot_wider(names_from = "crime_type", values_from = n_agg) %>% 
   rename(" " = racesex_clean) %>% 
   flextable_my() %>% 
-  set_caption("Number of Aggravating Role Adjustments, FY2002-FY2017")
+  set_caption("Number of Aggravating Role Adjustments, FY2002-FY2021")
 
 amdata_tbl %>% 
   select(crime_type, racesex_clean, pct_agg) %>% 
   pivot_wider(names_from = "crime_type", values_from = pct_agg) %>% 
   rename(" " = racesex_clean) %>% 
   flextable_my() %>% 
-  set_caption("Portion of Aggravating Role Adjustments, FY2002-FY2017")
+  set_caption("Portion of Aggravating Role Adjustments, FY2002-FY2021")
   
   
 ```

@@ -3,7 +3,7 @@ title: "Demographic Sentencing Disparities Baseline Switch"
 output:
     word_document: 
         reference_docx: "template/template.docx"
-date: "January 26, 2022"
+date: "January 31, 2022"
 
 ---
 
