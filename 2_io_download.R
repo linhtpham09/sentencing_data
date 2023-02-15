@@ -134,7 +134,23 @@ data2009 <- full_join(data2009_1, data2009_2, by = 'id') %>%
 
 #write_csv(data2009, here::here("data/io_truncated/data2009.csv"))
 # # ----------------------2010-----------------------------------
-# 
+
+query2010_1 <- dbSendQuery(con,"select `id`, `sentmon`, `sentyr`, `sensplt0`, `glmin`,  `totchpts`, `is924c`, 
+`weapsoc`, `statmin`,
+`caroffap`, `accap`, `bookercd`, `safe`, `newcnvtn`, `present`, `mitrolhi`, `aggrolhi`, `newrace`,
+`monsex`, `age`, `educatn`,`newcit`,
+`reas1`, `reas2`, `reas3`, `reas4`, `reas5`, `reas6`, `reas7`, `reas8`, `reas9`, `reas10`, 
+`reas11`, `reas12`, `reas13`, 
+`reas14`, `reas15`, `reas16`, `reas17`, `reas18`, `reas19`, `reas20`, `reas21`, `reas22`, 
+`reas23`, `reas24` from fy10_1" )
+query2010_2 <- dbSendQuery(con, "select `id`, `gdlinehi` from fy10_3")
+data2010_1 <- dbFetch(query2010_1) %>% aggregate_reasons()
+data2010_2 <- dbFetch(query2010_2) 
+data2010 <- full_join(data2010_1, data2010_2, by = 'id') %>% 
+  mutate(opafy=2010) %>% 
+  select(-1)
+
+#write_csv(data2010, here::here("data/io_truncated/data2010.csv"))
 # # ----------------------2011-----------------------------------
 query2011_1 <- dbSendQuery(con, "select `id`,`SENTMON`, `SENTYR`, `SENSPLT0`, `GLMIN`,  `TOTCHPTS`, `IS924C`, 
 `WEAPSOC`, `STATMIN`, `CAROFFAP`, `ACCAP`, `BOOKERCD`,
@@ -154,31 +170,93 @@ data2011 <- full_join(data2011_1, data2011_2, by = 'id') %>%
 
 #write_csv(data2011, here::here("data/io_truncated/data2011.csv"))
 # ----------------------2012-----------------------------------
-# 
-# "`REAS1`, `REAS2`, `REAS3`, `REAS4`, `REAS5`, `REAS6`, `REAS7`, `REAS8`, `REAS9`, `REAS10`,
-# `REAS11`, `REAS12`, `REAS13`, `REAS14`, `REAS15`, `REAS16`, `REAS17`, `REAS18`, 
-# `REAS19`, `REAS20`, `REAS21`, `REAS22`, `REAS23`, `REAS24`,`REAS25`, `REAS26`,
-# `REAS27`, `REAS28`, `REAS29`, `REAS30`, `REAS31`, `REAS32` from fy12_1"
-# 
+query2012_1 <- dbSendQuery(con, "select `id`, `SENTMON`, `SENTYR`, `SENSPLT0`, `GLMIN`,  `TOTCHPTS`, `IS924C`, 
+`WEAPSOC`, `STATMIN`, `CAROFFAP`, 
+`ACCAP`, `BOOKERCD`, `SAFE`, `NEWCNVTN`, `PRESENT`, `MITROLHI`, 
+`AGGROLHI`, `NEWRACE`, `MONSEX`, `AGE`, `EDUCATN`,
+`NEWCIT`, `REAS1`, `REAS2`, `REAS3`, `REAS4`, `REAS5`, `REAS6`, `REAS7`, `REAS8`, `REAS9`, `REAS10`,
+`REAS11`, `REAS12`, `REAS13`, `REAS14`, `REAS15`, `REAS16`, `REAS17`, `REAS18`,
+`REAS19`, `REAS20`, `REAS21`, `REAS22`, `REAS23`, `REAS24`,`REAS25`, `REAS26`,
+`REAS27`, `REAS28`, `REAS29`, `REAS30`, `REAS31`, `REAS32` from fy12_1")
+
+query2012_2 <- dbSendQuery(con, "select `id`,`GDLINEHI` from fy12_2")
+
+
+data2012_1 <- dbFetch(query2012_1) %>% aggregate_reasons()
+data2012_2 <- dbFetch(query2012_2) 
+data2012 <- full_join(data2012_1, data2012_2, by = 'id') %>% 
+  mutate(opafy=2012) %>% 
+  select(-1)
+#write_csv(data2012, here::here("data/io_truncated/data2012.csv"))
 # # ----------------------2013-----------------------------------
-# "`REAS1`, `REAS2`, `REAS3`, `REAS4`, `REAS5`, `REAS6`, `REAS7`, `REAS8`, `REAS9`, `REAS10`,
-# `REAS11`, `REAS12`, `REAS13`, `REAS14`, `REAS15`, `REAS16`, `REAS17`, `REAS18`, 
-# `REAS19`, `REAS20`, `REAS21`, `REAS22`, `REAS23`, `REAS24`,`REAS25`, `REAS26`,
-# `REAS27`, `REAS28`, `REAS29`, `REAS30` from fy13_1"
-# 
+query2013_1 <- dbSendQuery(con, " select `id`,`SENTMON`, `SENTYR`, `SENSPLT0`, `GLMIN`,  `TOTCHPTS`, `IS924C`, 
+`WEAPSOC`, `STATMIN`, `CAROFFAP`, 
+`ACCAP`, `BOOKERCD`, `SAFE`, `NEWCNVTN`, `PRESENT`, `MITROLHI`, 
+`AGGROLHI`, `NEWRACE`, `MONSEX`, `AGE`, `EDUCATN`,
+`NEWCIT`,`REAS1`, `REAS2`, `REAS3`, `REAS4`, `REAS5`, `REAS6`, `REAS7`, `REAS8`, `REAS9`, `REAS10`,
+`REAS11`, `REAS12`, `REAS13`, `REAS14`, `REAS15`, `REAS16`, `REAS17`, `REAS18`,
+`REAS19`, `REAS20`, `REAS21`, `REAS22`, `REAS23`, `REAS24`,`REAS25`, `REAS26`,
+`REAS27`, `REAS28`, `REAS29`, `REAS30` from fy13_1")
+
+query2013_2 <- dbSendQuery(con, "select `id`, `GDLINEHI` from fy13_2")
+data2013_1 <- dbFetch(query2013_1) %>% aggregate_reasons()
+data2013_2 <- dbFetch(query2013_2) 
+data2013 <- full_join(data2013_1, data2013_2, by = 'id') %>% 
+  mutate(opafy=2013) %>% 
+  select(-1)
+#write_csv(data2013, here::here("data/io_truncated/data2013.csv"))
+
 # # ----------------------2014-----------------------------------
-# "`REAS1`, `REAS2`, `REAS3`, `REAS4`, `REAS5`, `REAS6`, `REAS7`, `REAS8`, `REAS9`, `REAS10`,
-# `REAS11`, `REAS12`, `REAS13`, `REAS14`, `REAS15`, `REAS16`, `REAS17`, `REAS18`, 
-# `REAS19`, `REAS20`, `REAS21` from fy14_1"
+query2014_1 <- dbSendQuery(con, "select `id`,`SENTMON`, `SENTYR`, `SENSPLT0`, 
+`GLMIN`, `TOTCHPTS`, `IS924C`, `WEAPSOC`, `STATMIN`, `CAROFFAP`, 
+`ACCAP`, `BOOKERCD`, `SAFE`, `NEWCNVTN`, `PRESENT`, `MITROLHI`, `AGGROLHI`, 
+`NEWRACE`, `MONSEX`, `AGE`, `EDUCATN`,`NEWCIT` ,
+`REAS1`, `REAS2`, `REAS3`, `REAS4`, `REAS5`, `REAS6`, `REAS7`, `REAS8`,
+`REAS9`, `REAS10`,
+`REAS11`, `REAS12`, `REAS13`, `REAS14`, `REAS15`, `REAS16`, `REAS17`, `REAS18`,
+`REAS19`, `REAS20`, `REAS21` from fy14_1")
+
+query2014_2 <- dbSendQuery(con, "select `id`, `GDLINEHI` from fy14_3")
+data2014_1 <- dbFetch(query2014_1) %>% aggregate_reasons()
+data2014_2 <- dbFetch(query2014_2) 
+data2014 <- full_join(data2014_1, data2014_2, by = 'id') %>% 
+  mutate(opafy=2014) %>% 
+  select(-1)
+#write_csv(data2014, here::here("data/io_truncated/data2014.csv"))
+
 # # ----------------------2015-----------------------------------
-# "`REAS1`, `REAS2`, `REAS3`, `REAS4`, `REAS5`, `REAS6`, `REAS7`, `REAS8`, `REAS9`, `REAS10`,
-# `REAS11`, `REAS12`, `REAS13`, `REAS14`, `REAS15`, `REAS16`, `REAS17`, `REAS18`, 
-# `REAS19`, `REAS20` from fy15_1"
+query2015_1 <- dbSendQuery(con, "select `id`, `SENTMON`, `SENTYR`, `SENSPLT0`, `GLMIN`, `TOTCHPTS`, 
+`IS924C`, `WEAPSOC`, `STATMIN`, `CAROFFAP`, 
+`ACCAP`, `BOOKERCD`, `SAFE`, `NEWCNVTN`, `PRESENT`, `MITROLHI`, `AGGROLHI`, `NEWRACE`,
+`MONSEX`, `AGE`, `EDUCATN`,`NEWCIT`, `REAS1`, `REAS2`, `REAS3`, `REAS4`, `REAS5`, `REAS6`, `REAS7`, `REAS8`, `REAS9`, `REAS10`,
+`REAS11`, `REAS12`, `REAS13`, `REAS14`, `REAS15`, `REAS16`, `REAS17`, `REAS18`,
+`REAS19`, `REAS20` from fy15_1")
+query2015_2 <- dbSendQuery(con, "select `id`, `GDLINEHI` from fy15_2")
+data2015_1 <- dbFetch(query2015_1) %>% aggregate_reasons()
+data2015_2 <- dbFetch(query2015_2) 
+data2015 <- full_join(data2015_1, data2015_2, by = 'id') %>% 
+  mutate(opafy=2015) %>% 
+  select(-1)
+#write_csv(data2015, here::here("data/io_truncated/data2015.csv"))
+
 # # ----------------------2016-----------------------------------
-# "`REAS1`, `REAS2`, `REAS3`, `REAS4`, `REAS5`, `REAS6`, `REAS7`, `REAS8`, `REAS9`, `REAS10`,
-# `REAS11`, `REAS12`, `REAS13`, `REAS14`, `REAS15`, `REAS16`, `REAS17`, `REAS18`, 
-# `REAS19`, `REAS20`, `REAS21`, `REAS22`, `REAS23`, `REAS24`,`REAS25`, `REAS26`,
-# `REAS27`, `REAS28`, `REAS29` from fy16_1"
+
+query2016_1 <- dbSendQuery(con, "select `id`,`SENTMON`, `SENTYR`, `SENSPLT0`, `GLMIN`,  `TOTCHPTS`,
+`IS924C`, `WEAPSOC`, `STATMIN`, `CAROFFAP`, 
+`ACCAP`, `BOOKERCD`, `SAFE`, `NEWCNVTN`, `PRESENT`, `MITROLHI`, 
+`AGGROLHI`, `NEWRACE`, `MONSEX`, `AGE`, `EDUCATN`,
+`NEWCIT`, `REAS1`, `REAS2`, `REAS3`, `REAS4`, `REAS5`, `REAS6`, `REAS7`, `REAS8`, `REAS9`, `REAS10`,
+`REAS11`, `REAS12`, `REAS13`, `REAS14`, `REAS15`, `REAS16`, `REAS17`, `REAS18`,
+`REAS19`, `REAS20`, `REAS21`, `REAS22`, `REAS23`, `REAS24`,`REAS25`, `REAS26`,
+`REAS27`, `REAS28`, `REAS29` from fy16_1")
+query2016_2 <- dbSendQuery(con, "select `id`,`GDLINEHI` from fy16_3")
+
+data2016_1 <- dbFetch(query2016_1) %>% aggregate_reasons()
+data2016_2 <- dbFetch(query2016_2) 
+data2016 <- full_join(data2016_1, data2016_2, by = 'id') %>% 
+  mutate(opafy=2016) %>% 
+  select(-1)
+#write_csv(data2016, here::here("data/io_truncated/data2016.csv"))
 
 
 # ----------------------2017 -----------------------------------
