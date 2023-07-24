@@ -56,7 +56,7 @@ data2004_2 <- dbFetch(query2004_2)%>% aggregate_reasons()
 data2004 <- full_join(data2004_1, data2004_2, by = 'id') %>% 
   mutate(opafy = 2004) %>% 
   # gets rid of id columns since we don't need after joining 
-  select(-1) %>% 
+  select(-id) %>% 
   rename_at(vars(sensplt0:newcnvtn), str_to_upper) # want only opafy and reason to be lowercase
 
 #write_csv(data2004, here::here("data/io_truncated/data2004.csv"))
@@ -74,7 +74,7 @@ query2005_2 <- dbSendQuery(con,"select `id`, `gdlinehi`,`SENTMON`,
 data2005_2 <- dbFetch(query2005_2) %>% aggregate_reasons()
 data2005 <- full_join(data2005_1, data2005_2, by = 'id') %>% 
   mutate(opafy = 2005) %>% 
-  select(-1) %>% 
+  select(-id) %>% 
   rename_at(vars(sensplt0:BookerCD), str_to_upper)
 
 #write_csv(data2005, here::here("data/io_truncated/data2005.csv"))
@@ -101,7 +101,7 @@ data2007_1 <- dbFetch(query2007_1)
 data2007_2 <- dbFetch(query2007_2) %>% aggregate_reasons()
 data2007 <- full_join(data2007_1, data2007_2, by = 'id') %>% 
   mutate(opafy=2007) %>% 
-  select(-1)
+  select(-id)
 
 #write_csv(data2007, here::here("data/io_truncated/data2007.csv"))
 # # ----------------------2008-----------------------------------
@@ -116,7 +116,7 @@ data2008_1 <- dbFetch(query2008_1)
 data2008_2 <- dbFetch(query2008_2) %>% aggregate_reasons()
 data2008 <- full_join(data2008_1, data2008_2, by = 'id') %>% 
   mutate(opafy=2008) %>% 
-  select(-1)
+  select(-id)
 
 #write_csv(data2008, here::here("data/io_truncated/data2008.csv"))
 # # ----------------------2009-----------------------------------
@@ -133,7 +133,7 @@ data2009_1 <- dbFetch(query2009_1) %>% aggregate_reasons()
 data2009_2 <- dbFetch(query2009_2) 
 data2009 <- full_join(data2009_1, data2009_2, by = 'id') %>% 
   mutate(opafy=2009) %>% 
-  select(-1)
+  select(-id)
 
 #write_csv(data2009, here::here("data/io_truncated/data2009.csv"))
 # # ----------------------2010-----------------------------------
@@ -151,7 +151,7 @@ data2010_1 <- dbFetch(query2010_1) %>% aggregate_reasons()
 data2010_2 <- dbFetch(query2010_2) 
 data2010 <- full_join(data2010_1, data2010_2, by = 'id') %>% 
   mutate(opafy=2010) %>% 
-  select(-1) %>% 
+  select(-id) %>% 
   rename_all(str_to_upper) %>% 
   rename(reason = REASON, opafy = OPAFY)
 
@@ -171,7 +171,7 @@ data2011_1 <- dbFetch(query2011_1) %>% aggregate_reasons()
 data2011_2 <- dbFetch(query2011_2) 
 data2011 <- full_join(data2011_1, data2011_2, by = 'id') %>% 
   mutate(opafy=2011) %>% 
-  select(-1)
+  select(-id)
 
 #write_csv(data2011, here::here("data/io_truncated/data2011.csv"))
 # ----------------------2012-----------------------------------
@@ -191,7 +191,7 @@ data2012_1 <- dbFetch(query2012_1) %>% aggregate_reasons()
 data2012_2 <- dbFetch(query2012_2) 
 data2012 <- full_join(data2012_1, data2012_2, by = 'id') %>% 
   mutate(opafy=2012) %>% 
-  select(-1)
+  select(-id)
 #write_csv(data2012, here::here("data/io_truncated/data2012.csv"))
 # # ----------------------2013-----------------------------------
 query2013_1 <- dbSendQuery(con, " select `id`,`SENTMON`, `SENTYR`, `SENSPLT0`, `GLMIN`,  `TOTCHPTS`, `IS924C`, 
@@ -208,7 +208,7 @@ data2013_1 <- dbFetch(query2013_1) %>% aggregate_reasons()
 data2013_2 <- dbFetch(query2013_2) 
 data2013 <- full_join(data2013_1, data2013_2, by = 'id') %>% 
   mutate(opafy=2013) %>% 
-  select(-1)
+  select(-id)
 #write_csv(data2013, here::here("data/io_truncated/data2013.csv"))
 
 # # ----------------------2014-----------------------------------
@@ -226,7 +226,7 @@ data2014_1 <- dbFetch(query2014_1) %>% aggregate_reasons()
 data2014_2 <- dbFetch(query2014_2) 
 data2014 <- full_join(data2014_1, data2014_2, by = 'id') %>% 
   mutate(opafy=2014) %>% 
-  select(-1)
+  select(-id)
 #write_csv(data2014, here::here("data/io_truncated/data2014.csv"))
 
 # # ----------------------2015-----------------------------------
@@ -241,7 +241,7 @@ data2015_1 <- dbFetch(query2015_1) %>% aggregate_reasons()
 data2015_2 <- dbFetch(query2015_2) 
 data2015 <- full_join(data2015_1, data2015_2, by = 'id') %>% 
   mutate(opafy=2015) %>% 
-  select(-1)
+  select(-id)
 #write_csv(data2015, here::here("data/io_truncated/data2015.csv"))
 
 # # ----------------------2016-----------------------------------
@@ -260,7 +260,7 @@ data2016_1 <- dbFetch(query2016_1) %>% aggregate_reasons()
 data2016_2 <- dbFetch(query2016_2) 
 data2016 <- full_join(data2016_1, data2016_2, by = 'id') %>% 
   mutate(opafy=2016) %>% 
-  select(-1)
+  select(-id)
 #write_csv(data2016, here::here("data/io_truncated/data2016.csv"))
 
 
@@ -283,7 +283,7 @@ data2017_2 <-  dbFetch(query2017_2)
 data2017 <- full_join(data2017_1, data2017_2, by = 'id') %>% 
   mutate(opafy = 2017,
          SENTRNGE = NA) %>% 
-  select(-1)
+  select(-id)
 
 #write_csv(data2017, here::here("data/io_truncated/data2017.csv"))
 
@@ -307,7 +307,7 @@ query2018_2 <-  dbSendQuery(con, "select `id`, `GDLINEHI` FROM fy18_3")
 data2018_2 <- dbFetch(query2018_2)
 data2018 <- full_join(data2018_1, data2018_2, by = 'id') %>% 
   mutate(opafy=2018) %>% 
-  select(-1) %>% 
+  select(-id) %>% 
   rename_at(vars(sentmon:sentrnge), str_to_upper)
 
 head(data2018)
@@ -331,7 +331,7 @@ query2019_2 <-  dbSendQuery(con, "select `id`, `GDLINEHI` FROM fy19_2 ")
 data2019_2 <- dbFetch(query2019_2)
 data2019 <- full_join(data2019_1, data2019_2, by = 'id') %>% 
   mutate(opafy=2019) %>% 
-  select(-1)
+  select(-id)
 
 head(data2019)
 
