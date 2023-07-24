@@ -38,7 +38,10 @@ query2003 <- dbSendQuery(con, "select `sentdate`, `sensplt0`, `glmin`,`gdlinehi`
                          `REASON6`, `SOURCES`from opafy03nid")
 
 data2003 <- dbFetch(query2003)%>% aggregate_reasons()
-data2003 <- data2003 %>% mutate(opafy = 2003)
+data2003 <- data2003 %>% mutate(opafy = 2003) %>% 
+  rename_all(str_to_upper) %>% 
+  rename(reason = REASON, opafy = OPAFY)
+
 #write_csv(data2003, here::here("data/io_truncated/data2003.csv"))
 
 # # ----------------------2004-----------------------------------
@@ -148,7 +151,9 @@ data2010_1 <- dbFetch(query2010_1) %>% aggregate_reasons()
 data2010_2 <- dbFetch(query2010_2) 
 data2010 <- full_join(data2010_1, data2010_2, by = 'id') %>% 
   mutate(opafy=2010) %>% 
-  select(-1)
+  select(-1) %>% 
+  rename_all(str_to_upper) %>% 
+  rename(reason = REASON, opafy = OPAFY)
 
 #write_csv(data2010, here::here("data/io_truncated/data2010.csv"))
 # # ----------------------2011-----------------------------------
@@ -391,4 +396,25 @@ io_raw_2017_2021 <- bind_rows(data2017, data2018, data2019, data2020, data2021) 
 #write_csv(io_raw_2017_2021,here::here("data/io_raw_2017_2021.csv"))
 
 str(io_raw_2017_2021)
+
+
+# ------------------------MERGE ALL YEARS TOGETHER--------------------------
+
+io_raw_2002_2021 <- bind_rows(data2002, data2003, data2004, data2005, data2006,
+                              data2007, data2008, data2009, data2010, data2011,
+                              data2012, data2013, data2014, data2015, data2016,
+                              data2017, data2018, data2019, data2020, data2021) %>%
+  #CL note 7/22 - think this is fine but not sure we need it?
+  mutate(across(c(SENTMON, SENTYR, SENSPLT0, GLMIN, TOTCHPTS, IS924C,
+                  WEAPSOC,STATMIN, CAROFFAP, ACCAP, SAFE,NEWCNVTN, PRESENT,
+                  MITROLHI,AGGROLHI,NEWRACE,MONSEX,AGE, EDUCATN,NEWCIT,
+                  BOOKERCD,SENTRNGE), as.numeric))
+
+
+
+
+
+
+
+
 
