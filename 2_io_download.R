@@ -405,7 +405,7 @@ io_raw_2002_2021 <- bind_rows(data2002, data2003, data2004, data2005, data2006,
   mutate(across(c(SENTMON, SENTYR, SENSPLT0, GLMIN, TOTCHPTS, IS924C,
                   WEAPSOC,STATMIN, CAROFFAP, ACCAP, SAFE,NEWCNVTN, PRESENT,
                   MITROLHI,AGGROLHI,NEWRACE,MONSEX,AGE, EDUCATN,NEWCIT,
-                  BOOKERCD,SENTRNGE), as.numeric))
+                  BOOKERCD,SENTRNGE, DISTRICT, CIRCDIST, SOURCES), as.numeric))
 
 
 
