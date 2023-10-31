@@ -175,6 +175,7 @@ data <- io_combined %>%
           TRUE ~ NA)) %>%  #2012 Booker Report at 32 says BOOKERCD and DEPART used too, but model also uses subassist var?)
   mutate(familyties = str_detect(reason, "\\b17\\b"))
 
+#write_csv(data, here::here("data/io.csv"))
 
 #--------OLD CODE---------------------
 
