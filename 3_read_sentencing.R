@@ -3,7 +3,7 @@ library(lubridate)
 library(glue)
 library(here)
 library(asciiSetupReader)
-
+library(janitor)
 
 
 fy02_raw <- read_csv(here::here("data/individual_offenders/opafy02nid.csv"), guess_max = 50000) %>% 
@@ -127,6 +127,7 @@ io_raw_2017_2021 <- read_csv(here::here("data/io_raw_2017_2021.csv"))
 
 #merge the two as "io_combined"
 io_combined <- bind_rows(io, io_raw_2017_2021)
+#add district
 circdist <- read_csv(here::here("data/circdist.csv"))
 io_combined <- left_join(io_combined, circdist, by = c('CIRCDIST' ='districtNum'))
 
