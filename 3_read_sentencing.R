@@ -342,34 +342,34 @@ data <- io_combined %>%
 
 #justfair has TOTCHPTS instead of SORCHPT for total criminal history points -- check on the difference
 
-
-#this is the old Booker report model
-model1 <- lm(logsplit ~ logmin + 
-               sexual + #sexual2 used pg 33 of 2012 Booker Report
-               drugtraff +
-               whitecoll +
-               immigration +
-               othtype +
-               TOTCHPTS +
-               IS924C +
-               WEAPSOC +
-               valve + 
-               CAROFFAP +
-               ACCAP +
-               upward +
-               downgovt +
-               downcourt +
-               subasst +
-               mandmin +
-               NEWCNVTN +
-               mitigate +
-               aggravate +
-               factor(NEWRACE) +
-               MONSEX + 
-               agedummy +
-               educ +
-               NEWCIT,
-             data)
-
-
-
+# 
+# #this is the old Booker report model
+# model1 <- lm(logsplit ~ logmin + 
+#                sexual + #sexual2 used pg 33 of 2012 Booker Report
+#                drugtraff +
+#                whitecoll +
+#                immigration +
+#                othtype +
+#                TOTCHPTS +
+#                IS924C +
+#                WEAPSOC +
+#                valve + 
+#                CAROFFAP +
+#                ACCAP +
+#                upward +
+#                downgovt +
+#                downcourt +
+#                subasst +
+#                mandmin +
+#                NEWCNVTN +
+#                mitigate +
+#                aggravate +
+#                factor(NEWRACE) +
+#                MONSEX + 
+#                agedummy +
+#                educ +
+#                NEWCIT,
+#              data)
+# 
+# 
+# 
