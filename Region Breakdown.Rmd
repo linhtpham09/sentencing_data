@@ -1,0 +1,122 @@
+---
+title: "Region Breakdown"
+output: html_document
+date: "2023-10-31"
+---
+
+```{r setup, include=FALSE}
+
+library(tidyverse)
+library(flextable)
+library(janitor)
+library(scales)
+library(readxl)
+
+data <- read_csv(here::here("data/io.csv"))
+
+postprotect <- data %>% 
+  filter(postprotect) #06-24-04
+
+postbooker <- data %>% 
+  filter(postbooker) #dates are not right #12-10-2007
+
+postgall <- data %>% 
+  filter(postgall)
+
+postreport <- data %>% 
+  filter(postreport)
+
+present <- data %>% 
+  filter(present)
+
+highlight_above_avg <- function(ft){
+  ft %>% 
+    bg(i = ~ `Black Male`>Overall, 
+     j = ~ `Black Male`, 
+     bg="#Fba894") %>% 
+    bg(i = ~ `Hispanic Male`>Overall, 
+       j = ~ `Hispanic Male`, 
+       bg="#Fba894") %>% 
+    bg(i = ~ `White Male`>Overall, 
+       j = ~ `White Male`, 
+       bg="#Fba894") %>% 
+    bg(i = ~ `Other Male`>Overall, 
+       j = ~ `Other Male`, 
+       bg="#Fba894") %>% 
+    bg(i = ~ `Black Female`>Overall, 
+       j = ~ `Black Female`, 
+       bg="#Fba894") %>% 
+    bg(i = ~ `Hispanic Female`>Overall, 
+       j = ~ `Hispanic Female`, 
+       bg="#Fba894") %>% 
+    bg(i = ~ `White Female`>Overall, 
+       j = ~ `White Female`, 
+       bg="#Fba894") %>% 
+    bg(i = ~ `Other Female`>Overall, 
+       j = ~ `Other Female`, 
+       bg="#Fba894")
+}
+```
+
+
+## Average Sentence, by Federal District and Period 
+
+```{r}
+dem_avg <- function(df){
+  df %>% 
+    group_by(fedNum) %>% 
+    summarize(avg_sent = mean(SENSPLT0, na.rm=T))
+}
+
+list_periods <- list(postprotect, postbooker, postgall, postreport, present)
+
+avg_sent_dem_tbl <- map(list_periods, dem_avg) %>% 
+  bind_rows(.id = "Period") %>% 
+  mutate(avg_sent = round(avg_sent),
+         Period = recode(as.character(Period),
+                         "1" = "Protect", "2" = "Booker", "3" = "Gall", "4" = "Post-Report", "5" = "Present")) %>% 
+  pivot_wider(names_from = Period, values_from = avg_sent) %>% 
+  rename("Group" = fedNum)
+
+avg_sent_dem_tbl %>% 
+  flextable()
+
+
+```
+
+Because most of the data is labeled under present day, we will only be considering this time period for region breakdown. 
+
+
+## Average Sentence by Demographic and Federal District
+```{r}
+present%>% 
+  select(SENSPLT0, fedNum, racesex_clean) %>% 
+  group_by(fedNum, racesex_clean) %>% 
+  summarize(avg_sent = round(mean(SENSPLT0, na.rm = T))) %>% 
+  ungroup() %>% 
+  pivot_wider(names_from = racesex_clean, values_from = avg_sent) %>% flextable()
+
+```
+
+## Average Sentence by Crime Type and Federal District 
+```{r}
+present%>% 
+  select(SENSPLT0, fedNum, crime_type) %>% 
+  group_by(fedNum, crime_type) %>% 
+  summarize(avg_sent = round(mean(SENSPLT0, na.rm = T))) %>% 
+  ungroup() %>% 
+  pivot_wider(names_from = crime_type, values_from = avg_sent) %>% flextable()
+
+```
+
+
+
+```{r}
+present %>% 
+  select(crime_type, racesex_clean, fedNum, SENSPLT0) %>% 
+  group_by(crime_type, racesex_clean, fedNum) %>% 
+  summarize(avg_sent = round(mean(SENSPLT0, na.rm = T))) %>% 
+  ungroup() %>% 
+  pivot_wider(names_from = fedNum, values_from = avg_sent)
+```
+
