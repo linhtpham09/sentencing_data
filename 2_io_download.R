@@ -435,7 +435,13 @@ dist <- c("Dist of Columbia", "Maine", "Massachusetts", "New Hampshire",
           "Florida Mid", "Florida North", "Florida South", "Georgia Mid", 
           "Georgia North", "Georgia South")
 
+#0 is dc 
+fednum <- c(0, rep(1, 5), rep(2, 6), rep(3, 6), rep(4, 9), rep(5, 9), rep(6,9), 
+            rep(7, 7), rep(8,10), rep(9, 15),rep(10,8),rep(11,9))
+feddist <- data.frame(fedNum = fednum, district = dist)
 circdist <- data.frame(districtNum = num, districtName= dist)
+circdist <- left_join(circdist, feddist, by = c('districtName' ='district'))
+
 #write_csv(circdist, here::here("data/circdist.csv"))
 
 
