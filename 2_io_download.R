@@ -34,7 +34,7 @@ data2002 <- data2002 %>% mutate(opafy = 2002)
 # # ----------------------2003-----------------------------------
 query2003 <- dbSendQuery(con, "select `sentdate`, `sensplt0`, `glmin`,`gdlinehi`, `totchpts`, `is924c`, `weapsoc`, `statmin`, `caroffap`,
 `accap`,`depart`, `safe`, `newcnvtn`,`present`, `mitrolhi`, `aggrolhi`, `newrace`, `monsex`,
-`age`, `educatn`,`newcit`,`district`,`circdist` `REASTXT1`, `REASTXT2`, `REASTXT4`, `REASTXT6`, `REASON4`, `REASON5`,
+`age`, `educatn`,`newcit`,`district`,`circdist`, `REASTXT1`, `REASTXT2`, `REASTXT4`, `REASTXT6`, `REASON4`, `REASON5`,
                          `REASON6`, `SOURCES`from opafy03nid")
 
 data2003 <- dbFetch(query2003)%>% aggregate_reasons()
@@ -47,7 +47,7 @@ data2003 <- data2003 %>% mutate(opafy = 2003) %>%
 # # ----------------------2004-----------------------------------
 query2004_1 <- dbSendQuery(con ,"select  `id`,`sensplt0`, `glmin`,  `totchpts`, `is924c`, `weapsoc`,
 `statmin`, `caroffap`, `accap`,  `safe`,  `present`, `mitrolhi`, `aggrolhi`,
-`newrace`, `monsex`, `age`, `educatn`,`newcit`, `sources`, `district`, `circdist`from fy04_1")
+`newrace`, `monsex`, `age`, `educatn`,`newcit`, `sources`, `district`, `circdist` from fy04_1")
 data2004_1 <- dbFetch(query2004_1)
 
 query2004_2 <- dbSendQuery(con, "select `id`,`DEPART_A`,`SENTMON`,`SENTYR`,`gdlinehi`,`newcnvtn`,`REAS1`, 
@@ -383,16 +383,16 @@ data2021 <- full_join(data2021_1, data2021_2, by = 'id') %>%
 
 #write_csv(data2021, here::here("data/io_truncated/data2021.csv"))
 
-# ----------------------MERGE TOGETHER-----------------------------------
-io_raw_2017_2021 <- bind_rows(data2017, data2018, data2019, data2020, data2021) %>% 
-  mutate(across(c(SENTMON, SENTYR, SENSPLT0, GLMIN, TOTCHPTS, IS924C,
-                  WEAPSOC,STATMIN, CAROFFAP, ACCAP, SAFE,NEWCNVTN, PRESENT,
-                  MITROLHI,AGGROLHI,NEWRACE,MONSEX,AGE, EDUCATN,NEWCIT,
-                  BOOKERCD,SENTRNGE, DISTRICT,CIRCDIST,SOURCES), as.numeric)) 
-
-#write_csv(io_raw_2017_2021,here::here("data/io_raw_2017_2021.csv"))
-
-str(io_raw_2017_2021)
+# # ----------------------MERGE TOGETHER-----------------------------------
+# io_raw_2017_2021 <- bind_rows(data2017, data2018, data2019, data2020, data2021) %>% 
+#   mutate(across(c(SENTMON, SENTYR, SENSPLT0, GLMIN, TOTCHPTS, IS924C,
+#                   WEAPSOC,STATMIN, CAROFFAP, ACCAP, SAFE,NEWCNVTN, PRESENT,
+#                   MITROLHI,AGGROLHI,NEWRACE,MONSEX,AGE, EDUCATN,NEWCIT,
+#                   BOOKERCD,SENTRNGE, DISTRICT,CIRCDIST,SOURCES), as.numeric)) 
+# 
+# #write_csv(io_raw_2017_2021,here::here("data/io_raw_2017_2021.csv"))
+# 
+# str(io_raw_2017_2021)
 
 
 # ------------------------MERGE ALL YEARS TOGETHER--------------------------

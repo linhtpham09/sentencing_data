@@ -14,6 +14,7 @@ library(readxl)
 
 data <- read_csv(here::here("data/io.csv"))
 
+
 postprotect <- data %>% 
   filter(postprotect) #06-24-04
 
@@ -61,7 +62,11 @@ highlight_above_avg <- function(ft){
 
 ## Average Sentence, by Federal District and Period 
 
+
+
 ```{r}
+
+
 dem_avg <- function(df){
   df %>% 
     group_by(fedNum) %>% 
