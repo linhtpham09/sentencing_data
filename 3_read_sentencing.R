@@ -127,6 +127,8 @@ io_raw_2017_2021 <- read_csv(here::here("data/io_raw_2017_2021.csv"))
 
 #merge the two as "io_combined"
 io_combined <- bind_rows(io, io_raw_2017_2021)
+circdist <- read_csv(here::here("data/circdist.csv"))
+io_combined <- left_join(io_combined, circdist, by = c('CIRCDIST' ='districtNum'))
 
 matchwna <- function(string, list){
   case_when(

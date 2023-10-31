@@ -408,8 +408,35 @@ io_raw_2002_2021 <- bind_rows(data2002, data2003, data2004, data2005, data2006,
                   BOOKERCD,SENTRNGE, DISTRICT, CIRCDIST, SOURCES), as.numeric))
 
 
+#----------------CIRCDIST Column-----------------------
 
+num <- seq(1,94)
+dist <- c("Dist of Columbia", "Maine", "Massachusetts", "New Hampshire", 
+          "Puerto Rico", "Rhode Island", "Connecticut", "New York East",
+          "New York North", "New York South", "New York West", "Vermont", 
+          "Delaware", "New Jersey", "Penn. East", "Penn. Mid", "Penn. West",
+          "Virgin Islands","Maryland", "N Carolina East", "N Carolina Mid",
+          "N Carolina West", "South Carolina", "Virginia East", "Virginia West",
+          "W Virginia North", "W Virginia South", "Louisiana East", 
+          "Louisiana Middle","Louisiana West", "Miss. North", "Miss. South",
+          "Texas East", "Texas North", "Texas South", "Texas West", 
+          "Kentucky East", "Kentucky West", "Michigan East", "Michigan West",
+          "Ohio North","Ohio South","Tennessee East", "Tennessee Mid",
+          "Tennessee West", "Illinois Cent", "Illinois North", "Illinois South",
+          "Indiana North", "Indiana South","Wisconsin East", "Wisconsin West",
+          "Arkansas East", "Arkansas West", "Iowa North", "Iowa South",
+          "Minnesota", "Missouri East", "Missouri West", "Nebraska", 
+          "North Dakota", "South Dakota", "Alaska", "Arizona", "California Cent",
+          "California East", "California North", "California South", "Guam",
+          "Hawaii", "Idaho", "Montana", "Nevada", "N Mariana Island","Oregon",
+          "Washington East", "Washington West", "Colorado", "Kansas", 
+          "New Mexico", "Oklahoma East", "Oklahoma North", "Oklahoma West", 
+          "Utah", "Wyoming", "Alabama Mid", "Alabama North", "Alabama South", 
+          "Florida Mid", "Florida North", "Florida South", "Georgia Mid", 
+          "Georgia North", "Georgia South")
 
+circdist <- data.frame(districtNum = num, districtName= dist)
+#write_csv(circdist, here::here("data/circdist.csv"))
 
 
 
