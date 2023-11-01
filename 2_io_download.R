@@ -28,7 +28,7 @@ query2002 <- dbSendQuery(con, "select `SENTDATE`, `SENSPLT0`, `GLMIN`, `GDLINEHI
 data2002 <- dbFetch(query2002) %>% aggregate_reasons()
 data2002 <- data2002 %>% mutate(opafy = 2002)
 
-#write_csv(data2002, here::here("data/io_truncated/data2002.csv"))
+write_csv(data2002, here::here("data/io_truncated/data2002.csv"))
 
 
 # # ----------------------2003-----------------------------------
@@ -42,7 +42,7 @@ data2003 <- data2003 %>% mutate(opafy = 2003) %>%
   rename_all(str_to_upper) %>% 
   rename(reason = REASON, opafy = OPAFY)
 
-#write_csv(data2003, here::here("data/io_truncated/data2003.csv"))
+write_csv(data2003, here::here("data/io_truncated/data2003.csv"))
 
 # # ----------------------2004-----------------------------------
 query2004_1 <- dbSendQuery(con ,"select  `id`,`sensplt0`, `glmin`,  `totchpts`, `is924c`, `weapsoc`,
@@ -59,7 +59,7 @@ data2004 <- full_join(data2004_1, data2004_2, by = 'id') %>%
   select(-id) %>% 
   rename_at(vars(sensplt0:newcnvtn), str_to_upper) # want only opafy and reason to be lowercase
 
-#write_csv(data2004, here::here("data/io_truncated/data2004.csv"))
+write_csv(data2004, here::here("data/io_truncated/data2004.csv"))
 # # ----------------------2005-----------------------------------
 
 query2005_1 <- dbSendQuery(con, "select `id`,`sensplt0`, `glmin`, `totchpts`, `is924c`, `weapsoc`, `statmin`, `caroffap`,
@@ -77,7 +77,7 @@ data2005 <- full_join(data2005_1, data2005_2, by = 'id') %>%
   select(-id) %>% 
   rename_at(vars(sensplt0:BookerCD), str_to_upper)
 
-#write_csv(data2005, here::here("data/io_truncated/data2005.csv"))
+write_csv(data2005, here::here("data/io_truncated/data2005.csv"))
 # # ----------------------2006-----------------------------------
 query2006 <- dbSendQuery(con, "select `SENTMON`, `SENTYR`, `SENSPLT0`,`GLMIN`, `GDLINEHI`, `TOTCHPTS`, `IS924C`, 
 `WEAPSOC`, `STATMIN`, `CAROFFAP`, `ACCAP`, `BOOKERCD`,`SAFE`, `NEWCNVTN`, 
@@ -87,7 +87,7 @@ query2006 <- dbSendQuery(con, "select `SENTMON`, `SENTYR`, `SENSPLT0`,`GLMIN`, `
 `REAS11`, `REAS12`, `SOURCES`, `DISTRICT`,`CIRCDIST` from opafy06nid")
 data2006 <- dbFetch(query2006) %>% aggregate_reasons() %>% mutate(opafy=2006)
 
-#write_csv(data2006, here::here("data/io_truncated/data2006.csv"))
+write_csv(data2006, here::here("data/io_truncated/data2006.csv"))
 # # ----------------------2007-----------------------------------
 query2007_1<- dbSendQuery(con,"select `id`,`SENSPLT0`, `GLMIN`,  `TOTCHPTS`, `IS924C`, `WEAPSOC`, 
 `STATMIN`, `CAROFFAP`, `ACCAP`, 
@@ -103,7 +103,7 @@ data2007 <- full_join(data2007_1, data2007_2, by = 'id') %>%
   mutate(opafy=2007) %>% 
   select(-id)
 
-#write_csv(data2007, here::here("data/io_truncated/data2007.csv"))
+write_csv(data2007, here::here("data/io_truncated/data2007.csv"))
 # # ----------------------2008-----------------------------------
 query2008_1 <- dbSendQuery(con, "select `id`, `SENSPLT0`, `GLMIN`, `TOTCHPTS`, `IS924C`, `WEAPSOC`, `STATMIN`,
 `CAROFFAP`, `ACCAP`, `SAFE`, `NEWCNVTN`, `PRESENT`, `MITROLHI`, `AGGROLHI`, `NEWRACE`, `MONSEX`, `AGE`, 
@@ -135,7 +135,7 @@ data2009 <- full_join(data2009_1, data2009_2, by = 'id') %>%
   mutate(opafy=2009) %>% 
   select(-id)
 
-#write_csv(data2009, here::here("data/io_truncated/data2009.csv"))
+write_csv(data2009, here::here("data/io_truncated/data2009.csv"))
 # # ----------------------2010-----------------------------------
 
 query2010_1 <- dbSendQuery(con,"select `id`, `sentmon`, `sentyr`, `sensplt0`, `glmin`,  `totchpts`, `is924c`, 
@@ -155,7 +155,7 @@ data2010 <- full_join(data2010_1, data2010_2, by = 'id') %>%
   rename_all(str_to_upper) %>% 
   rename(reason = REASON, opafy = OPAFY)
 
-#write_csv(data2010, here::here("data/io_truncated/data2010.csv"))
+write_csv(data2010, here::here("data/io_truncated/data2010.csv"))
 # # ----------------------2011-----------------------------------
 query2011_1 <- dbSendQuery(con, "select `id`,`SENTMON`, `SENTYR`, `SENSPLT0`, `GLMIN`,  `TOTCHPTS`, `IS924C`, 
 `WEAPSOC`, `STATMIN`, `CAROFFAP`, `ACCAP`, `BOOKERCD`,
@@ -174,7 +174,7 @@ data2011 <- full_join(data2011_1, data2011_2, by = 'id') %>%
   mutate(opafy=2011) %>% 
   select(-id)
 
-#write_csv(data2011, here::here("data/io_truncated/data2011.csv"))
+write_csv(data2011, here::here("data/io_truncated/data2011.csv"))
 # ----------------------2012-----------------------------------
 query2012_1 <- dbSendQuery(con, "select `id`, `SENTMON`, `SENTYR`, `SENSPLT0`, `GLMIN`,  `TOTCHPTS`, `IS924C`, 
 `WEAPSOC`, `STATMIN`, `CAROFFAP`, 
@@ -194,7 +194,7 @@ data2012_2 <- dbFetch(query2012_2)
 data2012 <- full_join(data2012_1, data2012_2, by = 'id') %>% 
   mutate(opafy=2012) %>% 
   select(-id)
-#write_csv(data2012, here::here("data/io_truncated/data2012.csv"))
+write_csv(data2012, here::here("data/io_truncated/data2012.csv"))
 # # ----------------------2013-----------------------------------
 query2013_1 <- dbSendQuery(con, " select `id`,`SENTMON`, `SENTYR`, `SENSPLT0`, `GLMIN`,  `TOTCHPTS`, `IS924C`, 
 `WEAPSOC`, `STATMIN`, `CAROFFAP`, 
@@ -211,7 +211,7 @@ data2013_2 <- dbFetch(query2013_2)
 data2013 <- full_join(data2013_1, data2013_2, by = 'id') %>% 
   mutate(opafy=2013) %>% 
   select(-id)
-#write_csv(data2013, here::here("data/io_truncated/data2013.csv"))
+write_csv(data2013, here::here("data/io_truncated/data2013.csv"))
 
 # # ----------------------2014-----------------------------------
 query2014_1 <- dbSendQuery(con, "select `id`,`SENTMON`, `SENTYR`, `SENSPLT0`, 
@@ -229,7 +229,7 @@ data2014_2 <- dbFetch(query2014_2)
 data2014 <- full_join(data2014_1, data2014_2, by = 'id') %>% 
   mutate(opafy=2014) %>% 
   select(-id)
-#write_csv(data2014, here::here("data/io_truncated/data2014.csv"))
+write_csv(data2014, here::here("data/io_truncated/data2014.csv"))
 
 # # ----------------------2015-----------------------------------
 query2015_1 <- dbSendQuery(con, "select `id`, `SENTMON`, `SENTYR`, `SENSPLT0`, `GLMIN`, `TOTCHPTS`, 
@@ -244,7 +244,7 @@ data2015_2 <- dbFetch(query2015_2)
 data2015 <- full_join(data2015_1, data2015_2, by = 'id') %>% 
   mutate(opafy=2015) %>% 
   select(-id)
-#write_csv(data2015, here::here("data/io_truncated/data2015.csv"))
+write_csv(data2015, here::here("data/io_truncated/data2015.csv"))
 
 # # ----------------------2016-----------------------------------
 
@@ -263,7 +263,7 @@ data2016_2 <- dbFetch(query2016_2)
 data2016 <- full_join(data2016_1, data2016_2, by = 'id') %>% 
   mutate(opafy=2016) %>% 
   select(-id)
-#write_csv(data2016, here::here("data/io_truncated/data2016.csv"))
+write_csv(data2016, here::here("data/io_truncated/data2016.csv"))
 
 
 # ----------------------2017 -----------------------------------
@@ -288,7 +288,7 @@ data2017 <- full_join(data2017_1, data2017_2, by = 'id') %>%
          SENTRNGE = NA) %>% 
   select(-id)
 
-#write_csv(data2017, here::here("data/io_truncated/data2017.csv"))
+write_csv(data2017, here::here("data/io_truncated/data2017.csv"))
 
 # ----------------------2018-----------------------------------
 query2018_1 <- dbSendQuery(con, "select `id`,`sentmon`, `sentyr`,`sensplt0`, 
@@ -313,7 +313,7 @@ data2018 <- full_join(data2018_1, data2018_2, by = 'id') %>%
   select(-id) %>% 
   rename_at(vars(sentmon:sentrnge), str_to_upper)
 
-#write_csv(data2018, here::here("data/io_truncated/data2018.csv"))
+write_csv(data2018, here::here("data/io_truncated/data2018.csv"))
 
 # ----------------------2019-----------------------------------
 query2019_1 <-  dbSendQuery(con, "select `id`,`SENTMON`, `SENTYR`,`SENSPLT0`, 
@@ -334,7 +334,7 @@ data2019 <- full_join(data2019_1, data2019_2, by = 'id') %>%
   mutate(opafy=2019) %>% 
   select(-id)
 
-#write_csv(data2019, here::here("data/io_truncated/data2019.csv"))
+write_csv(data2019, here::here("data/io_truncated/data2019.csv"))
 
 
 # ----------------------2020-----------------------------------
@@ -357,7 +357,7 @@ data2020 <- full_join(data2020_1, data2020_2, by = 'id') %>%
   mutate(opafy = 2020) %>% 
   select(-1)
 
-#write_csv(data2020, here::here("data/io_truncated/data2020.csv"))
+write_csv(data2020, here::here("data/io_truncated/data2020.csv"))
 
 # ----------------------2021-----------------------------------
 
@@ -381,19 +381,7 @@ data2021 <- full_join(data2021_1, data2021_2, by = 'id') %>%
   mutate(opafy=2021) %>% 
   select(-1)
 
-#write_csv(data2021, here::here("data/io_truncated/data2021.csv"))
-
-# # ----------------------MERGE TOGETHER-----------------------------------
-# io_raw_2017_2021 <- bind_rows(data2017, data2018, data2019, data2020, data2021) %>% 
-#   mutate(across(c(SENTMON, SENTYR, SENSPLT0, GLMIN, TOTCHPTS, IS924C,
-#                   WEAPSOC,STATMIN, CAROFFAP, ACCAP, SAFE,NEWCNVTN, PRESENT,
-#                   MITROLHI,AGGROLHI,NEWRACE,MONSEX,AGE, EDUCATN,NEWCIT,
-#                   BOOKERCD,SENTRNGE, DISTRICT,CIRCDIST,SOURCES), as.numeric)) 
-# 
-# #write_csv(io_raw_2017_2021,here::here("data/io_raw_2017_2021.csv"))
-# 
-# str(io_raw_2017_2021)
-
+write_csv(data2021, here::here("data/io_truncated/data2021.csv"))
 
 # ------------------------MERGE ALL YEARS TOGETHER--------------------------
 
@@ -407,7 +395,7 @@ io_raw_2002_2021 <- bind_rows(data2002, data2003, data2004, data2005, data2006,
                   MITROLHI,AGGROLHI,NEWRACE,MONSEX,AGE, EDUCATN,NEWCIT,
                   BOOKERCD,SENTRNGE, DISTRICT, CIRCDIST, SOURCES), as.numeric))
 
-
+#write_csv(io_raw_2002_2021, here::here("data/io_2002_2021.csv"))
 #----------------CIRCDIST Column-----------------------
 
 num <- seq(1,94)

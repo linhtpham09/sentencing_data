@@ -5,10 +5,10 @@ library(here)
 library(asciiSetupReader)
 library(janitor)
 
-io <- read_csv(here::here("data/io_2002_2021.csv"))
+io_2002_2021 <- read_csv(here::here("data/io_2002_2021.csv"))
 #add district
 circdist <- read_csv(here::here("data/circdist.csv"))
-io_combined <- left_join(io_combined, circdist, by = c('CIRCDIST' ='districtNum'))
+io_combined <- left_join(io_2002_2021, circdist, by = c('CIRCDIST' ='districtNum'))
 
 matchwna <- function(string, list){
   case_when(
@@ -178,7 +178,7 @@ data <- io_combined %>%
 #write_csv(data, here::here("data/io.csv"))
 
 #--------OLD CODE---------------------
-
+#moved and commented out old code -Linh 10/31/2023
 # 
 # fy02_raw <- read_csv(here::here("data/individual_offenders/opafy02nid.csv"), guess_max = 50000) %>% 
 #   select(SENTDATE, SENSPLT0, GLMIN, GDLINEHI, TOTCHPTS, IS924C, WEAPSOC, STATMIN, CAROFFAP, ACCAP, DEPART, 
