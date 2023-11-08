@@ -5,7 +5,7 @@ output:
     df_print: paged
   word_document:
     reference_docx: template/template.docx
-date: "January 31, 2022"
+date: "November 8, 2023"
 ---
 
 ```{r setup, include=FALSE}
@@ -41,7 +41,7 @@ source(here::here("utils.R"))
 ```
 
 
-This document attempts to replicate the Commission's "refined model" for estimating demographic disparities in sentencing. For more information about the model and for the reference regressions, see "Demographic Disparities Baseline Switch Reference Docs." For a write-up of findings, see the latest version of the Data Learnings Memo.
+This document attempts to replicate the Commission's "refined model" for estimating demographic disparities in sentencing. However, this version is confined to the border districts identified in ****.
 
 ## White Male Baseline Regressions
 
