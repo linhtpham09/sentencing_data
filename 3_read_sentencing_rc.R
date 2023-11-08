@@ -142,6 +142,10 @@ matchwna <- function(string, list){
 
 data <- io_raw_2002_2021 %>% 
   filter(SOURCES==1) %>% 
+  filter(!is.na(MONSEX)) %>%
+  filter(!is.na(NEWRACE)) %>%
+  filter(!is.na(BOOKERCD) | !is.na(DEPART_A) | !is.na(DEPART) | !is.na(SENTRNGE)) %>%
+  filter(!is.na(GDLINEHI)) %>%
   remove_empty() %>% 
   mutate(
     #for FYs that use SENTDATE, converting to date data type
@@ -275,7 +279,7 @@ data <- io_raw_2002_2021 %>%
            !DEPART %in% c(3, 5, 7, 9) & !is.na(DEPART) ~ FALSE,#add 8 to the nots for consistency
            DEPART_A!=2 & !is.na(DEPART_A) ~ FALSE,
            TRUE ~ NA)) %>% 
-  mutate(VALVE = ifelse(SAFE > 0, 1, 0)) %>% #47204 missings in our code, none in Ryan's (intentionally)
+  mutate(VALVE = ifelse(SAFE > 0, 1, 0)) %>% #47204 missings in our old code, none in Ryan's (intentionally)
   mutate(valve = ifelse(is.na(VALVE), 0, VALVE)) %>%
   ##CML: may not fully capture valve cases post-2019, 
   #see codebook. note to ask prof doherty if she wants this var to 

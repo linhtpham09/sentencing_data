@@ -139,6 +139,7 @@ matchwna <- function(string, list){
 data <- io_combined %>% 
   remove_empty() %>% 
   mutate(
+       #for FYs that use SENTDATE, converting to date data type
         sentdate = SENTDATE %>% 
           str_replace("Jan", "01") %>% 
           str_replace("Feb", "02") %>% 
@@ -153,15 +154,19 @@ data <- io_combined %>%
           str_replace("Nov", "11") %>% 
           str_replace("Dec", "12") %>% 
           dmy(), 
+        #for FYs that use SENTMON and SENTYR, make a variable for the floor of each month to use for splitting data into periods
          sentmonyr = ymd(glue("{SENTYR}-{SENTMON}-01")),
+        #length of confinement
          logsplit = case_when(
           SENSPLT0==0.00 ~ log(0.01), 
           SENSPLT0>470 ~ log(470),
           TRUE ~ log(SENSPLT0)),
+        #trumped guideline minimum
          logmin = case_when(
           GLMIN==0.00 ~ log(0.01), 
           GLMIN>470 ~ log(470),
           TRUE ~ log(GLMIN)),
+        #variables for type of offense committed
          violent = matchwna(GDLINEHI, c("2A1.1", "2A1.2", "2A1.3", "2A1.4", "2A1.5", "2A2.1", "2A2.2", "2A2.3", "2A2.4", 
                                    "2A4.1", "2A4.2", "2A5.1", "2A5.2", "2A5.3", "2A6.1", "2A6.2", "2E1.3", "2E1.4", 
                                    "2E2.1", "2B3.1", "2B3.2", "2B3.3")) | str_detect(GDLINEHI, "^2K\\d{1}\\.\\d{1}$"),
@@ -173,15 +178,18 @@ data <- io_combined %>%
          whitecoll = matchwna(GDLINEHI, c("2B1.1", "2B1.6", "2B4.1", "2B5.1", "2B5.3", "2F1.1", "2F1.2", "2R1.1", "2S1.1", "2S1.2", "2S1.3", "2S1.4")) | 
            str_detect(GDLINEHI, "^2T\\d{1}\\.\\d{1}$"),
          immigration = str_detect(GDLINEHI, "^2L\\d{1}\\.\\d{1}$")) %>% 
-#note to include a new time period for this data when we integrate with the main data file %>% 
+       #time periods - note that both postbooker and postgall are include all of Dec, 2007 - maybe this is the wrong choice?
+       #these are used to filter the data for each regression (not as indicators)
   mutate(postprotect = (!is.na(sentdate) & "2003-05-01"<=sentdate) | (is.na(sentdate) & sentmonyr<"2004-07-01"), 
          postbooker = "2005-01-01"<=sentmonyr & sentmonyr<="2007-12-01" & (BOOKPOST!=0 | is.na(BOOKPOST)), # excluding december makes the match worse
          postgall = "2007-12-01"<=sentmonyr & sentmonyr<="2011-09-01",
          postreport = "2011-10-01"<=sentmonyr & sentmonyr <="2016-09-01",
-         present = "2017-10-01"<=sentmonyr & sentmonyr<= "2021-09-01", #LP Edit here: Max month was 9 
+         present = "2017-10-01"<=sentmonyr & sentmonyr<= "2021-09-01",
+        #crime type variables defined via the other categories
          drug = drugtraff | othdrug,
          othtype = !(drugtraff|othdrug|violent|sexual|whitecoll|immigration), 
          othtype2 = !(violent|sexual2|porn|drugtraff|whitecoll|immigration), #incl othdrug, model 2 excludes violent
+        #mandatory minimum
          mandmin = STATMIN>0,
          custody = PRESENT==1,
          upward = case_when(
@@ -323,45 +331,5 @@ fy07_raw <- read_csv(here::here("data/io_downselect2/opafy07_downselected.csv"),
 fy08_raw <- read_csv(here::here("data/io_downselect2/opafy08_downselected.csv"), guess_max = 50000) %>% 
   select(-c(MITROL1:MITROL69, AGGROL1:AGGROL69)) %>% 
   aggregate_reasons()
-
-
-##### IGNORE BELOW HERE
-
-##?
-postprotect %>% filter(MONSEX==1 & NEWRACE==1) %>% pull(SENSPLT0) %>% mean(na.rm=T)
-postprotect %>% filter(MONSEX==0 & NEWRACE==1) %>% mutate(SENSPLT0 = ifelse(is.nan(SENSPLT0), NA, SENSPLT0)) %>% pull(SENSPLT0) %>% mean(na.rm=T)
-
-
-#justfair has TOTCHPTS instead of SORCHPT for total criminal history points -- check on the difference
-
-
-#this is the old Booker report model
-model1 <- lm(logsplit ~ logmin + 
-               sexual + #sexual2 used pg 33 of 2012 Booker Report
-               drugtraff +
-               whitecoll +
-               immigration +
-               othtype +
-               TOTCHPTS +
-               IS924C +
-               WEAPSOC +
-               valve + 
-               CAROFFAP +
-               ACCAP +
-               upward +
-               downgovt +
-               downcourt +
-               subasst +
-               mandmin +
-               NEWCNVTN +
-               mitigate +
-               aggravate +
-               factor(NEWRACE) +
-               MONSEX + 
-               agedummy +
-               educ +
-               NEWCIT,
-             data)
-
 
 
