@@ -8,13 +8,14 @@ date: "2023-10-31"
 After reading several studies on the status of women's sentencing in the US, one key phenomenon stood out: the intersection of gender, Hispanic identity, drug offenses, and border districts. 
 
 This report is structured in three categories, where each category compounds on the previous: 
-1. Location: The impact of sentence length in southern/border districts near Mexico. 
-2. + Crime Type offenses
-3. + Gender Baseline impact
+1. Location: The difference in sentence length in southern/border districts near Mexico. 
+2. Variation by type of crime
+3. Demographic disparity bar graphs, for border districts only
+
 
 # Location 
 
-Our primary focus will be on Texas North, Texas West, Texas South, Texas East, Louisiana West, Louisiana East, New Mexico, Florida North, Florida Middle, and Florida South. 
+Our primary focus will be on the  Northern, Western, Southern, and Eastern Districts of Texas, the Western and Eastern Districts of Louisiana, the District of New Mexico, and the Northern, Middle, and Southern Districts of Florida. 
 
 This topic came to our attention in Fishman & Schazenbach (2012). In Fischman & Schazenbach (2012), they did not specifically focus on gender, but they did examine Hispanic identity along with border districts. They noted that Arizona, Southern California, New Mexico, Texas South, and Texas West had atypically large caseload pressure. In this same study, they argued Hispanic offenders faced larger sentences as a result of racial/ethnic bias. As we continued to do more research, common trends continued to persist in literature, specifically how disparity persists southern/border districts near Mexico. 
 
