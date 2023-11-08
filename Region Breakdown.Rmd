@@ -1,0 +1,242 @@
+---
+title: "Region Breakdown"
+output: html_document
+date: "2023-10-31"
+---
+
+# Introduction 
+After reading several studies on the status of women's sentencing in the US, one key phenomenon stood out: the intersection of gender, Hispanic identity, drug offenses, and border districts. 
+
+This report is structured in three categories, where each category compounds on the previous: 
+1. Location: The impact of sentence length in southern/border districts near Mexico. 
+2. + Crime Type offenses
+3. + Gender Baseline impact
+
+# Location 
+
+Our primary focus will be on Texas North, Texas West, Texas South, Texas East, Louisiana West, Louisiana East, New Mexico, Florida North, Florida Middle, and Florida South. 
+
+This topic came to our attention in Fishman & Schazenbach (2012). In Fischman & Schazenbach (2012), they did not specifically focus on gender, but they did examine Hispanic identity along with border districts. They noted that Arizona, Southern California, New Mexico, Texas South, and Texas West had atypically large caseload pressure. In this same study, they argued Hispanic offenders faced larger sentences as a result of racial/ethnic bias. As we continued to do more research, common trends continued to persist in literature, specifically how disparity persists southern/border districts near Mexico. 
+
+In a 2012 TRAC report, Texas North, Georgia North, Virginia East, Florida North, and Texas West had some of the largest differences between judges. Other border districts in the top 10 include Louisiana West and Florida Middle. Interestingly, another border district, California South had the smallest difference. TRAC specifically stated that Texas North "[sentencing] variation [was] hard to explain" due to large variances.Holland and Prohaska(2018) stated women of color received shorter sentences than white women, and that women in southern and border districts received significantly longer sentences. Topaz, Ning, and Ciocanel (2023) report that at the district level there were significant differences between minoritized defendants and white defendants. 
+
+
+```{r setup, include=FALSE}
+
+library(tidyverse)
+library(flextable)
+library(janitor)
+library(scales)
+library(readxl)
+
+data <- read_csv(here::here("data/io.csv"))
+district <- data %>% filter(districtName %in% c("Texas North", "Texas West", "Texas South", "Texas East","Louisiana East", "Louisiana West", "New Mexico", "Florida North", "Florida Middle", "Florida South"))
+
+postprotect <- district %>% 
+  filter(postprotect) #06-24-04
+
+postbooker <- district %>% 
+  filter(postbooker) #dates are not right #12-10-2007
+
+postgall <- district %>% 
+  filter(postgall)
+
+postreport <- district %>% 
+  filter(postreport)
+
+present <- district %>% 
+  filter(present)
+
+highlight_above_avg <- function(ft){
+  ft %>% 
+    bg(i = ~ `Black Male`>Overall, 
+     j = ~ `Black Male`, 
+     bg="#Fba894") %>% 
+    bg(i = ~ `Hispanic Male`>Overall, 
+       j = ~ `Hispanic Male`, 
+       bg="#Fba894") %>% 
+    bg(i = ~ `White Male`>Overall, 
+       j = ~ `White Male`, 
+       bg="#Fba894") %>% 
+    bg(i = ~ `Other Male`>Overall, 
+       j = ~ `Other Male`, 
+       bg="#Fba894") %>% 
+    bg(i = ~ `Black Female`>Overall, 
+       j = ~ `Black Female`, 
+       bg="#Fba894") %>% 
+    bg(i = ~ `Hispanic Female`>Overall, 
+       j = ~ `Hispanic Female`, 
+       bg="#Fba894") %>% 
+    bg(i = ~ `White Female`>Overall, 
+       j = ~ `White Female`, 
+       bg="#Fba894") %>% 
+    bg(i = ~ `Other Female`>Overall, 
+       j = ~ `Other Female`, 
+       bg="#Fba894")
+}
+```
+
+
+## Distribution of Sentences 
+```{r}
+
+boxplot(SENSPLT0 ~ districtName, data = district, 
+        outline = FALSE, las = 2)#does not include outliers 
+```
+
+
+
+## Average Sentence, by Federal District and Period 
+
+```{r full picture}
+dem_avg <- function(df){
+  df %>%
+    group_by(districtName) %>%
+    summarize(avg_sent = mean(SENSPLT0, na.rm=T))
+}
+
+list_periods <- list(postprotect, postbooker, postgall, postreport, present)
+
+avg_sent_dem_tbl <- map(list_periods, dem_avg) %>%
+  bind_rows(.id = "Period") %>%
+  mutate(avg_sent = round(avg_sent),
+         Period = recode(as.character(Period),
+                         "1" = "Protect", "2" = "Booker", "3" = "Gall", "4" = "Post-Report", "5" = "Present")) %>%
+  pivot_wider(names_from = Period, values_from = avg_sent) %>%
+  rename("Group" = districtName)
+
+avg_sent_dem_tbl
+
+
+```
+- Florida North average sentences went down a lot over time 
+- Texas East and Texas North went up 
+- Texas West went down 
+
+## Average Sentence by Demographic and Federal District
+
+```{r demographic }
+
+
+par(mfrow=c(2,2))
+df <- district%>%
+  select(SENSPLT0, districtName, racesex_clean) %>%
+  group_by(districtName, racesex_clean) %>%
+  summarize(avg_sent = round(mean(SENSPLT0, na.rm = T))) %>%
+  ungroup() %>%
+  pivot_wider(names_from = racesex_clean, values_from = avg_sent)
+
+df %>% flextable()
+
+
+# Loop through rows and create bar charts
+for (i in 1:nrow(df)) {
+  # Select data for the current row
+  current_row <- df[i, ]
+
+  # Extract the fedNum and remove it from the data for plotting
+  name <- current_row$districtName
+  current_row <- current_row[-1]
+
+  # Create a bar chart for the current row
+  barplot(as.matrix(current_row), names.arg = names(current_row),
+          main = paste("Bar Chart for ", name), legend = TRUE,cex.names= 0.6,las =2 )
+}
+
+# Get the column names excluding the first column 
+columns <- names(df)[-1]
+
+
+# Loop through columns and create bar charts
+for (col in columns) {
+  # Create a bar chart for the current column
+  barplot(df[[col]], names.arg = df$districtName,
+          main = paste("Bar Chart for", col),
+          col = "steelblue", cex.names = .9)
+}
+
+```
+
+- Texas East and Texas North have much higher avg sentences for Hispanic populations. 
+- New Mexico has a much higher avg sentence for Other Male 
+
+# Crime Type 
+
+## Average Sentence by Crime Type and Federal District 
+```{r}
+crime_df <- district%>% 
+  select(SENSPLT0, districtName, crime_type, ) %>% 
+  group_by(districtName, crime_type) %>% 
+  summarize(avg_sent = round(mean(SENSPLT0, na.rm = T))) %>% 
+  ungroup() %>% 
+  pivot_wider(names_from = crime_type, values_from = avg_sent) 
+
+crime_df %>% flextable()
+
+```
+
+- Largest drug trafficking offenses in Florida North, followed by Texas North. 
+
+```{r}
+par(mfrow = c(2,2))
+drug <-  present %>% 
+  filter(crime_type== "Drug Trafficking") %>% 
+  select(crime_type, racesex_clean, districtName, SENSPLT0) %>% 
+  group_by(racesex_clean, districtName) %>% 
+  summarize(avg_sent = round(mean(SENSPLT0, na.rm = T))) %>% 
+  ungroup() %>% 
+  pivot_wider(names_from = districtName, values_from = avg_sent)
+
+
+
+# Get the column names excluding the first column (fedNum)
+columns <- names(drug)[-1]
+# Loop through columns and create bar charts
+for (col in columns) {
+  # Create a bar chart for the current column
+  barplot(drug[[col]], names.arg = drug$racesex_clean,
+          main = paste("Bar Chart for", col), ylab = col,
+          col = "cornflowerblue", cex.names = .7, las = 2)
+}
+```
+- Hispanic Female sentence length almost the same as Hispanic Male in Louisiana West 
+- Hispanic Female higher than Black Male in Texas North and almost as high as Hispanic Male
+
+
+## Detailed Sentence Length Breakdown, by Guideline and Demographic Group
+
+```{r}
+#crime names
+crime_name_tbl <- read_excel(here::here("data/Type of Crime.xlsx")) %>% 
+  clean_names() %>% 
+  select(statute, offense) %>% 
+  mutate(offense = offense %>% 
+           str_to_title() %>% 
+           str_trunc(20, "right"))
+
+district %>% 
+  select(districtName, crime_type, racesex_clean, GDLINEHI, GLMIN) %>% 
+  group_by(districtName, crime_type, GDLINEHI) %>% 
+  mutate(gdline_avg = round(mean(GLMIN, na.rm = T))) %>% 
+  group_by(crime_type, gdline_avg, racesex_clean, GDLINEHI) %>% 
+  summarize(glmin_avg = round(mean(GLMIN, na.rm = T))) %>% 
+  ungroup() %>% 
+  pivot_wider(names_from = racesex_clean, values_from = glmin_avg) %>% 
+  select("Crime Type" = crime_type, Guideline = GDLINEHI, contains(" Male"), contains(" Female"), Overall = gdline_avg) %>% 
+  arrange(Guideline) %>% 
+  left_join(crime_name_tbl, by = c("Guideline" = "statute")) %>% 
+  select(`Crime Type`, Guideline, Offense = offense, everything()) %>% 
+  flextable() %>% 
+  set_caption("Average Sentence Length in Months, by Demographic Group and Guideline, FY 2002 - 2021") %>% 
+  fontsize(i = NULL, j = NULL, size = 8.5, part = "body") %>%
+  fontsize(i = NULL, j = NULL, size = 8.5, part = "header") %>%
+  highlight_above_avg() %>% 
+  set_table_properties(width = 1, layout = "autofit")
+```
+
+
+# Gender Baseline
+
+Rodriguez, Curry, and Lee(2006) found that women overall were less likely to be sentenced and if so, received shorted sentences than men. Goulette, Wooldredge, and Lawrence(2015) found that the intersection of race and gender impacted Bond amounts, and minority females received higher bond amounts than White women, and specific crimes (i.e."rape, robbery, burglary, theft, fraud, drugs, and domestic violence/nonsupport") significantly impacted bond amounts as well. 
+
+Because of the length of this, I have a second document which is a copy of the demographic sentencing disparities based on only districts. This is region_demographic2.Rmd.

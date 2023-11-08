@@ -3,130 +3,12 @@ library(lubridate)
 library(glue)
 library(here)
 library(asciiSetupReader)
+library(janitor)
 
-
-
-fy02_raw <- read_csv(here::here("data/individual_offenders/opafy02nid.csv"), guess_max = 50000) %>% 
-  select(SENTDATE, SENSPLT0, GLMIN, GDLINEHI, TOTCHPTS, IS924C, WEAPSOC, STATMIN, CAROFFAP, ACCAP, DEPART, 
-         SAFE, NEWCNVTN, PRESENT, MITROLHI, AGGROLHI, NEWRACE, MONSEX, AGE, EDUCATN, NEWCIT) %>% 
-  rename_all(str_to_upper)
-
-fy03_raw <- read_csv(here::here("data/individual_offenders/opafy03nid.csv"), guess_max = 50000) %>% 
-  select("sentdate", "sensplt0", "glmin", "gdlinehi", "totchpts", "is924c", "weapsoc", "statmin", "caroffap", "accap", 
-         "depart", "safe", "newcnvtn", "present", "mitrolhi", "aggrolhi", "newrace", "monsex", "age", "educatn", 
-         "newcit") %>% 
-  rename_all(str_to_upper)
-
-fy04_raw <- read_csv(here::here("data/individual_offenders/opafy04nid.csv"), guess_max = 50000) %>% 
-  select("SENTMON", "SENTYR", "sensplt0", "glmin", "gdlinehi", "totchpts", "is924c", "weapsoc", "statmin", "caroffap", "accap", 
-         "DEPART_A",  "safe", "newcnvtn", "present", "mitrolhi", "aggrolhi", "newrace", "monsex", "age", "educatn", 
-         "newcit") %>% 
-  rename_all(str_to_upper)
-
-fy05_raw <- read_csv(here::here("data/individual_offenders/opafy05nid.csv"), guess_max = 50000) %>% 
-  select(SENTMON, SENTYR, sensplt0, glmin, gdlinehi, totchpts, is924c, weapsoc, statmin, caroffap, accap, DEPART_A, BookerCD, 
-         safe, newcnvtn, present, mitrolhi, aggrolhi, newrace, monsex, age, educatn, newcit, BOOKPOST, REAS1, REAS2, REAS3, 
-         REAS4, REAS5, REAS6, REAS7, REAS8, REAS9, REAS10, REAS11, REAS12) %>% 
-  rename_all(str_to_upper)
-#MITCAP not available til 06
-#add: REASON1 - REASONX, MITCAP
-
-fy06_raw <- read_csv(here::here("data/individual_offenders/opafy06nid.csv"), guess_max = 50000) %>% 
-  select(SENTMON, SENTYR, SENSPLT0, GLMIN, GDLINEHI, TOTCHPTS, IS924C, WEAPSOC, STATMIN, CAROFFAP, ACCAP, BOOKERCD, 
-         SAFE, NEWCNVTN, PRESENT, MITROLHI, AGGROLHI, NEWRACE, MONSEX, AGE, EDUCATN, NEWCIT) #left DEPART_A out by accident, starting here
-
-fy07_raw <- read_csv(here::here("data/individual_offenders/opafy07nid.csv"), guess_max = 50000) %>% 
-  select(SENTMON, SENTYR, SENSPLT0, GLMIN, GDLINEHI, TOTCHPTS, IS924C, WEAPSOC, STATMIN, CAROFFAP, ACCAP, BOOKERCD, 
-         SAFE, NEWCNVTN, PRESENT, MITROLHI, AGGROLHI, NEWRACE, MONSEX, AGE, EDUCATN, NEWCIT)
-
-fy08_raw <- read_csv(here::here("data/individual_offenders/opafy08nid.csv"), guess_max = 50000) %>% 
-  select(SENTMON, SENTYR, SENSPLT0, GLMIN, GDLINEHI, TOTCHPTS, IS924C, WEAPSOC, STATMIN, CAROFFAP, ACCAP, BOOKERCD, 
-         SAFE, NEWCNVTN, PRESENT, MITROLHI, AGGROLHI, NEWRACE, MONSEX, AGE, EDUCATN, NEWCIT)
-
-fy09_raw <- read_csv(here::here("data/individual_offenders/opafy09nid.csv"), guess_max = 50000) %>% 
-  select(SENTMON, SENTYR, SENSPLT0, GLMIN, GDLINEHI, TOTCHPTS, IS924C, WEAPSOC, STATMIN, CAROFFAP, ACCAP, BOOKERCD, 
-         SAFE, NEWCNVTN, PRESENT, MITROLHI, AGGROLHI, NEWRACE, MONSEX, AGE, EDUCATN, NEWCIT)
-
-fy10_raw <- read_csv(here::here("data/opafy10nid_downselected.csv")) %>% 
-  rename_all(str_to_upper)
-
-fy11_raw <- read_csv(here::here("data/individual_offenders/opafy11nid.csv"), guess_max = 50000) %>% 
-  select(SENTMON, SENTYR, SENSPLT0, GLMIN, GDLINEHI, TOTCHPTS, IS924C, WEAPSOC, STATMIN, CAROFFAP, ACCAP, BOOKERCD, 
-         SAFE, NEWCNVTN, PRESENT, MITROLHI, AGGROLHI, NEWRACE, MONSEX, AGE, EDUCATN, NEWCIT)
-
-fy12_raw <- read_csv(here::here("data/opafy12nid_downselected.csv")) %>% 
-  rename_all(str_to_upper)
-
-fy13_raw <- read_csv(here::here("data/opafy13nid_downselected.csv")) %>% 
-  rename_all(str_to_upper)
-
-fy14_raw <- read_csv(here::here("data/opafy14nid_downselected.csv")) %>% 
-  rename_all(str_to_upper)
-
-fy15_raw <- read_csv(here::here("data/opafy15nid_downselected.csv")) %>% 
-  rename_all(str_to_upper)
-
-fy16_raw <- read_csv(here::here("data/opafy16nid_downselected.csv")) %>% 
-  rename_all(str_to_upper)
-
-fy17_raw <- read_csv(here::here("data/opafy17nid_downselected.csv")) %>% 
-  rename_all(str_to_upper)
-
-fy20_raw <- read_csv(here::here("data/individual_offenders/opafy20nid.csv"), guess_max = 50000) %>% 
-  select(SENTMON, SENTYR, SENSPLT0, GLMIN, GDLINEHI, TOTCHPTS, IS924C, WEAPSOC, STATMIN, CAROFFAP, 
-         ACCAP, SENTRNGE, FSASV, NEWCNVTN, PRESENT, MITROLHI, AGGROLHI, NEWRACE, MONSEX, 
-         AGE, EDUCATN, NEWCIT)
-
-# write_csv(fy02_raw, "data/io_downselect1/fy02.csv")
-# write_csv(fy03_raw, "data/io_downselect1/fy03.csv")
-# write_csv(fy04_raw, "data/io_downselect1/fy04.csv")
-# write_csv(fy05_raw, "data/io_downselect1/fy05.csv")
-# write_csv(fy06_raw, "data/io_downselect1/fy06.csv")
-# write_csv(fy07_raw, "data/io_downselect1/fy07.csv")
-# write_csv(fy08_raw, "data/io_downselect1/fy08.csv")
-# write_csv(fy09_raw, "data/io_downselect1/fy09.csv")
-# write_csv(fy10_raw, "data/io_downselect1/fy10.csv")
-# write_csv(fy11_raw, "data/io_downselect1/fy11.csv")
-# write_csv(fy12_raw, "data/io_downselect1/fy12.csv")
-# write_csv(fy13_raw, "data/io_downselect1/fy13.csv")
-# write_csv(fy14_raw, "data/io_downselect1/fy14.csv")
-# write_csv(fy15_raw, "data/io_downselect1/fy15.csv")
-# write_csv(fy16_raw, "data/io_downselect1/fy16.csv")
-# write_csv(fy17_raw, "data/io_downselect1/fy17.csv")
-
-#add bookpost into "This field is only available FY2005 (post Booker Supreme Court Decision)-FY2017."
-
-io <- bind_rows(fy02_raw,
-                fy03_raw,
-                fy04_raw,
-                fy05_raw,
-                fy06_raw,
-                fy07_raw,
-                fy08_raw,
-                fy09_raw,
-                fy10_raw,
-                fy11_raw,
-                fy12_raw,
-                fy13_raw,
-                fy14_raw,
-                fy15_raw,
-                fy16_raw,
-                fy17_raw,
-                fy20_raw)
-
-write_csv(io, here::here("data/io_raw.csv"))
-
-#long term - read in only the output of Linh's io_download file
-#short term - use output of Linh's io_download file for fy2017-2021
-
-io <- read_csv(here::here("data/io_raw.csv")) %>% 
-  filter(!SENTYR %in% c(2017, 2019, 2020) & !(SENTYR==2016 & SENTMON %in% c(10, 11, 12)))
-
-#read in the raw file for FYs 17-21 here
-io_raw_2017_2021 <- read_csv(here::here("data/io_raw_2017_2021.csv"))
-
-#merge the two as "io_combined"
-io_combined <- bind_rows(io, io_raw_2017_2021)
+io_2002_2021 <- read_csv(here::here("data/io_2002_2021.csv"))
+#add district
+circdist <- read_csv(here::here("data/circdist.csv"))
+io_combined <- left_join(io_2002_2021, circdist, by = c('CIRCDIST' ='districtNum'))
 
 matchwna <- function(string, list){
   case_when(
@@ -303,33 +185,208 @@ data <- io_combined %>%
 
 #write_csv(data, here::here("data/io.csv"))
 
+#--------OLD CODE---------------------
+#moved and commented out old code -Linh 10/31/2023
+# 
+# fy02_raw <- read_csv(here::here("data/individual_offenders/opafy02nid.csv"), guess_max = 50000) %>% 
+#   select(SENTDATE, SENSPLT0, GLMIN, GDLINEHI, TOTCHPTS, IS924C, WEAPSOC, STATMIN, CAROFFAP, ACCAP, DEPART, 
+#          SAFE, NEWCNVTN, PRESENT, MITROLHI, AGGROLHI, NEWRACE, MONSEX, AGE, EDUCATN, NEWCIT) %>% 
+#   rename_all(str_to_upper)
+# 
+# fy03_raw <- read_csv(here::here("data/individual_offenders/opafy03nid.csv"), guess_max = 50000) %>% 
+#   select("sentdate", "sensplt0", "glmin", "gdlinehi", "totchpts", "is924c", "weapsoc", "statmin", "caroffap", "accap", 
+#          "depart", "safe", "newcnvtn", "present", "mitrolhi", "aggrolhi", "newrace", "monsex", "age", "educatn", 
+#          "newcit") %>% 
+#   rename_all(str_to_upper)
+# 
+# fy04_raw <- read_csv(here::here("data/individual_offenders/opafy04nid.csv"), guess_max = 50000) %>% 
+#   select("SENTMON", "SENTYR", "sensplt0", "glmin", "gdlinehi", "totchpts", "is924c", "weapsoc", "statmin", "caroffap", "accap", 
+#          "DEPART_A",  "safe", "newcnvtn", "present", "mitrolhi", "aggrolhi", "newrace", "monsex", "age", "educatn", 
+#          "newcit") %>% 
+#   rename_all(str_to_upper)
+# 
+# fy05_raw <- read_csv(here::here("data/individual_offenders/opafy05nid.csv"), guess_max = 50000) %>% 
+#   select(SENTMON, SENTYR, sensplt0, glmin, gdlinehi, totchpts, is924c, weapsoc, statmin, caroffap, accap, DEPART_A, BookerCD, 
+#          safe, newcnvtn, present, mitrolhi, aggrolhi, newrace, monsex, age, educatn, newcit, BOOKPOST, REAS1, REAS2, REAS3, 
+#          REAS4, REAS5, REAS6, REAS7, REAS8, REAS9, REAS10, REAS11, REAS12) %>% 
+#   rename_all(str_to_upper)
+# #MITCAP not available til 06
+# #add: REASON1 - REASONX, MITCAP
+# 
+# fy06_raw <- read_csv(here::here("data/individual_offenders/opafy06nid.csv"), guess_max = 50000) %>% 
+#   select(SENTMON, SENTYR, SENSPLT0, GLMIN, GDLINEHI, TOTCHPTS, IS924C, WEAPSOC, STATMIN, CAROFFAP, ACCAP, BOOKERCD, 
+#          SAFE, NEWCNVTN, PRESENT, MITROLHI, AGGROLHI, NEWRACE, MONSEX, AGE, EDUCATN, NEWCIT) #left DEPART_A out by accident, starting here
+# 
+# fy07_raw <- read_csv(here::here("data/individual_offenders/opafy07nid.csv"), guess_max = 50000) %>% 
+#   select(SENTMON, SENTYR, SENSPLT0, GLMIN, GDLINEHI, TOTCHPTS, IS924C, WEAPSOC, STATMIN, CAROFFAP, ACCAP, BOOKERCD, 
+#          SAFE, NEWCNVTN, PRESENT, MITROLHI, AGGROLHI, NEWRACE, MONSEX, AGE, EDUCATN, NEWCIT)
+# 
+# fy08_raw <- read_csv(here::here("data/individual_offenders/opafy08nid.csv"), guess_max = 50000) %>% 
+#   select(SENTMON, SENTYR, SENSPLT0, GLMIN, GDLINEHI, TOTCHPTS, IS924C, WEAPSOC, STATMIN, CAROFFAP, ACCAP, BOOKERCD, 
+#          SAFE, NEWCNVTN, PRESENT, MITROLHI, AGGROLHI, NEWRACE, MONSEX, AGE, EDUCATN, NEWCIT)
+# 
+# fy09_raw <- read_csv(here::here("data/individual_offenders/opafy09nid.csv"), guess_max = 50000) %>% 
+#   select(SENTMON, SENTYR, SENSPLT0, GLMIN, GDLINEHI, TOTCHPTS, IS924C, WEAPSOC, STATMIN, CAROFFAP, ACCAP, BOOKERCD, 
+#          SAFE, NEWCNVTN, PRESENT, MITROLHI, AGGROLHI, NEWRACE, MONSEX, AGE, EDUCATN, NEWCIT)
+# 
+# fy10_raw <- read_csv(here::here("data/opafy10nid_downselected.csv")) %>% 
+#   rename_all(str_to_upper)
+# 
+# fy11_raw <- read_csv(here::here("data/individual_offenders/opafy11nid.csv"), guess_max = 50000) %>% 
+#   select(SENTMON, SENTYR, SENSPLT0, GLMIN, GDLINEHI, TOTCHPTS, IS924C, WEAPSOC, STATMIN, CAROFFAP, ACCAP, BOOKERCD, 
+#          SAFE, NEWCNVTN, PRESENT, MITROLHI, AGGROLHI, NEWRACE, MONSEX, AGE, EDUCATN, NEWCIT)
+# 
+# fy12_raw <- read_csv(here::here("data/opafy12nid_downselected.csv")) %>% 
+#   rename_all(str_to_upper)
+# 
+# fy13_raw <- read_csv(here::here("data/opafy13nid_downselected.csv")) %>% 
+#   rename_all(str_to_upper)
+# 
+# fy14_raw <- read_csv(here::here("data/opafy14nid_downselected.csv")) %>% 
+#   rename_all(str_to_upper)
+# 
+# fy15_raw <- read_csv(here::here("data/opafy15nid_downselected.csv")) %>% 
+#   rename_all(str_to_upper)
+# 
+# fy16_raw <- read_csv(here::here("data/opafy16nid_downselected.csv")) %>% 
+#   rename_all(str_to_upper)
+# 
+# fy17_raw <- read_csv(here::here("data/opafy17nid_downselected.csv")) %>% 
+#   rename_all(str_to_upper)
+# 
+# fy20_raw <- read_csv(here::here("data/individual_offenders/opafy20nid.csv"), guess_max = 50000) %>% 
+#   select(SENTMON, SENTYR, SENSPLT0, GLMIN, GDLINEHI, TOTCHPTS, IS924C, WEAPSOC, STATMIN, CAROFFAP, 
+#          ACCAP, SENTRNGE, FSASV, NEWCNVTN, PRESENT, MITROLHI, AGGROLHI, NEWRACE, MONSEX, 
+#          AGE, EDUCATN, NEWCIT)
+# 
+# # write_csv(fy02_raw, "data/io_downselect1/fy02.csv")
+# # write_csv(fy03_raw, "data/io_downselect1/fy03.csv")
+# # write_csv(fy04_raw, "data/io_downselect1/fy04.csv")
+# # write_csv(fy05_raw, "data/io_downselect1/fy05.csv")
+# # write_csv(fy06_raw, "data/io_downselect1/fy06.csv")
+# # write_csv(fy07_raw, "data/io_downselect1/fy07.csv")
+# # write_csv(fy08_raw, "data/io_downselect1/fy08.csv")
+# # write_csv(fy09_raw, "data/io_downselect1/fy09.csv")
+# # write_csv(fy10_raw, "data/io_downselect1/fy10.csv")
+# # write_csv(fy11_raw, "data/io_downselect1/fy11.csv")
+# # write_csv(fy12_raw, "data/io_downselect1/fy12.csv")
+# # write_csv(fy13_raw, "data/io_downselect1/fy13.csv")
+# # write_csv(fy14_raw, "data/io_downselect1/fy14.csv")
+# # write_csv(fy15_raw, "data/io_downselect1/fy15.csv")
+# # write_csv(fy16_raw, "data/io_downselect1/fy16.csv")
+# # write_csv(fy17_raw, "data/io_downselect1/fy17.csv")
+# 
+# #add bookpost into "This field is only available FY2005 (post Booker Supreme Court Decision)-FY2017."
+# 
+# io <- bind_rows(fy02_raw,
+#                 fy03_raw,
+#                 fy04_raw,
+#                 fy05_raw,
+#                 fy06_raw,
+#                 fy07_raw,
+#                 fy08_raw,
+#                 fy09_raw,
+#                 fy10_raw,
+#                 fy11_raw,
+#                 fy12_raw,
+#                 fy13_raw,
+#                 fy14_raw,
+#                 fy15_raw,
+#                 fy16_raw,
+#                 fy17_raw,
+#                 fy20_raw)
+# 
 
-aggregate_reasons <- function(df){
-  df %>% 
-    #rename_all(str_to_upper) %>% 
-    mutate(reason = glue("{REAS1} {REAS2} {REAS3} {REAS4} {REAS5} {REAS6} {REAS7} {REAS8} {REAS9} {REAS10} {REAS11} {REAS12}") %>% 
-           str_remove_all("NA") %>% 
-           str_squish(),
-         .keep = "unused") %>% 
-    remove_empty()
-}
+#write_csv(data, here::here("data/io.csv"))
 
-fy05_raw <- read_csv(here::here("data/io_downselect2/opafy05_downselected.csv"), guess_max = 50000) %>% 
-  aggregate_reasons() %>% 
-  rename_all(str_to_upper) %>%
-  rename(reason = REASON) %>% 
-  select(-c(MITROL1:MITROL60, AGGROL1:AGGROL60))
+# 
+# aggregate_reasons <- function(df){
+#   df %>% 
+#     #rename_all(str_to_upper) %>% 
+#     mutate(reason = glue("{REAS1} {REAS2} {REAS3} {REAS4} {REAS5} {REAS6} {REAS7} {REAS8} {REAS9} {REAS10} {REAS11} {REAS12}") %>% 
+#            str_remove_all("NA") %>% 
+#            str_squish(),
+#          .keep = "unused") %>% 
+#     remove_empty()
+# }
+# # 
+# fy05_raw <- read_csv(here::here("data/io_downselect2/opafy05_downselected.csv"), guess_max = 50000) %>% 
+#   aggregate_reasons() %>% 
+#   rename_all(str_to_upper) %>%
+#   rename(reason = REASON) %>% 
+#   select(-c(MITROL1:MITROL60, AGGROL1:AGGROL60))
+# 
+# fy06_raw <- read_csv(here::here("data/io_downselect2/opafy06_downselected.csv"), guess_max = 50000) %>% 
+#   select(-c(MITROL1:MITROL41, AGGROL1:AGGROL41)) %>% 
+#   aggregate_reasons() 
+#   
+# fy07_raw <- read_csv(here::here("data/io_downselect2/opafy07_downselected.csv"), guess_max = 50000) %>% 
+#   select(-c(MITROL1:MITROL100, AGGROL1:AGGROL100)) %>% 
+#   aggregate_reasons()
+# 
+# fy08_raw <- read_csv(here::here("data/io_downselect2/opafy08_downselected.csv"), guess_max = 50000) %>% 
+#   select(-c(MITROL1:MITROL69, AGGROL1:AGGROL69)) %>% 
+#   aggregate_reasons()
+# 
+# # write_csv(io, here::here("data/io_raw.csv"))
 
-fy06_raw <- read_csv(here::here("data/io_downselect2/opafy06_downselected.csv"), guess_max = 50000) %>% 
-  select(-c(MITROL1:MITROL41, AGGROL1:AGGROL41)) %>% 
-  aggregate_reasons() 
-  
-fy07_raw <- read_csv(here::here("data/io_downselect2/opafy07_downselected.csv"), guess_max = 50000) %>% 
-  select(-c(MITROL1:MITROL100, AGGROL1:AGGROL100)) %>% 
-  aggregate_reasons()
+#long term - read in only the output of Linh's io_download file
+#short term - use output of Linh's io_download file for fy2017-2021
+# 
+# io <- read_csv(here::here("data/io_raw.csv")) %>% 
+#   filter(!SENTYR %in% c(2017, 2019, 2020) & !(SENTYR==2016 & SENTMON %in% c(10, 11, 12)))
+# 
+# #read in the raw file for FYs 17-21 here
+# io_raw_2017_2021 <- read_csv(here::here("data/io_raw_2017_2021.csv"))
+# 
+# #merge the two as "io_combined"
+# io_combined <- bind_rows(io, io_raw_2017_2021)
 
+<<<<<<< HEAD
 fy08_raw <- read_csv(here::here("data/io_downselect2/opafy08_downselected.csv"), guess_max = 50000) %>% 
   select(-c(MITROL1:MITROL69, AGGROL1:AGGROL69)) %>% 
   aggregate_reasons()
 
 
+=======
+# ##### IGNORE BELOW HERE
+# 
+# ##?
+# postprotect %>% filter(MONSEX==1 & NEWRACE==1) %>% pull(SENSPLT0) %>% mean(na.rm=T)
+# postprotect %>% filter(MONSEX==0 & NEWRACE==1) %>% mutate(SENSPLT0 = ifelse(is.nan(SENSPLT0), NA, SENSPLT0)) %>% pull(SENSPLT0) %>% mean(na.rm=T)
+
+
+#justfair has TOTCHPTS instead of SORCHPT for total criminal history points -- check on the difference
+
+# 
+# #this is the old Booker report model
+# model1 <- lm(logsplit ~ logmin + 
+#                sexual + #sexual2 used pg 33 of 2012 Booker Report
+#                drugtraff +
+#                whitecoll +
+#                immigration +
+#                othtype +
+#                TOTCHPTS +
+#                IS924C +
+#                WEAPSOC +
+#                valve + 
+#                CAROFFAP +
+#                ACCAP +
+#                upward +
+#                downgovt +
+#                downcourt +
+#                subasst +
+#                mandmin +
+#                NEWCNVTN +
+#                mitigate +
+#                aggravate +
+#                factor(NEWRACE) +
+#                MONSEX + 
+#                agedummy +
+#                educ +
+#                NEWCIT,
+#              data)
+# 
+# 
+# 
+>>>>>>> 569d047c4553978cf3ad9e19609d70561b618fd1
