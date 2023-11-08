@@ -41,7 +41,7 @@ source(here::here("utils.R"))
 ```
 
 
-This document attempts to replicate the Commission's "refined model" for estimating demographic disparities in sentencing. However, this version is confined to the border districts identified in ****.
+This document attempts to replicate the Commission's "refined model" for estimating demographic disparities in sentencing. However, this version is confined to the border districts identified in Fishman & Schazenbach (2012).
 
 ## White Male Baseline Regressions
 
