@@ -8,13 +8,14 @@ date: "2023-10-31"
 After reading several studies on the status of women's sentencing in the US, one key phenomenon stood out: the intersection of gender, Hispanic identity, drug offenses, and border districts. 
 
 This report is structured in three categories, where each category compounds on the previous: 
-1. Location: The impact of sentence length in southern/border districts near Mexico. 
-2. + Crime Type offenses
-3. + Gender Baseline impact
+1. Location: The difference in sentence length in southern/border districts near Mexico. 
+2. Variation by type of crime
+3. Demographic disparity bar graphs, for border districts only
+
 
 # Location 
 
-Our primary focus will be on Texas North, Texas West, Texas South, Texas East, Louisiana West, Louisiana East, New Mexico, Florida North, Florida Middle, and Florida South. 
+Our primary focus will be on the  Northern, Western, Southern, and Eastern Districts of Texas, the Western and Eastern Districts of Louisiana, the District of New Mexico, and the Northern, Middle, and Southern Districts of Florida. 
 
 This topic came to our attention in Fishman & Schazenbach (2012). In Fischman & Schazenbach (2012), they did not specifically focus on gender, but they did examine Hispanic identity along with border districts. They noted that Arizona, Southern California, New Mexico, Texas South, and Texas West had atypically large caseload pressure. In this same study, they argued Hispanic offenders faced larger sentences as a result of racial/ethnic bias. As we continued to do more research, common trends continued to persist in literature, specifically how disparity persists southern/border districts near Mexico. 
 
@@ -79,9 +80,12 @@ highlight_above_avg <- function(ft){
 
 ## Distribution of Sentences 
 ```{r}
+# ggplot(data = district, aes(x = districtName, y = SENSPLT0)) + 
+#   geom_boxplot()
 
 boxplot(SENSPLT0 ~ districtName, data = district, 
-        outline = FALSE, las = 2)#does not include outliers 
+        outline = FALSE, las = 2, ylab = "")#does not include outliers 
+#---work on removing title! districtName
 ```
 
 
@@ -113,7 +117,7 @@ avg_sent_dem_tbl
 - Texas East and Texas North went up 
 - Texas West went down 
 
-## Average Sentence by Demographic and Federal District
+## Average Sentence by Demographic and District
 
 ```{r demographic }
 
@@ -152,9 +156,10 @@ for (col in columns) {
   # Create a bar chart for the current column
   barplot(df[[col]], names.arg = df$districtName,
           main = paste("Bar Chart for", col),
-          col = "steelblue", cex.names = .9)
+          col = "steelblue", cex.names = .9, las=2)
 }
-
+#change title : avg sentence length by `demographic`/`district`
+#avg sentence length for hispanic men in x 
 ```
 
 - Texas East and Texas North have much higher avg sentences for Hispanic populations. 
@@ -165,17 +170,21 @@ for (col in columns) {
 ## Average Sentence by Crime Type and Federal District 
 ```{r}
 crime_df <- district%>% 
-  select(SENSPLT0, districtName, crime_type, ) %>% 
-  group_by(districtName, crime_type) %>% 
+  select(SENSPLT0,  'District Name'=districtName  , crime_type) %>% 
+  group_by(`District Name`, crime_type) %>% 
   summarize(avg_sent = round(mean(SENSPLT0, na.rm = T))) %>% 
   ungroup() %>% 
   pivot_wider(names_from = crime_type, values_from = avg_sent) 
 
 crime_df %>% flextable()
+#rename the district name: D N
 
 ```
 
-- Largest drug trafficking offenses in Florida North, followed by Texas North. 
+- Largest drug trafficking offenses in Florida North, followed by Texas North. (table above)
+
+
+## Drug Trafficking Sentence Length /.....
 
 ```{r}
 par(mfrow = c(2,2))
@@ -199,6 +208,7 @@ for (col in columns) {
           col = "cornflowerblue", cex.names = .7, las = 2)
 }
 ```
+[add more detail on process ]
 - Hispanic Female sentence length almost the same as Hispanic Male in Louisiana West 
 - Hispanic Female higher than Black Male in Texas North and almost as high as Hispanic Male
 
