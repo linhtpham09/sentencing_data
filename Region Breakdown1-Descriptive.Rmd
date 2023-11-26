@@ -48,20 +48,21 @@ postreport <- district %>%
 present <- district %>% 
   filter(present)
 
+
 highlight_above_avg <- function(ft){
   ft %>% 
-    bg(i = ~ `Black Male`>Overall, 
-     j = ~ `Black Male`, 
+     bg(i = ~ `Black Male`>Overall, 
+      j = ~ `Black Male`, 
+      bg="#Fba894") %>% 
+     bg(i = ~ `Hispanic Male`>Overall, 
+      j = ~ `Hispanic Male`, 
      bg="#Fba894") %>% 
-    bg(i = ~ `Hispanic Male`>Overall, 
-       j = ~ `Hispanic Male`, 
-       bg="#Fba894") %>% 
-    bg(i = ~ `White Male`>Overall, 
-       j = ~ `White Male`, 
-       bg="#Fba894") %>% 
-    bg(i = ~ `Other Male`>Overall, 
-       j = ~ `Other Male`, 
-       bg="#Fba894") %>% 
+     bg(i = ~ `White Male`>Overall, 
+        j = ~ `White Male`, 
+        bg="#Fba894") %>% 
+     bg(i = ~ `Other Male`>Overall, 
+        j = ~ `Other Male`, 
+        bg="#Fba894") %>% 
     bg(i = ~ `Black Female`>Overall, 
        j = ~ `Black Female`, 
        bg="#Fba894") %>% 
@@ -80,14 +81,19 @@ highlight_above_avg <- function(ft){
 
 ## Distribution of Sentences 
 ```{r}
-# ggplot(data = district, aes(x = districtName, y = SENSPLT0)) + 
-#   geom_boxplot()
+# ggplot(data = district, aes(x = districtName, y = SENSPLT0)) +
+#   geom_boxplot() 
 
 boxplot(SENSPLT0 ~ districtName, data = district, 
-        outline = FALSE, las = 2, ylab = "")#does not include outliers 
-#---work on removing title! districtName
-```
+        outline = FALSE, las = 2, ylab = "", xlab = '', cex.axis = .7)#does not include outliers 
 
+```
+From the above visualization, we can note the following observations: 
+1. The Northern district of Florida has far greater outliers than the other southern border districts. 
+
+2. We can see that the black bar amongst all boxes is at about the same height compared to each other. This mean most sentence lengths for southern border districts average about the same, with outliers dragging out larger (i.e Northern district of Florida) or smaller (New Mexico) sentences. 
+
+3. North and Eastern Texas have very different sentencing averages than their counterparts, Southern and West Texas. 
 
 
 ## Average Sentence, by Federal District and Period 
@@ -111,11 +117,26 @@ avg_sent_dem_tbl <- map(list_periods, dem_avg) %>%
 
 avg_sent_dem_tbl
 
+#--- visualization 
+
+df <- avg_sent_dem_tbl %>% 
+  pivot_longer(!Group, names_to = 'period', values_to= 'avg_sent')
+
+df$num_period <- as.numeric(factor(df$period, levels = c("Protect", "Booker", "Gall", "Post-Report", "Present")))
+
+ggplot(data =df, aes(x = num_period, y = avg_sent, col = Group)) + 
+  geom_point() + 
+  geom_line() + 
+  scale_x_continuous(labels = c("Protect", "Booker", "Gall", "Post-Report", "Present")) + 
+  xlab('Period') + 
+  ylab('Avg Sentence Length')
 
 ```
-- Florida North average sentences went down a lot over time 
-- Texas East and Texas North went up 
-- Texas West went down 
+The chart above represents the average sentence length for each district over time, specifically between each period. Note that this includes all demographic types. We can draw three main points of interest: 
+
+1. Northern and Eastern districts of Texas sentence length went up over time. 
+2. The Northern districts of Florida average sentence length decreased the most after Booker and continued to do so in later periods. 
+3. Within these southern border districts, there are two categories based on average sentence lengths. This specifically means that if we were to draw a straight line (say around 40) we would be able to cleanly divide the districts into two groups based on average sentence length over time. 
 
 ## Average Sentence by Demographic and District
 
@@ -177,8 +198,6 @@ crime_df <- district%>%
   pivot_wider(names_from = crime_type, values_from = avg_sent) 
 
 crime_df %>% flextable()
-#rename the district name: D N
-
 ```
 
 - Largest drug trafficking offenses in Florida North, followed by Texas North. (table above)
@@ -244,9 +263,3 @@ district %>%
   set_table_properties(width = 1, layout = "autofit")
 ```
 
-
-# Gender Baseline
-
-Rodriguez, Curry, and Lee(2006) found that women overall were less likely to be sentenced and if so, received shorted sentences than men. Goulette, Wooldredge, and Lawrence(2015) found that the intersection of race and gender impacted Bond amounts, and minority females received higher bond amounts than White women, and specific crimes (i.e."rape, robbery, burglary, theft, fraud, drugs, and domestic violence/nonsupport") significantly impacted bond amounts as well. 
-
-Because of the length of this, I have a second document which is a copy of the demographic sentencing disparities based on only districts. This is region_demographic2.Rmd.
