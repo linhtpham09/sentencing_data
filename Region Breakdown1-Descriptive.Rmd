@@ -21,8 +21,9 @@ This topic came to our attention in Fishman & Schazenbach (2012). In Fischman & 
 
 In a 2012 TRAC report, Texas North, Georgia North, Virginia East, Florida North, and Texas West had some of the largest differences between judges. Other border districts in the top 10 include Louisiana West and Florida Middle. Interestingly, another border district, California South had the smallest difference. TRAC specifically stated that Texas North "[sentencing] variation [was] hard to explain" due to large variances.Holland and Prohaska(2018) stated women of color received shorter sentences than white women, and that women in southern and border districts received significantly longer sentences. Topaz, Ning, and Ciocanel (2023) report that at the district level there were significant differences between minoritized defendants and white defendants. 
 
+Please note that all average sentence lengths are in months. Each section will include a H0 and H1, indicating a null (H0) hypothesis and an alternative (H1) hypothesis. This will identify what patterns or characteristic presents as an either an outlier or noteworthy. 
 
-```{r setup, include=FALSE}
+```{r, include=FALSE}
 
 library(tidyverse)
 library(flextable)
@@ -78,6 +79,7 @@ highlight_above_avg <- function(ft){
 }
 ```
 
+\newpage
 
 ## Distribution of Sentences 
 ```{r}
@@ -88,6 +90,9 @@ boxplot(SENSPLT0 ~ districtName, data = district,
         outline = FALSE, las = 2, ylab = "", xlab = '', cex.axis = .7)#does not include outliers 
 
 ```
+*H0: All boxes would be of equal widths and have the same average sentence lengths. This means that the black bars would be all aligned, and the ranges would also be exactly the same.*
+*H1: The boxes would not be of equal widths with evenly aligned black bars.* 
+
 From the above visualization, we can note the following observations: 
 1. The Northern district of Florida has far greater outliers than the other southern border districts. 
 
@@ -95,6 +100,7 @@ From the above visualization, we can note the following observations:
 
 3. North and Eastern Texas have very different sentencing averages than their counterparts, Southern and West Texas. 
 
+\newpage
 
 ## Average Sentence, by Federal District and Period 
 
@@ -132,28 +138,36 @@ ggplot(data =df, aes(x = num_period, y = avg_sent, col = Group)) +
   ylab('Avg Sentence Length')
 
 ```
+*H0: There would be no distinguishing lines and/or trends between each district as average sentence lengths across districts should have been the same in each period.*
+*H1: There are distinguishing lines and/or trends between each district.*
+
 The chart above represents the average sentence length for each district over time, specifically between each period. Note that this includes all demographic types. We can draw three main points of interest: 
 
 1. Northern and Eastern districts of Texas sentence length went up over time. 
 2. The Northern districts of Florida average sentence length decreased the most after Booker and continued to do so in later periods. 
 3. Within these southern border districts, there are two categories based on average sentence lengths. This specifically means that if we were to draw a straight line (say around 40) we would be able to cleanly divide the districts into two groups based on average sentence length over time. 
 
-## Average Sentence by Demographic and District
+\newpage 
 
+## Average Sentence Length 
 ```{r demographic }
-
-
-par(mfrow=c(2,2))
 df <- district%>%
   select(SENSPLT0, districtName, racesex_clean) %>%
   group_by(districtName, racesex_clean) %>%
   summarize(avg_sent = round(mean(SENSPLT0, na.rm = T))) %>%
   ungroup() %>%
   pivot_wider(names_from = racesex_clean, values_from = avg_sent)
-
 df %>% flextable()
 
+```
+In this table, we present the numerical values for average sentence length spread out across district and demographic. Below, we visualize this information to better understand from a top down perspective what this table describes. 
 
+
+## Average Sentence Length in each District
+
+```{r}
+
+par(mfrow=c(2,2))
 # Loop through rows and create bar charts
 for (i in 1:nrow(df)) {
   # Select data for the current row
@@ -165,9 +179,23 @@ for (i in 1:nrow(df)) {
 
   # Create a bar chart for the current row
   barplot(as.matrix(current_row), names.arg = names(current_row),
-          main = paste("Bar Chart for ", name), legend = TRUE,cex.names= 0.6,las =2 )
+          main = paste("Avg Sentence Length in", name), legend = TRUE,cex.names= 0.6,las =2 )
 }
+```
 
+*H0: Average sentence length across district would be exactly the same*
+*H1: Average sentence length across district are not the same*
+
+The series of visualizations above describe the average sentence length in each southern border district, broken down by demographic. The main notes to be aware of are the following: 
+
+1. Other Female has a higher average sentence length than their male counterpart (Other Male) in Northern Texas. 
+2. Northern and Eastern Texas have much higher average sentences for Hispanic populations compared to the rest of the southern border districts 
+3. Other Male has a higher average sentence than Black Male in New Mexico 
+
+## Average Sentence for each Demographic 
+
+```{r}
+par(mfrow=c(2,2))
 # Get the column names excluding the first column 
 columns <- names(df)[-1]
 
@@ -176,15 +204,15 @@ columns <- names(df)[-1]
 for (col in columns) {
   # Create a bar chart for the current column
   barplot(df[[col]], names.arg = df$districtName,
-          main = paste("Bar Chart for", col),
-          col = "steelblue", cex.names = .9, las=2)
+          main = paste("Avg Sentence Length for", col),
+          col = "steelblue", cex.names = .6, las=2)
 }
-#change title : avg sentence length by `demographic`/`district`
-#avg sentence length for hispanic men in x 
 ```
+*H0: Average sentence length across demographic are exactly the same*
+*H1: Average sentence length across demographic are not the same*
 
-- Texas East and Texas North have much higher avg sentences for Hispanic populations. 
-- New Mexico has a much higher avg sentence for Other Male 
+1. Hispanic populations face higher average sentence lengths in East and Northern Texas
+2. Black Females have a noticably smaller average sentence length than their male counter part in Eastern Louisiana. 
 
 # Crime Type 
 
@@ -199,11 +227,59 @@ crime_df <- district%>%
 
 crime_df %>% flextable()
 ```
+The table above is the average sentence length by crime type and district. 
 
-- Largest drug trafficking offenses in Florida North, followed by Texas North. (table above)
 
 
-## Drug Trafficking Sentence Length /.....
+```{r}
+
+par(mfrow=c(2,2))
+# Loop through rows and create bar charts
+for (i in 1:nrow(crime_df)) {
+  # Select data for the current row
+  current_row <- crime_df[i, ]
+
+  # Extract the fedNum and remove it from the data for plotting
+  name <- current_row$`District Name`
+  current_row <- current_row[-1]
+
+  # Create a bar chart for the current row
+  barplot(as.matrix(current_row), names.arg = names(current_row),
+          ylab = "Avg Sentence Length in Months", 
+          main = paste("Avg Sentence Length in", name), legend = TRUE,cex.names= 0.6,las =2 )
+}
+```
+*H0: The average sentence length for each crime type remains consistent across all districts*
+*H1: The average sentence length for each crime type is not consistent across all districts*
+
+
+
+## Average Sentence for each Demographic 
+
+```{r}
+par(mfrow=c(2,2))
+# Get the column names excluding the first column 
+columns <- names(crime_df)[-1]
+# Loop through columns and create bar charts
+for (col in columns) {
+  # Create a bar chart for the current column
+  barplot(crime_df[[col]], names.arg = crime_df$`District Name`,
+          main = paste("Avg Sentence Length for", col), ylab = "Avg Sentence in Months", 
+          col = "steelblue", cex.names = .6, las=2)
+}
+```
+*H0: The average sentence length for each crime type remains consistent across all districts*
+*H1: The average sentence length for each crime type is not consistent across all districts*
+
+
+1. Drug Trafficking and Immigration have largest variation in average sentence length 
+2. North Florida has lower than average sentence length for immigration than drug trafficking 
+3. Sexual type crimes remain stagnant across all southern border districts
+
+Because of this examination, we wanted to explore more into drug trafficking and immigration type offenses. 
+
+
+## Drug Trafficking Sentence Length
 
 ```{r}
 par(mfrow = c(2,2))
@@ -216,21 +292,24 @@ drug <-  present %>%
   pivot_wider(names_from = districtName, values_from = avg_sent)
 
 
-
 # Get the column names excluding the first column (fedNum)
 columns <- names(drug)[-1]
 # Loop through columns and create bar charts
 for (col in columns) {
   # Create a bar chart for the current column
   barplot(drug[[col]], names.arg = drug$racesex_clean,
-          main = paste("Bar Chart for", col), ylab = col,
+          main = paste("Bar Chart for", col), ylab = 'Avg Sentence in Months',
           col = "cornflowerblue", cex.names = .7, las = 2)
 }
 ```
-[add more detail on process ]
-- Hispanic Female sentence length almost the same as Hispanic Male in Louisiana West 
-- Hispanic Female higher than Black Male in Texas North and almost as high as Hispanic Male
+*H0: Sentencing lengths for drug trafficking offenses are the same across all demographics and districts.*
+*H1: Sentencing lengths for drug trafficking offenses are not the same across all demographics and districts.* 
 
+1. Hispanic Females have higher average drug trafficking sentences than Black Males in Northern Texas 
+2. Hispanic Females and Hispanic Males have almost the same average drug trafficking sentencing lengths 
+
+
+\newpage
 
 ## Detailed Sentence Length Breakdown, by Guideline and Demographic Group
 
