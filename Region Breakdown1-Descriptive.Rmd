@@ -265,7 +265,7 @@ for (col in columns) {
   # Create a bar chart for the current column
   barplot(crime_df[[col]], names.arg = crime_df$`District Name`,
           main = paste("Avg Sentence Length for", col), ylab = "Avg Sentence in Months", 
-          col = "steelblue", cex.names = .6, las=2)
+          col = "goldenrod", cex.names = .6, las=2)
 }
 ```
 *H0: The average sentence length for each crime type remains consistent across all districts*
@@ -298,7 +298,7 @@ columns <- names(drug)[-1]
 for (col in columns) {
   # Create a bar chart for the current column
   barplot(drug[[col]], names.arg = drug$racesex_clean,
-          main = paste("Bar Chart for", col), ylab = 'Avg Sentence in Months',
+          main = paste("Drug Trafficking in", col), ylab = 'Avg Sentence in Months',
           col = "cornflowerblue", cex.names = .7, las = 2)
 }
 ```
@@ -309,10 +309,40 @@ for (col in columns) {
 2. Hispanic Females and Hispanic Males have almost the same average drug trafficking sentencing lengths 
 
 
+## Immigration Sentence Length
+
+```{r}
+par(mfrow = c(2,2))
+imm <-  present %>% 
+  filter(crime_type== "Immigration") %>% 
+  select(crime_type, racesex_clean, districtName, SENSPLT0) %>% 
+  group_by(racesex_clean, districtName) %>% 
+  summarize(avg_sent = round(mean(SENSPLT0, na.rm = T))) %>% 
+  ungroup() %>% 
+  pivot_wider(names_from = districtName, values_from = avg_sent)
+
+
+# Get the column names excluding the first column (fedNum)
+columns <- names(imm)[-1]
+# Loop through columns and create bar charts
+for (col in columns) {
+  # Create a bar chart for the current column
+  barplot(imm[[col]], names.arg = imm$racesex_clean,
+          main = paste("Bar Chart for", col), ylab = 'Avg Sentence in Months',
+          col = "coral", cex.names = .6, las = 2)
+}
+```
+*H0: Sentencing lengths for immigration offenses are the same across all demographics and districts.*
+*H1: Sentencing lengths for immigration offenses are not the same across all demographics and districts.* 
+
+1. Hispanic Females have higher average immigration sentences than Black Males in Northern Texas 
+
+
 \newpage
 
 ## Detailed Sentence Length Breakdown, by Guideline and Demographic Group
 
+The table below presents a detailed sentence length breakdown for each guideline 
 ```{r}
 #crime names
 crime_name_tbl <- read_excel(here::here("data/Type of Crime.xlsx")) %>% 
