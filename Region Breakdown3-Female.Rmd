@@ -5,12 +5,7 @@ date: "2023-10-31"
 ---
 
 # Introduction 
-After reading several studies on the status of women's sentencing in the US, one key phenomenon stood out: the intersection of gender, Hispanic identity, drug offenses, and border districts. 
-
-This report is structured in three categories, where each category compounds on the previous: 
-1. Location: The difference in sentence length in southern/border districts near Mexico. 
-2. Variation by type of crime
-3. Demographic disparity bar graphs, for border districts only
+This section of the region breakdown isolates only female identifying defendants. Otherwise, this structure is the exact same as Part 1 and provides only descriptive statistics. 
 
 
 # Location 
@@ -89,11 +84,7 @@ boxplot(SENSPLT0 ~ districtName, data = district,
 *H1: The boxes would not be of equal widths with evenly aligned black bars.* 
 
 From the above visualization, we can note the following observations: 
-1. The Northern district of Florida has far greater outliers than the other southern border districts. 
-
-2. We can see that the black bar amongst all boxes is at about the same height compared to each other. This mean most sentence lengths for southern border districts average about the same, with outliers dragging out larger (i.e Northern district of Florida) or smaller (New Mexico) sentences. 
-
-3. North and Eastern Texas have very different sentencing averages than their counterparts, Southern and West Texas. 
+1. Northern and Eastern Texas have larger average sentences for women
 
 \newpage
 
@@ -105,7 +96,6 @@ dem_avg <- function(df){
     group_by(districtName) %>%
     summarize(avg_sent = mean(SENSPLT0, na.rm=T))
 }
-
 list_periods <- list(postprotect, postbooker, postgall, postreport, present)
 
 avg_sent_dem_tbl <- map(list_periods, dem_avg) %>%
@@ -125,22 +115,80 @@ df <- avg_sent_dem_tbl %>%
 
 df$num_period <- as.numeric(factor(df$period, levels = c("Protect", "Booker", "Gall", "Post-Report", "Present")))
 
+
 ggplot(data =df, aes(x = num_period, y = avg_sent, col = Group)) + 
   geom_point() + 
   geom_line() + 
   scale_x_continuous(labels = c("Protect", "Booker", "Gall", "Post-Report", "Present")) + 
   xlab('Period') + 
   ylab('Avg Sentence Length')
-
 ```
 *H0: There would be no distinguishing lines and/or trends between each district as average sentence lengths across districts should have been the same in each period.*
 *H1: There are distinguishing lines and/or trends between each district.*
 
-The chart above represents the average sentence length for each district over time, specifically between each period. Note that this includes all demographic types. We can draw three main points of interest: 
+1. Over time, average sentence length for women in Northern and Eastern Texas went up after Booker
+2. Average sentence length for women in Western Louisiana went up after the Post-Report period. 
 
-1. Northern and Eastern districts of Texas sentence length went up over time. 
-2. The Northern districts of Florida average sentence length decreased the most after Booker and continued to do so in later periods. 
-3. Within these southern border districts, there are two categories based on average sentence lengths. This specifically means that if we were to draw a straight line (say around 40) we would be able to cleanly divide the districts into two groups based on average sentence length over time. 
+Because of this trend increase, I was interested to see the breakdown between demographics of women. 
+
+
+```{r}
+dem_avg2 <- function(df){
+  df %>%
+    group_by(districtName, racesex_clean) %>%
+    summarize(avg_sent = mean(SENSPLT0, na.rm=T))
+}
+
+
+list_periods <- list(postprotect, postbooker, postgall, postreport, present)
+
+avg_sent_dem_tbl2 <- map(list_periods, dem_avg2) %>%
+  bind_rows(.id = "Period") %>%
+  mutate(avg_sent = round(avg_sent),
+         Period = recode(as.character(Period),
+                         "1" = "Protect", "2" = "Booker", "3" = "Gall", "4" = "Post-Report", "5" = "Present")) %>%
+  pivot_wider(names_from = Period, values_from = avg_sent) %>%
+  rename("Group" = districtName)
+
+avg_sent_dem_tbl2
+
+#--- visualization 
+
+df <- avg_sent_dem_tbl2 %>% 
+  pivot_longer(!Group & !racesex_clean, names_to = 'period', values_to= 'avg_sent')
+
+df$num_period <- as.numeric(factor(df$period, levels = c("Protect", "Booker", "Gall", "Post-Report", "Present")))
+
+ggplot(data =df%>% filter(Group %in% c("Texas North")), aes(x = num_period, y = avg_sent, col = racesex_clean)) + 
+  geom_point() + 
+  geom_line() + 
+  scale_x_continuous(labels = c("Protect", "Booker", "Gall", "Post-Report", "Present")) + 
+  xlab('Period') + 
+  ylab('Avg Sentence Length') + 
+  ggtitle("Avg Sentence Length Over Time in North Texas")
+
+
+ggplot(data =df%>% filter(Group %in% c("Texas East")), aes(x = num_period, y = avg_sent, col = racesex_clean)) + 
+  geom_point() + 
+  geom_line() + 
+  scale_x_continuous(labels = c("Protect", "Booker", "Gall", "Post-Report", "Present")) + 
+  xlab('Period') + 
+  ylab('Avg Sentence Length') + 
+  ggtitle("Avg Sentence Length Over Time in East Texas")
+
+
+ggplot(data =df%>% filter(Group %in% c("Louisiana West")), aes(x = num_period, y = avg_sent, col = racesex_clean)) + 
+  geom_point() + 
+  geom_line() + 
+  scale_x_continuous(labels = c("Protect", "Booker", "Gall", "Post-Report", "Present")) + 
+  xlab('Period') + 
+  ylab('Avg Sentence Length') + 
+  ggtitle("Avg Sentence Length Over Time in Lousiana West")
+```
+
+1. White Females make some of the largest upward trends among other female demographic groups. 
+2. There are general upward trends in average sentence length for women in these three districts. 
+
 
 \newpage 
 
@@ -155,6 +203,7 @@ df <- district%>%
 df %>% flextable()
 
 ```
+
 In this table, we present the numerical values for average sentence length spread out across district and demographic. Below, we visualize this information to better understand from a top down perspective what this table describes. 
 
 
@@ -181,11 +230,8 @@ for (i in 1:nrow(df)) {
 *H0: Average sentence length across district would be exactly the same*
 *H1: Average sentence length across district are not the same*
 
-The series of visualizations above describe the average sentence length in each southern border district, broken down by demographic. The main notes to be aware of are the following: 
+These bar graphs show average sentence lengths all time across female demographic groups, and they appear to reflect similar observations from the line graphs. 
 
-1. Other Female has a higher average sentence length than their male counterpart (Other Male) in Northern Texas. 
-2. Northern and Eastern Texas have much higher average sentences for Hispanic populations compared to the rest of the southern border districts 
-3. Other Male has a higher average sentence than Black Male in New Mexico 
 
 ## Average Sentence for each Demographic 
 
@@ -203,11 +249,11 @@ for (col in columns) {
           col = "steelblue", cex.names = .6, las=2)
 }
 ```
+
 *H0: Average sentence length across demographic are exactly the same*
 *H1: Average sentence length across demographic are not the same*
 
-1. Hispanic populations face higher average sentence lengths in East and Northern Texas
-2. Black Females have a noticably smaller average sentence length than their male counter part in Eastern Louisiana. 
+1. The largest average sentence lengths for Hispanic Female, Other Female, and White Female are in Northern Texas. 
 
 # Crime Type 
 
@@ -222,6 +268,7 @@ crime_df <- district%>%
 
 crime_df %>% flextable()
 ```
+
 The table above is the average sentence length by crime type and district. 
 
 
@@ -244,9 +291,13 @@ for (i in 1:nrow(crime_df)) {
           main = paste("Avg Sentence Length in", name), legend = TRUE,cex.names= 0.6,las =2 )
 }
 ```
+
 *H0: The average sentence length for each crime type remains consistent across all districts*
 *H1: The average sentence length for each crime type is not consistent across all districts*
 
+1. Despite that Porn has the largest average sentence length in seven of the nine districts, Eastern Louisiana has an incredibly small sentence lengths for porn sentences for women. Western Lousiana also has an incredibly small sentence length for porn. 
+
+2. The largest average sentence length for women in Eastern Louisiana is Drug Trafficking, whereas in Western Louisiana, it is sexual. 
 
 
 ## Average Sentence for each Demographic 
@@ -263,15 +314,11 @@ for (col in columns) {
           col = "goldenrod", cex.names = .6, las=2)
 }
 ```
+
 *H0: The average sentence length for each crime type remains consistent across all districts*
 *H1: The average sentence length for each crime type is not consistent across all districts*
 
-
-1. Drug Trafficking and Immigration have largest variation in average sentence length 
-2. North Florida has lower than average sentence length for immigration than drug trafficking 
-3. Sexual type crimes remain stagnant across all southern border districts
-
-Because of this examination, we wanted to explore more into drug trafficking and immigration type offenses. 
+1. For immigration based offenses, Northern Texas had higher average sentences than most other districts despite the fact that immigration in Northern Texas did not have the largest average sentence length. 
 
 
 ## Drug Trafficking Sentence Length
@@ -297,12 +344,11 @@ for (col in columns) {
           col = "cornflowerblue", cex.names = .7, las = 2)
 }
 ```
+
 *H0: Sentencing lengths for drug trafficking offenses are the same across all demographics and districts.*
 *H1: Sentencing lengths for drug trafficking offenses are not the same across all demographics and districts.* 
 
-1. Hispanic Females have higher average drug trafficking sentences than Black Males in Northern Texas 
-2. Hispanic Females and Hispanic Males have almost the same average drug trafficking sentencing lengths 
-
+There aren't many outstanding notes for this passage. 
 
 ## Immigration Sentence Length
 
@@ -327,10 +373,11 @@ for (col in columns) {
           col = "coral", cex.names = .6, las = 2)
 }
 ```
+
 *H0: Sentencing lengths for immigration offenses are the same across all demographics and districts.*
 *H1: Sentencing lengths for immigration offenses are not the same across all demographics and districts.* 
 
-1. Hispanic Females have higher average immigration sentences than Black Males in Northern Texas 
+1. White and Hispanic females comprise most immigration based cases. 
 
 
 \newpage

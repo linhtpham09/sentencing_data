@@ -15,13 +15,12 @@ This report is structured in three categories, where each category compounds on 
 
 # Location 
 
-Our primary focus will be on the  Northern, Western, Southern, and Eastern Districts of Texas, the Western and Eastern Districts of Louisiana, the District of New Mexico, and the Northern, Middle, and Southern Districts of Florida. 
+This topic came to our attention in Fishman & Schazenbach (2012). Fischman & Schazenbach (2012)did not specifically focus on gender, but they did examine Hispanic identity along with border districts. They noted that Arizona, Southern California, New Mexico, Texas South, and Texas West had atypically large caseload pressure. In this same study, they argued Hispanic offenders faced larger sentences as a result of racial/ethnic bias. 
 
-This topic came to our attention in Fishman & Schazenbach (2012). In Fischman & Schazenbach (2012), they did not specifically focus on gender, but they did examine Hispanic identity along with border districts. They noted that Arizona, Southern California, New Mexico, Texas South, and Texas West had atypically large caseload pressure. In this same study, they argued Hispanic offenders faced larger sentences as a result of racial/ethnic bias. As we continued to do more research, common trends continued to persist in literature, specifically how disparity persists southern/border districts near Mexico. 
+These trends are reflected throughout the literature, which often notes that disparity persists southern/border districts near Mexico. In a 2012 TRAC report, Texas North, Georgia North, Virginia East, Florida North, and Texas West had some of the largest differences between judges. Other border districts in the top 10 include Louisiana West and Florida Middle. Interestingly, another border district, California South had the smallest difference. TRAC specifically stated that Texas North "[sentencing] variation [was] hard to explain" due to large variances. Holland and Prohaska (2018) stated women of color received shorter sentences than white women, and that women in southern and border districts received significantly longer sentences. Topaz, Ning, and Ciocanel (2023) reported that at the district level there were significant differences between minority defendants and white defendants. 
 
-In a 2012 TRAC report, Texas North, Georgia North, Virginia East, Florida North, and Texas West had some of the largest differences between judges. Other border districts in the top 10 include Louisiana West and Florida Middle. Interestingly, another border district, California South had the smallest difference. TRAC specifically stated that Texas North "[sentencing] variation [was] hard to explain" due to large variances.Holland and Prohaska(2018) stated women of color received shorter sentences than white women, and that women in southern and border districts received significantly longer sentences. Topaz, Ning, and Ciocanel (2023) report that at the district level there were significant differences between minoritized defendants and white defendants. 
+These studies consistently presented trends among southern/border districts despite their varied themes and initial goals. As a result, we decided to take a closer look at border districts. Among defendants, we were primarily interested in the sentencing differences between men and women, while also addressing the gender’s intersectionality with race. Though most legal academics have concluded almost no difference exists between male and female sentencing decisions overall, the field cannot agree where there is possible deviation. Rodriguez, Curry, and Lee (2006) found that women overall were less likely to be sentenced and if so, received shorter sentences than men. Goulette, Wooldredge, and Lawrence (2015) found that the intersection of race and gender impacted bond amounts, and minority females received higher bond amounts than White women, and specific crimes (i.e."rape, robbery, burglary, theft, fraud, drugs, and domestic violence/nonsupport") significantly impacted bond amounts as well. With all these patterns, we decided to examine how region, offense, and gender interact.
 
-Please note that all average sentence lengths are in months. Each section will include a H0 and H1, indicating a null (H0) hypothesis and an alternative (H1) hypothesis. This will identify what patterns or characteristic presents as an either an outlier or noteworthy. 
 
 ```{r, include=FALSE}
 
@@ -94,11 +93,11 @@ boxplot(SENSPLT0 ~ districtName, data = district,
 *H1: The boxes would not be of equal widths with evenly aligned black bars.* 
 
 From the above visualization, we can note the following observations: 
-1. The Northern district of Florida has far greater outliers than the other southern border districts. 
+1. The Northern Florida has far greater outliers than the other southern border districts. 
 
-2. We can see that the black bar amongst all boxes is at about the same height compared to each other. This mean most sentence lengths for southern border districts average about the same, with outliers dragging out larger (i.e Northern district of Florida) or smaller (New Mexico) sentences. 
+2. We can see that the black bar amongst all boxes is at about the same height compared to each other. This mean most sentence lengths for southern border districts average about the same, with outliers dragging out larger (i.e Northern Florida) or smaller (New Mexico) sentences. 
 
-3. North and Eastern Texas have very different sentencing averages than their counterparts, Southern and West Texas. 
+3. Northern and Eastern Texas have very different sentencing averages than their counterparts, Southern and Western Texas. 
 
 \newpage
 
@@ -143,8 +142,8 @@ ggplot(data =df, aes(x = num_period, y = avg_sent, col = Group)) +
 
 The chart above represents the average sentence length for each district over time, specifically between each period. Note that this includes all demographic types. We can draw three main points of interest: 
 
-1. Northern and Eastern districts of Texas sentence length went up over time. 
-2. The Northern districts of Florida average sentence length decreased the most after Booker and continued to do so in later periods. 
+1. Northern and Eastern of Texas sentence length went up over time. 
+2. The Northern of Florida average sentence length decreased the most after Booker and continued to do so in later periods. 
 3. Within these southern border districts, there are two categories based on average sentence lengths. This specifically means that if we were to draw a straight line (say around 40) we would be able to cleanly divide the districts into two groups based on average sentence length over time. 
 
 \newpage 
@@ -160,6 +159,7 @@ df <- district%>%
 df %>% flextable()
 
 ```
+
 In this table, we present the numerical values for average sentence length spread out across district and demographic. Below, we visualize this information to better understand from a top down perspective what this table describes. 
 
 
@@ -208,10 +208,11 @@ for (col in columns) {
           col = "steelblue", cex.names = .6, las=2)
 }
 ```
+
 *H0: Average sentence length across demographic are exactly the same*
 *H1: Average sentence length across demographic are not the same*
 
-1. Hispanic populations face higher average sentence lengths in East and Northern Texas
+1. Hispanic populations face higher average sentence lengths in Eastern and Northern Texas
 2. Black Females have a noticably smaller average sentence length than their male counter part in Eastern Louisiana. 
 
 # Crime Type 
@@ -227,6 +228,7 @@ crime_df <- district%>%
 
 crime_df %>% flextable()
 ```
+
 The table above is the average sentence length by crime type and district. 
 
 
@@ -249,10 +251,11 @@ for (i in 1:nrow(crime_df)) {
           main = paste("Avg Sentence Length in", name), legend = TRUE,cex.names= 0.6,las =2 )
 }
 ```
+
 *H0: The average sentence length for each crime type remains consistent across all districts*
 *H1: The average sentence length for each crime type is not consistent across all districts*
 
-
+Despite a few slight variations, the average sentence length for each crime type remains mostly consistent across districts. 
 
 ## Average Sentence for each Demographic 
 
