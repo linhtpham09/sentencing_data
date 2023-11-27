@@ -1,11 +1,22 @@
 ---
-title: "Region Breakdown"
+title: "Region Breakdown Pt 3 - Female"
 output: html_document
 date: "2023-10-31"
 ---
 
+# Introduction 
+After reading several studies on the status of women's sentencing in the US, one key phenomenon stood out: the intersection of gender, Hispanic identity, drug offenses, and border districts. 
 
-```{r setup, include=FALSE}
+This report is structured in three categories, where each category compounds on the previous: 
+1. Location: The difference in sentence length in southern/border districts near Mexico. 
+2. Variation by type of crime
+3. Demographic disparity bar graphs, for border districts only
+
+
+# Location 
+
+
+```{r, include=FALSE}
 
 library(tidyverse)
 library(flextable)
@@ -14,12 +25,9 @@ library(scales)
 library(readxl)
 
 data <- read_csv(here::here("data/io.csv"))
-district <- data %>% filter(districtName %in% c("Texas North", "Texas West", "Texas South", "Texas East","Louisiana East", "Louisiana West", "New Mexico", "Florida North", "Florida Middle", "Florida South"))
-
-femDisCrime <- district %>% 
-  select(districtName, crime_type, racesex_clean, GLMIN, SENSPLT0) %>%
-  filter(str_detect(racesex_clean, 'Female')) %>% 
-  mutate(crime_type = if_else(is.na(crime_type),'NA', crime_type))
+district <- data %>% 
+  filter(districtName %in% c("Texas North", "Texas West", "Texas South", "Texas East","Louisiana East", "Louisiana West", "New Mexico", "Florida North", "Florida Middle", "Florida South")) %>% 
+  filter(str_detect(racesex_clean, 'Female'))
 
 postprotect <- district %>% 
   filter(postprotect) #06-24-04
@@ -36,20 +44,21 @@ postreport <- district %>%
 present <- district %>% 
   filter(present)
 
+
 highlight_above_avg <- function(ft){
   ft %>% 
-    # bg(i = ~ `Black Male`>Overall, 
-    #  j = ~ `Black Male`, 
-    #  bg="#Fba894") %>% 
-    # bg(i = ~ `Hispanic Male`>Overall, 
-    #    j = ~ `Hispanic Male`, 
-    #    bg="#Fba894") %>% 
-    # bg(i = ~ `White Male`>Overall, 
-    #    j = ~ `White Male`, 
-    #    bg="#Fba894") %>% 
-    # bg(i = ~ `Other Male`>Overall, 
-    #    j = ~ `Other Male`, 
-    #    bg="#Fba894") %>% 
+     #bg(i = ~ `Black Male`>Overall, 
+      #j = ~ `Black Male`, 
+      #bg="#Fba894") %>% 
+     #bg(i = ~ `Hispanic Male`>Overall, 
+      #j = ~ `Hispanic Male`, 
+     #bg="#Fba894") %>% 
+     #bg(i = ~ `White Male`>Overall, 
+        #j = ~ `White Male`, 
+        #bg="#Fba894") %>% 
+     #bg(i = ~ `Other Male`>Overall, 
+        #j = ~ `Other Male`, 
+        #bg="#Fba894") %>% 
     bg(i = ~ `Black Female`>Overall, 
        j = ~ `Black Female`, 
        bg="#Fba894") %>% 
@@ -65,24 +74,35 @@ highlight_above_avg <- function(ft){
 }
 ```
 
+\newpage
 
 ## Distribution of Sentences 
 ```{r}
-#only for females
+# ggplot(data = district, aes(x = districtName, y = SENSPLT0)) +
+#   geom_boxplot() 
 
-ggplot(data = femDisCrime, aes(x = districtName, y = SENSPLT0)) + 
-  geom_boxplot()
+boxplot(SENSPLT0 ~ districtName, data = district, 
+        outline = FALSE, las = 2, ylab = "", xlab = '', cex.axis = .7)#does not include outliers 
 
 ```
+*H0: All boxes would be of equal widths and have the same average sentence lengths. This means that the black bars would be all aligned, and the ranges would also be exactly the same.*
+*H1: The boxes would not be of equal widths with evenly aligned black bars.* 
 
+From the above visualization, we can note the following observations: 
+1. The Northern district of Florida has far greater outliers than the other southern border districts. 
 
+2. We can see that the black bar amongst all boxes is at about the same height compared to each other. This mean most sentence lengths for southern border districts average about the same, with outliers dragging out larger (i.e Northern district of Florida) or smaller (New Mexico) sentences. 
+
+3. North and Eastern Texas have very different sentencing averages than their counterparts, Southern and West Texas. 
+
+\newpage
 
 ## Average Sentence, by Federal District and Period 
 
 ```{r full picture}
 dem_avg <- function(df){
   df %>%
-    group_by(districtName, racesex_clean) %>%
+    group_by(districtName) %>%
     summarize(avg_sent = mean(SENSPLT0, na.rm=T))
 }
 
@@ -98,28 +118,51 @@ avg_sent_dem_tbl <- map(list_periods, dem_avg) %>%
 
 avg_sent_dem_tbl
 
+#--- visualization 
+
+df <- avg_sent_dem_tbl %>% 
+  pivot_longer(!Group, names_to = 'period', values_to= 'avg_sent')
+
+df$num_period <- as.numeric(factor(df$period, levels = c("Protect", "Booker", "Gall", "Post-Report", "Present")))
+
+ggplot(data =df, aes(x = num_period, y = avg_sent, col = Group)) + 
+  geom_point() + 
+  geom_line() + 
+  scale_x_continuous(labels = c("Protect", "Booker", "Gall", "Post-Report", "Present")) + 
+  xlab('Period') + 
+  ylab('Avg Sentence Length')
 
 ```
-- Florida North average sentences went down a lot over time 
-- Texas East and Texas North went up 
-- Texas West went down 
+*H0: There would be no distinguishing lines and/or trends between each district as average sentence lengths across districts should have been the same in each period.*
+*H1: There are distinguishing lines and/or trends between each district.*
 
-## Average Sentence by Demographic and Federal District
+The chart above represents the average sentence length for each district over time, specifically between each period. Note that this includes all demographic types. We can draw three main points of interest: 
 
+1. Northern and Eastern districts of Texas sentence length went up over time. 
+2. The Northern districts of Florida average sentence length decreased the most after Booker and continued to do so in later periods. 
+3. Within these southern border districts, there are two categories based on average sentence lengths. This specifically means that if we were to draw a straight line (say around 40) we would be able to cleanly divide the districts into two groups based on average sentence length over time. 
+
+\newpage 
+
+## Average Sentence Length 
 ```{r demographic }
-
-
-par(mfrow=c(2,2))
-df <- femDisCrime%>%
+df <- district%>%
   select(SENSPLT0, districtName, racesex_clean) %>%
   group_by(districtName, racesex_clean) %>%
   summarize(avg_sent = round(mean(SENSPLT0, na.rm = T))) %>%
   ungroup() %>%
   pivot_wider(names_from = racesex_clean, values_from = avg_sent)
-
 df %>% flextable()
 
+```
+In this table, we present the numerical values for average sentence length spread out across district and demographic. Below, we visualize this information to better understand from a top down perspective what this table describes. 
 
+
+## Average Sentence Length in each District
+
+```{r}
+
+par(mfrow=c(2,2))
 # Loop through rows and create bar charts
 for (i in 1:nrow(df)) {
   # Select data for the current row
@@ -131,9 +174,23 @@ for (i in 1:nrow(df)) {
 
   # Create a bar chart for the current row
   barplot(as.matrix(current_row), names.arg = names(current_row),
-          main = paste("Bar Chart for ", name), legend = TRUE,cex.names= 0.6,las =2 )
+          main = paste("Avg Sentence Length in", name), legend = TRUE,cex.names= 0.6,las =2 )
 }
+```
 
+*H0: Average sentence length across district would be exactly the same*
+*H1: Average sentence length across district are not the same*
+
+The series of visualizations above describe the average sentence length in each southern border district, broken down by demographic. The main notes to be aware of are the following: 
+
+1. Other Female has a higher average sentence length than their male counterpart (Other Male) in Northern Texas. 
+2. Northern and Eastern Texas have much higher average sentences for Hispanic populations compared to the rest of the southern border districts 
+3. Other Male has a higher average sentence than Black Male in New Mexico 
+
+## Average Sentence for each Demographic 
+
+```{r}
+par(mfrow=c(2,2))
 # Get the column names excluding the first column 
 columns <- names(df)[-1]
 
@@ -142,35 +199,82 @@ columns <- names(df)[-1]
 for (col in columns) {
   # Create a bar chart for the current column
   barplot(df[[col]], names.arg = df$districtName,
-          main = paste("Bar Chart for", col),
-          col = "steelblue", cex.names = .8, las = 2)
+          main = paste("Avg Sentence Length for", col),
+          col = "steelblue", cex.names = .6, las=2)
 }
-
 ```
+*H0: Average sentence length across demographic are exactly the same*
+*H1: Average sentence length across demographic are not the same*
 
-- Texas East and Texas North have much higher avg sentences for Hispanic populations. 
-- New Mexico has a much higher avg sentence for Other Male 
+1. Hispanic populations face higher average sentence lengths in East and Northern Texas
+2. Black Females have a noticably smaller average sentence length than their male counter part in Eastern Louisiana. 
 
 # Crime Type 
 
 ## Average Sentence by Crime Type and Federal District 
 ```{r}
-crime_df <- 
-  femDisCrime%>% 
-  group_by(districtName, crime_type, racesex_clean) %>%
+crime_df <- district%>% 
+  select(SENSPLT0,  'District Name'=districtName  , crime_type) %>% 
+  group_by(`District Name`, crime_type) %>% 
   summarize(avg_sent = round(mean(SENSPLT0, na.rm = T))) %>% 
-  group_by(districtName, crime_type, avg_sent, racesex_clean) %>% 
   ungroup() %>% 
-  #pivot_wider(names_from = racesex_clean, values_from = avg_sent) %>% 
-  select("Race/Sex" = racesex_clean,  Overall = avg_sent) %>% 
-  flextable() %>% 
-  highlight_above_avg()
+  pivot_wider(names_from = crime_type, values_from = avg_sent) 
 
 crime_df %>% flextable()
-
 ```
+The table above is the average sentence length by crime type and district. 
 
-- Largest drug trafficking offenses in Florida North, followed by Texas North. 
+
+
+```{r}
+
+par(mfrow=c(2,2))
+# Loop through rows and create bar charts
+for (i in 1:nrow(crime_df)) {
+  # Select data for the current row
+  current_row <- crime_df[i, ]
+
+  # Extract the fedNum and remove it from the data for plotting
+  name <- current_row$`District Name`
+  current_row <- current_row[-1]
+
+  # Create a bar chart for the current row
+  barplot(as.matrix(current_row), names.arg = names(current_row),
+          ylab = "Avg Sentence Length in Months", 
+          main = paste("Avg Sentence Length in", name), legend = TRUE,cex.names= 0.6,las =2 )
+}
+```
+*H0: The average sentence length for each crime type remains consistent across all districts*
+*H1: The average sentence length for each crime type is not consistent across all districts*
+
+
+
+## Average Sentence for each Demographic 
+
+```{r}
+par(mfrow=c(2,2))
+# Get the column names excluding the first column 
+columns <- names(crime_df)[-1]
+# Loop through columns and create bar charts
+for (col in columns) {
+  # Create a bar chart for the current column
+  barplot(crime_df[[col]], names.arg = crime_df$`District Name`,
+          main = paste("Avg Sentence Length for", col), ylab = "Avg Sentence in Months", 
+          col = "goldenrod", cex.names = .6, las=2)
+}
+```
+*H0: The average sentence length for each crime type remains consistent across all districts*
+*H1: The average sentence length for each crime type is not consistent across all districts*
+
+
+1. Drug Trafficking and Immigration have largest variation in average sentence length 
+2. North Florida has lower than average sentence length for immigration than drug trafficking 
+3. Sexual type crimes remain stagnant across all southern border districts
+
+Because of this examination, we wanted to explore more into drug trafficking and immigration type offenses. 
+
+
+## Drug Trafficking Sentence Length
 
 ```{r}
 par(mfrow = c(2,2))
@@ -183,97 +287,57 @@ drug <-  present %>%
   pivot_wider(names_from = districtName, values_from = avg_sent)
 
 
-
 # Get the column names excluding the first column (fedNum)
 columns <- names(drug)[-1]
 # Loop through columns and create bar charts
 for (col in columns) {
   # Create a bar chart for the current column
   barplot(drug[[col]], names.arg = drug$racesex_clean,
-          main = paste("Bar Chart for", col), ylab = col,
+          main = paste("Drug Trafficking in", col), ylab = 'Avg Sentence in Months',
           col = "cornflowerblue", cex.names = .7, las = 2)
 }
 ```
-- Hispanic Female sentence length almost the same as Hispanic Male in Louisiana West 
-- Hispanic Female higher than Black Male in Texas North and almost as high as Hispanic Male
+*H0: Sentencing lengths for drug trafficking offenses are the same across all demographics and districts.*
+*H1: Sentencing lengths for drug trafficking offenses are not the same across all demographics and districts.* 
+
+1. Hispanic Females have higher average drug trafficking sentences than Black Males in Northern Texas 
+2. Hispanic Females and Hispanic Males have almost the same average drug trafficking sentencing lengths 
 
 
+## Immigration Sentence Length
+
+```{r}
+par(mfrow = c(2,2))
+imm <-  present %>% 
+  filter(crime_type== "Immigration") %>% 
+  select(crime_type, racesex_clean, districtName, SENSPLT0) %>% 
+  group_by(racesex_clean, districtName) %>% 
+  summarize(avg_sent = round(mean(SENSPLT0, na.rm = T))) %>% 
+  ungroup() %>% 
+  pivot_wider(names_from = districtName, values_from = avg_sent)
+
+
+# Get the column names excluding the first column (fedNum)
+columns <- names(imm)[-1]
+# Loop through columns and create bar charts
+for (col in columns) {
+  # Create a bar chart for the current column
+  barplot(imm[[col]], names.arg = imm$racesex_clean,
+          main = paste("Bar Chart for", col), ylab = 'Avg Sentence in Months',
+          col = "coral", cex.names = .6, las = 2)
+}
+```
+*H0: Sentencing lengths for immigration offenses are the same across all demographics and districts.*
+*H1: Sentencing lengths for immigration offenses are not the same across all demographics and districts.* 
+
+1. Hispanic Females have higher average immigration sentences than Black Males in Northern Texas 
+
+
+\newpage
 
 ## Detailed Sentence Length Breakdown, by Guideline and Demographic Group
 
-```{r}
-
-# disCrime <- district %>% 
-#   # select(districtName, crime_type, racesex_clean, GLMIN, SENSPLT0) %>% 
-#   # group_by(districtName, crime_type) %>% 
-#   # summarize(gdline_avg = round(mean(GLMIN, na.rm = T)), 
-#   #        glmin_avg = round(mean(GLMIN, na.rm = T)), 
-#   #        sent_avg = round(mean(SENSPLT0, na.rm = T))) %>% ungroup()
-#   select(districtName, crime_type, racesex_clean, SENSPLT0) %>% 
-#   group_by(districtName, crime_type, racesex_clean) %>% 
-#   mutate(sent_avg = round(mean(SENSPLT0, na.rm = T)))
-# disCrime
-```
-
-Two-way ANOVA: used to evaluate the effects of 2 categorical variables (and their potential interaction) on a quantitative continuous variable
-
-
-```{r}
-summary(disCrime)
-
-mod <- aov(sent_avg~districtName*crime_type, data = disCrime)
-library(car)
-
-qqPlot(mod$residuals,
-  id = FALSE # remove point identification
-)
-
-
-```
-
-
-#ANCOVA
-- assumes normality of residuals 
-- concerned with studying regression in a set of groups
-- applied in experimental studies when researchers want to remove the effects of some antecedent variable 
-- combines principles of ANOVA and principles of regression 
-- reduce the within-group (error) variances, making the test more efficient (powerful). ie. statistically remove the variance 
-
-#ANOVA 
-- assumes data are independent 
-- assumes variance is the same 
-- assumes normal distribution 
-
-# Three Way ANOVA 
-assesses whether there is an interaction effect between three independent categorical variables on a continuous outcome variabel 
-```{r}
-# model <- lm(sent_avg ~ districtName + racesex_clean + crime_type + 
-#               districtName:racesex_clean + racesex_clean:crime_type + districtName:crime_type, data = disCrime)
-# model
-
-
-
-library(rstatix)
-district %>% 
-  group_by(districtName, crime_type, racesex_clean) %>% 
-  get_summary_stats(SENSPLT0, type = 'mean_sd')
-
-
-
-ggplot(data = femDisCrime, mapping =aes(x=racesex_clean, y = 'SENSPLT0')) + 
-  geom_boxplot()
-
-library(ggpubr)
-#visualization 
-ggboxplot(
-  femDisCrime, x = 'districtName', y = 'SENSPLT0',
-  color = 'racesex_clean', 
-  facet.by  = 'crime_type'
-)
-```
-
-
-
+The table below presents a detailed sentence length breakdown for each guideline 
 ```{r}
 #crime names
 crime_name_tbl <- read_excel(here::here("data/Type of Crime.xlsx")) %>% 
@@ -303,9 +367,3 @@ district %>%
   set_table_properties(width = 1, layout = "autofit")
 ```
 
-
-# Gender Baseline
-
-Rodriguez, Curry, and Lee(2006) found that women overall were less likely to be sentenced and if so, received shorted sentences than men. Goulette, Wooldredge, and Lawrence(2015) found that the intersection of race and gender impacted Bond amounts, and minority females received higher bond amounts than White women, and specific crimes (i.e."rape, robbery, burglary, theft, fraud, drugs, and domestic violence/nonsupport") significantly impacted bond amounts as well. 
-
-Because of the length of this, I have a second document which is a copy of the demographic sentencing disparities based on only districts. This is region_demographic2.Rmd.    

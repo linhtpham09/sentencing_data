@@ -1,5 +1,5 @@
 ---
-title: "Regional Demographic Sentencing Disparities Baseline Switch"
+title: "Region Breakdown Pt 2 - Model Baseline Switch"
 output:
   html_document:
     df_print: paged
@@ -8,7 +8,7 @@ output:
 date: "Oct 31, 2023"
 ---
 
-```{r setup, include=FALSE}
+```{r, include=FALSE}
 knitr::opts_chunk$set(echo = F, warning = F, message = F, fig.width = 14, fig.height = 8)
 
 library(tidyverse)
