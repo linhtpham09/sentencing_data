@@ -9,6 +9,7 @@ library(lubridate)
 library(here)
 source(here::here("utils.R"))
 
+
 #connection to google bigquery 
 con <- dbConnect(
   bigrquery::bigquery(),
@@ -31,9 +32,9 @@ query2017_1 = dbSendQuery(con, "select `id`,`SENTMON`,`SENTYR`,`SENSPLT0`,
                           `REAS19`,`REAS20`,`REAS21`, `REAS22`, `REAS23`, 
                           `REAS24`, `REAS25`, `SOURCES`,`DISTRICT`,`CIRCDIST`, 
                           `NEWEDUC`, `ACCCAT`, `WEAPON`, `XFOLSOR`, `VIOL1PTS`,
-                          `MAND1`, `MAND2`, `MAND3`, `MAND4`, `MAND5`, `MAND6`
+                          `MAND1`, `MAND2`, `MAND3`, `MAND4`, `MAND5`, `MAND6`, 
+                          `SAFE`, `SENTIMP`, `USSCIDN`
                           from fy17_1")
-#has mand 1-6 
 
 data2017_1 <-  dbFetch(query2017_1) %>% 
   aggregate_reasons()
@@ -60,7 +61,8 @@ query2018_1 <- dbSendQuery(con, "select `id`,`sentmon`, `sentyr`,`sensplt0`,
                            `REAS29`,`REAS30`,`REAS31`,`REAS32`,`REAS33`,
                            `REAS34`,`REAS35`, `SOURCES`,`DISTRICT`,`CIRCDIST`,
                            `NEWEDUC`, `ACCCAT`, `WEAPON`, `XFOLSOR`, `VIOL1PTS`,
-                           `MAND1`,`MAND2`,`MAND3`,`MAND4`,`MAND5`,`MAND6`
+                           `MAND1`,`MAND2`,`MAND3`,`MAND4`,`MAND5`,`MAND6`,
+                           `SAFE`, `SENTIMP`, `USSCIDN`
                            from fy18_1")
 
 #has mand 1-6 
@@ -86,7 +88,8 @@ query2019_1 <-  dbSendQuery(con, "select `id`,`SENTMON`, `SENTYR`,`SENSPLT0`,
                             `REAS23`, `REAS24`, `REAS25`,`REAS26`,`REAS27`,
                             `REAS28`, `SOURCES`,`DISTRICT`,`CIRCDIST`, `NEWEDUC`,
                             `ACCCAT`,`WEAPON`,`XFOLSOR`,`VIOL1PTS`,`MAND1`,
-                            `MAND2`,`MAND3`,`MAND4`,`MAND5`,`MAND6`
+                            `MAND2`,`MAND3`,`MAND4`,`MAND5`,`MAND6`, 
+                            `SAFE`, `SENTIMP`, `USSCIDN`
                             from fy19_1")
 
 #has mand 1-6 
@@ -111,7 +114,8 @@ query2020_1 <-  dbSendQuery(con, "select `id`,`SENTMON`, `SENTYR`,`SENSPLT0`,
                             `REAS23`, `REAS24`, `REAS25`,`REAS26`, `SOURCES`,
                             `DISTRICT`,`CIRCDIST`,`NEWEDUC`,`ACCCAT`,`WEAPON`,
                             `XFOLSOR`,`VIOL1PTS`,`MAND1`,`MAND2`,`MAND3`,`MAND4`,
-                            `MAND5`,`MAND6` from fy20_1")
+                            `MAND5`,`MAND6`, `SAFE`, `SENTIMP`, `USSCIDN`
+                            from fy20_1")
 
 #has mand 1-6 
 data2020_1 <-  dbFetch(query2020_1) %>% aggregate_reasons()
@@ -137,7 +141,8 @@ query2021_1 = dbSendQuery(con, "select `id`,`SENTMON`, `SENTYR`,`SENSPLT0`,
                           `REAS24`, `REAS25`,`REAS26`,`REAS27`,`REAS28`,
                           `REAS29`,`REAS30`,`SOURCES`,`DISTRICT`,`CIRCDIST`, 
                           `NEWEDUC`, `ACCCAT`, `WEAPON`, `XFOLSOR`, `VIOL1PTS`,
-                          `MAND1`,`MAND2`,`MAND3`,`MAND4`,`MAND5`,`MAND6`
+                          `MAND1`,`MAND2`,`MAND3`,`MAND4`,`MAND5`,`MAND6`, 
+                          `SAFE`, `SENTIMP`, `USSCIDN`
                           from fy21_1")
 
 #has mand 1-6 
@@ -150,11 +155,12 @@ data2021 <- full_join(data2021_1, data2021_2, by = 'id') %>%
 
 # ------------------------MERGE ALL YEARS TOGETHER--------------------------
 
-io_raw_2002_2021 <- bind_rows(data2017, data2018, data2019, data2020, data2021) %>%
-  mutate(across(c(SENTMON, SENTYR, SENSPLT0, GLMIN, TOTCHPTS, IS924C,
-                  WEAPSOC,STATMIN, CAROFFAP, ACCAP, SAFE,NEWCNVTN, PRESENT,
-                  MITROLHI,AGGROLHI,NEWRACE,MONSEX,AGE, EDUCATN,NEWCIT,
-                  BOOKERCD,SENTRNGE, DISTRICT, CIRCDIST, SOURCES), as.numeric))
+io_2017_2021 <- bind_rows(data2017, data2018, data2019, data2020, data2021) 
+# %>%
+#   mutate(across(c(SENTMON, SENTYR, SENSPLT0, GLMIN, TOTCHPTS, IS924C,
+#                   WEAPSOC,STATMIN, CAROFFAP, ACCAP, SAFE,NEWCNVTN, PRESENT,
+#                   MITROLHI,AGGROLHI,NEWRACE,MONSEX,AGE, EDUCATN,NEWCIT,
+#                   BOOKERCD,SENTRNGE, DISTRICT, CIRCDIST, SOURCES), as.numeric))
 
 write_csv(io_2017_2021, here::here("data/io_2017_2021.csv"))
 
