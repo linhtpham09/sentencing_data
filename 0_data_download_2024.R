@@ -41,11 +41,24 @@ data2017_1 <-  dbFetch(query2017_1) %>%
 
 query2017_2 <- dbSendQuery(con, "select `id`, `GDLINEHI` FROM fy17_2 ")
 data2017_2 <-  dbFetch(query2017_2)
+
+
+crimhist17fyquery = dbSendQuery(con, "select * from opafy17nid_down")
+crimhist17_opafy = dbFetch(crimhist17fyquery)
+
+crimhist17 = bq_table_download("balmy-coral-330818.bqtest.crimhist17nid_down")
+crimhist17_all <- full_join(crimhist17, crimhist17_opafy, by = 'USSCIDN')
+
+
 data2017 <- full_join(data2017_1, data2017_2, by = 'id') %>% 
   mutate(opafy = 2017,
          SENTRNGE = NA) %>% 
-  select(-id)
+  select(-id) %>% 
+  mutate(USSCIDN = as.numeric(USSCIDN))
 
+data2017 <- full_join(data2017, crimhist17_all, by = "USSCIDN")
+
+#write.csv(data2017, "data2017_choff.csv")
 
 # ----------------------2018-----------------------------------
 query2018_1 <- dbSendQuery(con, "select `id`,`sentmon`, `sentyr`,`sensplt0`, 
@@ -73,8 +86,18 @@ data2018_2 <- dbFetch(query2018_2)
 data2018 <- full_join(data2018_1, data2018_2, by = 'id') %>% 
   mutate(opafy=2018) %>% 
   select(-id) %>% 
-  rename_at(vars(sentmon:sentrnge), str_to_upper)
+  rename_at(vars(sentmon:sentrnge), str_to_upper) %>% 
+  mutate(USSCIDN = as.numeric(USSCIDN))
 
+
+crimhist18fyquery = dbSendQuery(con, "select * from opafy18nid_down")
+crimhist18_opafy = dbFetch(crimhist18fyquery)
+
+crimhist18 = bq_table_download("balmy-coral-330818.bqtest.crimhist18nid_down")
+crimhist18_all <- full_join(crimhist18, crimhist18_opafy, by = 'USSCIDN')
+
+data2018 <- full_join(data2018, crimhist18_all, by = "USSCIDN")
+#write.csv(data2018,"data2018_choff.csv")
 # ----------------------2019-----------------------------------
 query2019_1 <-  dbSendQuery(con, "select `id`,`SENTMON`, `SENTYR`,`SENSPLT0`, 
                             `GLMIN`,`TOTCHPTS`,`IS924C`,`WEAPSOC`, `STATMIN`, 
@@ -98,9 +121,18 @@ query2019_2 <-  dbSendQuery(con, "select `id`, `GDLINEHI` FROM fy19_2 ")
 data2019_2 <- dbFetch(query2019_2)
 data2019 <- full_join(data2019_1, data2019_2, by = 'id') %>% 
   mutate(opafy=2019) %>% 
-  select(-id)
+  select(-id) %>% 
+  mutate(USSCIDN = as.numeric(USSCIDN))
 
 
+crimhist19fyquery = dbSendQuery(con, "select * from opafy19nid_down")
+crimhist19_opafy = dbFetch(crimhist19fyquery)
+
+crimhist19 = bq_table_download("balmy-coral-330818.bqtest.crimhist19nid_down")
+crimhist19_all <- full_join(crimhist19, crimhist19_opafy, by = 'USSCIDN')
+
+data2019 <- full_join(data2019, crimhist19_all, by = "USSCIDN")
+#write.csv(data2019,"data2019_choff.csv")
 # ----------------------2020-----------------------------------
 query2020_1 <-  dbSendQuery(con, "select `id`,`SENTMON`, `SENTYR`,`SENSPLT0`, 
                             `GLMIN`,`TOTCHPTS`,`IS924C`,`WEAPSOC`, `STATMIN`, 
@@ -124,9 +156,18 @@ query2020_2 <-  dbSendQuery(con, "select `id`, `GDLINEHI` FROM fy20_2 ")
 data2020_2 <- dbFetch(query2020_2)
 data2020 <- full_join(data2020_1, data2020_2, by = 'id') %>% 
   mutate(opafy = 2020) %>% 
-  select(-1)
+  select(-1) %>% 
+  mutate(USSCIDN = as.numeric(USSCIDN))
 
 
+crimhist20fyquery = dbSendQuery(con, "select * from opafy20nid_down")
+crimhist20_opafy = dbFetch(crimhist20fyquery)
+
+crimhist20 = bq_table_download("balmy-coral-330818.bqtest.crimhist20nid_down")
+crimhist20_all <- full_join(crimhist20, crimhist20_opafy, by = 'USSCIDN')
+
+data2020 <- full_join(data2020, crimhist20_all, by = "USSCIDN")
+#write.csv(data2020, "data2020_choff.csv")
 # ----------------------2021-----------------------------------
 
 query2021_1 = dbSendQuery(con, "select `id`,`SENTMON`, `SENTYR`,`SENSPLT0`, 
@@ -151,8 +192,18 @@ query2021_2 = dbSendQuery(con, "select `id`, `GDLINEHI` FROM fy21_3")
 data2021_2 <- dbFetch(query2021_2)
 data2021 <- full_join(data2021_1, data2021_2, by = 'id') %>% 
   mutate(opafy=2021) %>% 
-  select(-1)
+  select(-1) %>% 
+  mutate(USSCIDN = as.numeric(USSCIDN))
 
+crimhist21fyquery = dbSendQuery(con, "select * from opafy19nid_down")
+crimhist21_opafy = dbFetch(crimhist21fyquery)
+
+crimhist21 = bq_table_download("balmy-coral-330818.bqtest.crimhist19nid_down")
+crimhist21_all <- full_join(crimhist21, crimhist21_opafy, by = 'USSCIDN')
+
+data2021 <- full_join(data2021, crimhist21_all, by = "USSCIDN")
+
+write.csv(data2021, "data2021_choff.csv")
 # ------------------------MERGE ALL YEARS TOGETHER--------------------------
 
 io_2017_2021 <- bind_rows(data2017, data2018, data2019, data2020, data2021) 
