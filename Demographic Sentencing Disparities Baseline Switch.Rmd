@@ -3,7 +3,7 @@ title: "Demographic Sentencing Disparities Baseline Switch"
 output:
     word_document: 
         reference_docx: "template/template.docx"
-date: "January 31, 2022"
+date: "July 22, 2023"
 
 ---
 
@@ -42,6 +42,8 @@ source(here::here("utils.R"))
 
 This document attempts to replicate the Commission's "refined model" for estimating demographic disparities in sentencing. For more information about the model and for the reference regressions, see "Demographic Disparities Baseline Switch Reference Docs." For a write-up of findings, see the latest version of the Data Learnings Memo.
 
+**SOURCES FILTER PLUS VAR-BASED NA FILTERS**
+
 ## White Male Baseline Regressions
 
 ```{r}
@@ -51,7 +53,7 @@ model2 <- function(df){
                sexual2 + 
                porn +
                immigration +
-               othtype2 +
+               othtype +
                whitecoll +
                upward +
                downdep +
@@ -304,7 +306,7 @@ model2_wf <- function(df){
                sexual2 + 
                porn +
                immigration +
-               othtype2 +
+               othtype +
                whitecoll +
                upward +
                downdep +
@@ -365,7 +367,7 @@ model2_hf <- function(df){
                sexual2 + 
                porn +
                immigration +
-               othtype2 +
+               othtype +
                whitecoll +
                upward +
                downdep +
@@ -425,7 +427,7 @@ model2_bf <- function(df){
                sexual2 + 
                porn +
                immigration +
-               othtype2 +
+               othtype +
                whitecoll +
                upward +
                downdep +

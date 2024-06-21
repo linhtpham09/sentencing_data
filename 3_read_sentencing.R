@@ -342,13 +342,7 @@ data <- io_combined %>%
 # #merge the two as "io_combined"
 # io_combined <- bind_rows(io, io_raw_2017_2021)
 
-<<<<<<< HEAD
-fy08_raw <- read_csv(here::here("data/io_downselect2/opafy08_downselected.csv"), guess_max = 50000) %>% 
-  select(-c(MITROL1:MITROL69, AGGROL1:AGGROL69)) %>% 
-  aggregate_reasons()
 
-
-=======
 # ##### IGNORE BELOW HERE
 # 
 # ##?
@@ -389,4 +383,3 @@ fy08_raw <- read_csv(here::here("data/io_downselect2/opafy08_downselected.csv"),
 # 
 # 
 # 
->>>>>>> 569d047c4553978cf3ad9e19609d70561b618fd1
