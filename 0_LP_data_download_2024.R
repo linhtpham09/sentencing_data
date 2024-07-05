@@ -206,6 +206,12 @@ data2021 <- full_join(data2021, crimhist21_all, by = "USSCIDN")
 write.csv(data2021, "data2021_choff.csv")
 # ------------------------MERGE ALL YEARS TOGETHER--------------------------
 
+data2017 <- read_csv("data2017_choff.csv")
+data2018 <- read_csv("data2018_choff.csv")
+data2019 <- read_csv("data2019_choff.csv")
+data2020 <- read_csv("data2020_choff.csv")
+data2021 <- read_csv("data2021_choff.csv")
+
 io_2017_2021 <- bind_rows(data2017, data2018, data2019, data2020, data2021) 
 # %>%
 #   mutate(across(c(SENTMON, SENTYR, SENSPLT0, GLMIN, TOTCHPTS, IS924C,
@@ -216,5 +222,13 @@ io_2017_2021 <- bind_rows(data2017, data2018, data2019, data2020, data2021)
 write_csv(io_2017_2021, here::here("data/io_2017_2021.csv"))
 
 
+#violent crimes 
+
+
+
+
+#construct indicator variable - start identifying violent crimes 
+#contruct indicator variable - history of violent crimes 
+# STAMIN mandatory minimum variable 
 
 

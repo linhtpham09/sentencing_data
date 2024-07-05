@@ -125,6 +125,7 @@ temp <-
   #%>% #adds 62 rows 
   #left_join(mand %>% select(USSCIDN, MAND), by = "USSCIDN", relationship = "many-to-many")
   # yes/no var 
+#STATMIN!!! 
 #---in custody--- 
   mutate(
     inCustody = case_when(PRESENT == 1 ~ TRUE, 
