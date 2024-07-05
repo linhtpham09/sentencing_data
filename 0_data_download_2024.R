@@ -60,7 +60,7 @@ data2017 <- full_join(data2017_1, data2017_2, by = 'id') %>%
          SENTRNGE = NA,
          across(everything(), ~na_if(., "NA"))) %>% 
   select(-id) %>% 
-  full_join(crimhist17_all, by = c("USSCIDN", "SENTMON", "SENTYR", "SENSPLT0", "GLMIN"))
+  full_join(crimhist17_all)
 
 #write.csv(here::here(data2017), "data2017_choff.csv")
 
