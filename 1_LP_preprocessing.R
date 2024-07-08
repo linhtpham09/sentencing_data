@@ -40,11 +40,6 @@ aggregate_columns <- function(df, column_name){
  
 }
 
-mand <- df %>% select(contains("MAND"))
-mand %>% filter_at(vars(starts_with("MAND")), any_vars(. == 5)) %>% 
-  mutate(flag = 1)
-
-#mand <-  aggregate_columns(df, "MAND")
 
 
 #----start-- 
@@ -122,10 +117,9 @@ temp <-
     )
   ) %>% 
 #---mandatory minimum penalty---- 
-  #%>% #adds 62 rows 
-  #left_join(mand %>% select(USSCIDN, MAND), by = "USSCIDN", relationship = "many-to-many")
-  # yes/no var 
-#STATMIN!!! 
+  mutate(
+    mandMinPen = STATMIN
+  ) %>% 
 #---in custody--- 
   mutate(
     inCustody = case_when(PRESENT == 1 ~ TRUE, 
@@ -201,5 +195,60 @@ temp <-
 
 #--- Conviction type 
   mutate(convictionType = NEWCNVTN)
+
+#build prior violence
+
+choff17 <- read.csv("data/choff/data2017_choff.csv")
+choff18 <- read.csv("data/choff/data2018_choff.csv")
+choff19 <- read.csv("data/choff/data2019_choff.csv")
+choff20 <- read.csv("data/choff/data2020_choff.csv")
+choff21 <-read.csv("data/choff/data2021_choff.csv")
+#merge choff columns together 
+
+
+# a little longer but doesn't require knowing the number of "REAS" columns
+aggregate <- function(df){
+  brace_open <- "{"
+  brace_close <- "}"
+  reas_cols <- df %>% 
+    select(contains("CHOFF")) %>% 
+    colnames() %>% 
+    as_tibble() %>% 
+    mutate(value = glue("{brace_open}{value}{brace_close}")) %>% 
+    as.character()
+  df %>% 
+    mutate(reason = glue(reas_cols) %>% 
+             str_remove_all("NA") %>% 
+             str_remove_all("\\,") %>% 
+             str_remove_all("\"") %>% 
+             str_squish(),
+           .keep = "unused") %>% 
+    remove_empty()#move to beginning?
+}
+
+brace_open <- "{"
+brace_close <- "}"
+reas_cols <- choff17 %>% 
+  select(contains("CHOFF")) %>% 
+  colnames() %>% 
+  as_tibble() %>% 
+  mutate(value = glue("{brace_open}{value}{brace_close}")) %>% 
+  as.character()
+
+
+test <- 
+  choff17 %>%  
+  select(contains("CHOFF")) %>% 
+  rowwise %>% 
+  mutate(CHOFF = list(c_across(starts_with("CHOFF")))) 
+
+#%>% 
+  #ungroup() 
+
+#instant violence 
+#to determine instant violence, we will have to use GDLINEHI
+
+#if GDLINEHI == xx than instant violence variable = 1 
+
 
     

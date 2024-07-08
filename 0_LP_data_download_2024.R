@@ -219,7 +219,7 @@ io_2017_2021 <- bind_rows(data2017, data2018, data2019, data2020, data2021)
 #                   MITROLHI,AGGROLHI,NEWRACE,MONSEX,AGE, EDUCATN,NEWCIT,
 #                   BOOKERCD,SENTRNGE, DISTRICT, CIRCDIST, SOURCES), as.numeric))
 
-write_csv(io_2017_2021, here::here("data/io_2017_2021.csv"))
+#write_csv(io_2017_2021, here::here("data/io_2017_2021.csv"))
 
 
 #violent crimes 

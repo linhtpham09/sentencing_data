@@ -18,6 +18,7 @@ con <- dbConnect(
 
 #This line allows you to see all of the tables currently 
 dbListTables(con)
+
 # # ----------------------2002-----------------------------------
 
 query2002 <- dbSendQuery(con, "select `SENTDATE`, `SENSPLT0`, `GLMIN`, `GDLINEHI`,
