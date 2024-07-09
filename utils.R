@@ -24,6 +24,60 @@ aggregate_reasons <- function(df){
     remove_empty()#move to beginning?
 }
 
+
+#aggregate CHOFF columns
+
+aggregate_choff <- function(df){
+  clean <- function(x){x %>% 
+      str_remove_all("NA") %>% 
+      str_remove_all("\\,") %>% 
+      str_remove_all("\"") %>% 
+      str_squish()}
+  grabcols <- function(x){x %>% 
+      colnames() %>% 
+      as_tibble() %>% 
+      mutate(value = glue("{brace_open}{value}{brace_close}")) %>% 
+      as.character()}
+  brace_open <- "{"
+  brace_close <- "}"
+  choff1_cols <- df %>% 
+    select(contains("CHOFF1")) %>% 
+    grabcols()
+  choff2_cols <- df %>% 
+    select(contains("CHOFF2")) %>% 
+    grabcols()
+  choff3_cols <- df %>% 
+    select(contains("CHOFF3")) %>% 
+    grabcols()
+  choff4_cols <- df %>% 
+    select(contains("CHOFF4")) %>% 
+    grabcols()
+  choff5_cols <- df %>% 
+    select(contains("CHOFF5")) %>% 
+    grabcols()
+  choff6_cols <- df %>% 
+    select(contains("CHOFF6")) %>% 
+    grabcols()
+  choff7_cols <- df %>% 
+    select(contains("CHOFF7")) %>% 
+    grabcols()
+  choff8_cols <- df %>% 
+    select(contains("CHOFF8")) %>% 
+    grabcols()
+  df %>% 
+    mutate(CHOFF1 = glue(choff1_cols) %>% clean(),
+           CHOFF2 = glue(choff2_cols) %>% clean(),
+           CHOFF3 = glue(choff3_cols) %>% clean(),
+           CHOFF4 = glue(choff4_cols) %>% clean(),
+           CHOFF5 = glue(choff5_cols) %>% clean(),
+           CHOFF6 = glue(choff6_cols) %>% clean(),
+           CHOFF7 = glue(choff7_cols) %>% clean(),
+           CHOFF8 = glue(choff8_cols) %>% clean(),
+           .keep = "unused") %>% 
+    remove_empty()#move to beginning?
+}
+
+
 #data2017_1 %>% head() %>% aggregate_reasons() %>% View()
 
 # 
