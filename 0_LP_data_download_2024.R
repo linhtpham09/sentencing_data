@@ -58,7 +58,9 @@ crimhist17_all <- full_join(crimhist17, crimhist17_opafy, by = 'USSCIDN')
 data2017 <- full_join(data2017_1, data2017_2, by = 'id') %>% 
   mutate(opafy = 2017,
          SENTRNGE = NA,
-         across(everything(), ~na_if(., "NA"))) %>% 
+         #across(everything(), ~na_if(., "NA")) Jul9.2024, LP can't run with this
+        
+         ) %>% 
   select(-id) %>% 
   full_join(crimhist17_all)
 
@@ -91,7 +93,8 @@ data2018_2 <- dbFetch(query2018_2) %>%
   mutate(across(everything(), as.character))
 data2018 <- full_join(data2018_1, data2018_2, by = 'id') %>% 
   mutate(opafy=2018,
-         across(everything(), ~na_if(., "NA"))) %>% 
+         #across(everything(), ~na_if(., "NA")) #LP see note on line61
+         ) %>% 
   select(-id) %>% 
   rename_at(vars(sentmon:sentrnge), str_to_upper) 
 
@@ -133,7 +136,8 @@ data2019_2 <- dbFetch(query2019_2) %>%
 
 data2019 <- full_join(data2019_1, data2019_2, by = 'id') %>% 
   mutate(opafy=2019,
-         across(everything(), ~na_if(., "NA"))) %>% 
+         #across(everything(), ~na_if(., "NA"))#LP see note on line61
+         ) %>% 
   select(-id)
 
 crimhist19fyquery = dbSendQuery(con, "select * from opafy19nid_down")
@@ -173,7 +177,8 @@ data2020_2 <- dbFetch(query2020_2) %>%
 
 data2020 <- full_join(data2020_1, data2020_2, by = 'id') %>% 
   mutate(opafy = 2020,
-         across(everything(), ~na_if(., "NA"))) %>% 
+         #across(everything(), ~na_if(., "NA"))#LP see note on line61
+         ) %>% 
   select(-1)
 
 
@@ -217,20 +222,22 @@ data2021_2 <- dbFetch(query2021_2) %>%
 
 data2021 <- full_join(data2021_1, data2021_2, by = 'id') %>% 
   mutate(opafy=2021,
-         across(everything(), ~na_if(., "NA"))) %>% 
+         #across(everything(), ~na_if(., "NA"))#LP see note on line61
+         ) %>% 
   select(-1) 
 
-crimhist21fyquery = dbSendQuery(con, "select * from opafy19nid_down")
+
+crimhist21fyquery = dbSendQuery(con, "select * from opafy21nid_down")
 crimhist21_opafy = dbFetch(crimhist21fyquery) %>% 
   mutate(across(everything(), as.character))
 
-crimhist21 = bq_table_download("balmy-coral-330818.bqtest.crimhist19nid_down")%>% 
+crimhist21 = bq_table_download("balmy-coral-330818.bqtest.crimhist21nid_down")%>% 
   mutate(across(everything(), as.character)) %>% 
   aggregate_choff()
-crimhist21_all <- full_join(crimhist21, crimhist21_opafy) %>% 
+crimhist21_all <- full_join(crimhist21, crimhist21_opafy,by = "USSCIDN") %>% 
   mutate(across(everything(), ~na_if(., "NA")))
 
-data2021 <- full_join(data2021, crimhist21_all, by = "USSCIDN")
+data2021 <- full_join(data2021, crimhist21_all)
 
 write.csv(here::here(data2021), "data2021_choff.csv")
 # ------------------------MERGE ALL YEARS TOGETHER--------------------------
