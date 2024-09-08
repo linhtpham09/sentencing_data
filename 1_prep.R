@@ -240,6 +240,39 @@ read_csv(here::here("data/full_io_files/opafy21nid.csv"),guess_max = 50000) %>%
   mutate(id = row_number()) %>% 
   write_csv(here::here("data/new_io_data_r/fy21_3.csv"))
 
+
+#---------------------2022-------------------------
+
+library("data.table")
+library("readr")
+
+df <- fread(here::here("data/opafy22nid.csv")) 
+
+df %>%
+  select(1:9998) %>% 
+  mutate(id = row_number()) %>% 
+  write_csv(here::here("data/fy22_1.csv"))
+
+df %>%
+  select(9999:18741) %>% 
+  mutate(id = row_number()) %>% 
+  write_csv(here::here("data/fy22_2.csv"))
+
+#---------------------2023-------------------------
+
+df <- fread(here::here("data/opafy23nid.csv")) 
+
+df %>%
+  select(1:9998) %>% 
+  mutate(id = row_number()) %>% 
+  write_csv(here::here("data/fy23_1.csv"))
+
+df %>%
+  select(9999:19568) %>% 
+  mutate(id = row_number()) %>% 
+  write_csv(here::here("data/fy23_2.csv"))
+
+
 #-----------Creating Schema Code for BigQuery--------------------
 #----------------------------------------------------------------
 # In order to manually upload the data into BigQuery 
@@ -249,11 +282,11 @@ read_csv(here::here("data/full_io_files/opafy21nid.csv"),guess_max = 50000) %>%
 # because we cannot use nrows with read_csv. 
 # Schema is the type breakdown of every column 
 
-# df <- read.csv(here::here("data/new_io_data_r/fy09_2.csv"), nrows = 2)
-#  sql <- colnames(df) 
-#  sql <- paste(sql,":STRING")
-#  sql <- paste(sql, collapse= ', ')
-#  write.table(sql, file = 'bq09_2.txt')
+# df <- read.csv(here::here("data/fy23_2.csv"), nrows = 2)
+# sql <- colnames(df) 
+# sql <- paste(sql,":STRING")
+# sql <- paste(sql, collapse= ', ')
+# write.table(sql, file = 'data/bq23_2.txt')
 
 #In this example, I used file fy09_2, but I repeatedly interchanged
 # the file names to create many files with the sql code to upload the data.
