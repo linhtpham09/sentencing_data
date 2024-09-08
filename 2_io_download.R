@@ -384,6 +384,57 @@ data2021 <- full_join(data2021_1, data2021_2, by = 'id') %>%
 
 write_csv(data2021, here::here("data/raw_downselected_io_files/data2021.csv"))
 
+
+# ----------------------2022-----------------------------------
+
+query2022_1 = dbSendQuery(con, "select `id`,`SENTMON`, `SENTYR`,`SENSPLT0`, 
+                          `GLMIN`,`TOTCHPTS`,`IS924C`,`WEAPSOC`, `STATMIN`, 
+                          `CAROFFAP`,`ACCAP`, `SAFE`, `NEWCNVTN`, `PRESENT`, 
+                          `MITROLHI`, `AGGROLHI`, `NEWRACE`, `MONSEX`, `AGE`, 
+                          `EDUCATN`, `NEWCIT`, `SENTRNGE`,`REAS1`, `REAS2`,
+                          `REAS3`, `REAS4`, `REAS5`, `REAS6`, `REAS7`, `REAS8`, 
+                          `REAS9`, `REAS10`, `REAS11`, `REAS12`, `REAS13`, 
+                          `REAS14`, `REAS15`, `REAS16`, `REAS17`,`REAS18`,
+                          `REAS19`,`REAS20`,`REAS21`,`REAS22`,`REAS23`,`REAS24`,
+                          `REAS25`,`REAS26`
+                          `SOURCES`,`DISTRICT`,`CIRCDIST` 
+                          from fy22_1")
+
+data2022_1 <-  dbFetch(query2022_1) %>% aggregate_reasons()
+query2022_2 = dbSendQuery(con, "select `id`, `GDLINEHI` FROM fy22_2")
+data2022_2 <- dbFetch(query2022_2)
+data2022 <- full_join(data2022_1, data2022_2 ,by = 'id') %>% 
+  mutate(opafy=2022) %>% 
+  select(-1)
+
+write_csv(data2022, here::here("data/raw_downselected_io_files/data2022.csv"))
+
+
+# ----------------------2023-----------------------------------
+
+query2023_1 = dbSendQuery(con, "select `id`,`SENTMON`, `SENTYR`,`SENSPLT0`, 
+                          `GLMIN`,`TOTCHPTS`,`IS924C`,`WEAPSOC`, `STATMIN`, 
+                          `CAROFFAP`,`ACCAP`, `SAFE`, `NEWCNVTN`, `PRESENT`, 
+                          `MITROLHI`, `AGGROLHI`, `NEWRACE`, `MONSEX`, `AGE`, 
+                          `EDUCATN`, `NEWCIT`, `SENTRNGE`,`REAS1`, `REAS2`,
+                          `REAS3`, `REAS4`, `REAS5`, `REAS6`, `REAS7`, `REAS8`, 
+                          `REAS9`, `REAS10`, `REAS11`, `REAS12`, `REAS13`, 
+                          `REAS14`, `REAS15`, `REAS16`, `REAS17`,`REAS18`,
+                          `REAS19`,`REAS20`,`REAS21`,`REAS22`,`REAS23`,`REAS24`,
+                          `REAS25`,`REAS26`
+                          `SOURCES`,`DISTRICT`,`CIRCDIST` 
+                          from fy23_1")
+
+data2023_1 <-  dbFetch(query2023_1) %>% aggregate_reasons()
+query2023_2 = dbSendQuery(con, "select `id`, `GDLINEHI` FROM fy23_2")
+data2023_2 <- dbFetch(query2023_2)
+data2023<- full_join(data2023_1, data2023_2 ,by = 'id') %>% 
+  mutate(opafy=2023) %>% 
+  select(-1)
+
+
+write_csv(data2023, here::here("data/raw_downselected_io_files/data2023.csv"))
+
 # ------------------------MERGE ALL YEARS TOGETHER--------------------------
 
 io_raw_2002_2021 <- bind_rows(data2002, data2003, data2004, data2005, data2006,
