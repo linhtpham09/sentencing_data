@@ -1,0 +1,101 @@
+---
+title: "Demographic Differences 2023: Baseline Switch"
+output:
+    word_document: 
+        reference_docx: "template/template.docx"
+date: "August 20, 2024"
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F, warning = F, message = F, fig.width = 14, fig.height = 8)
+
+library(tidyverse)
+library(flextable)
+library(janitor)
+library(scales)
+
+data <- read_csv(here::here("data/io_2023.csv"), guess_max = 50000)
+
+source(here::here("utils.R"))
+
+```
+
+
+This document attempts to replicate the U.S. Sentencing Commission's 2023 models for estimating demographic disparities in sentencing, utilized in their report *Demographic Differences in Federal Sentencing*, available [here](https://www.ussc.gov/sites/default/files/pdf/research-and-publications/research-publications/2023/20231114_Demographic-Differences.pdf).
+
+Past versions of this report presented regression printouts for each of the Commission's conceptual periods in its history (Koon, Booker, Post-Report, etc.). The latest report uses information which was only collected by the Commission beginning in FY 2016. As such, it covers only the five years immediately following the issuance of the last report (fiscal years 2017 to 2021). But the new report  presents three models for this period: one for individuals who received sentences of incarceration, one for probation-only sentences, and a third model pooling both (which is the sole approach used in the Commission's prior reports). The Commission's report only provides exact specifications and a printout of the regression for the first two models, though it suggests that the third is "similar to" that used in prior reports.
+
+```{r}
+#mpool <- 
+
+mprob <- function(df){
+  glm(probation ~ glmin + 
+       relevel(factor(racesex), ref = 8) +
+       age +
+       agesq +
+       subasst +
+       custody +
+       educ3 +
+       educ5 +
+       educ6 +
+       citizen +
+       earlydisp +
+       govtdown +
+       down +
+       offtype +
+       crimhistcat +
+       finalofflev +
+       instviol +
+       cnvnt,
+      family = binomial,
+             df)
+}
+
+mincarc <- function(df){
+  lm(logsent ~ logglmin + #logglmin that is infinity -- remove? or convert to 0? check with prof D that removing makes more sense
+       relevel(factor(racesex), ref = 8) +
+       age +
+       agesq +
+       upward +
+       subasst +
+       mandmin +
+       custody +
+       educ3 +
+       educ5 +
+       educ6 +
+       citizen +
+       earlydisp +
+       govtdown +
+       down +
+       offtype +
+       crimhistcat +
+       weapon +
+       finalofflev +
+       intersects +
+       cnvnt,
+             df %>% filter(!probation) %>% filter(logglmin!=-Inf))
+}
+```
+
+### Probation vs. Non-Probation
+
+```{r}
+mprob_results <- mprob(data)
+
+as_flextable(mprob_results)
+```
+<br>
+<br>
+
+### Incarceration Sentences Only: Length of Incarceration
+
+```{r}
+mincarc_results <- mincarc(data)
+
+as_flextable(mincarc_results)
+```
+
+<br>
+<br>
+<br>
