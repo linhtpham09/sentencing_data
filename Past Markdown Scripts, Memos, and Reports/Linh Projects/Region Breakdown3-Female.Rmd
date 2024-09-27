@@ -1,5 +1,5 @@
 ---
-title: "Region Breakdown Pt 1 - Descriptive Overview"
+title: "Region Breakdown Pt 3 - Female"
 output: html_document
 date: "2023-10-31"
 ---
@@ -15,15 +15,10 @@ This report is structured in three categories, where each category compounds on 
 
 # Location 
 
-Our primary focus will be on the  Northern, Western, Southern, and Eastern Districts of Texas, the Western and Eastern Districts of Louisiana, the District of New Mexico, and the Northern, Middle, and Southern Districts of Florida. 
-
-This topic came to our attention in Fishman & Schazenbach (2012). In Fischman & Schazenbach (2012), they did not specifically focus on gender, but they did examine Hispanic identity along with border districts. They noted that Arizona, Southern California, New Mexico, Texas South, and Texas West had atypically large caseload pressure. In this same study, they argued Hispanic offenders faced larger sentences as a result of racial/ethnic bias. As we continued to do more research, common trends continued to persist in literature, specifically how disparity persists southern/border districts near Mexico. 
-
-In a 2012 TRAC report, Texas North, Georgia North, Virginia East, Florida North, and Texas West had some of the largest differences between judges. Other border districts in the top 10 include Louisiana West and Florida Middle. Interestingly, another border district, California South had the smallest difference. TRAC specifically stated that Texas North "[sentencing] variation [was] hard to explain" due to large variances.Holland and Prohaska(2018) stated women of color received shorter sentences than white women, and that women in southern and border districts received significantly longer sentences. Topaz, Ning, and Ciocanel (2023) report that at the district level there were significant differences between minoritized defendants and white defendants. 
-
-Please note that all average sentence lengths are in months. Each section will include a H0 and H1, indicating a null (H0) hypothesis and an alternative (H1) hypothesis. This will identify what patterns or characteristic presents as an either an outlier or noteworthy. 
 
 ```{r, include=FALSE}
+
+#Linh Project
 
 library(tidyverse)
 library(flextable)
@@ -32,7 +27,9 @@ library(scales)
 library(readxl)
 
 data <- read_csv(here::here("data/io.csv"))
-district <- data %>% filter(districtName %in% c("Texas North", "Texas West", "Texas South", "Texas East","Louisiana East", "Louisiana West", "New Mexico", "Florida North", "Florida Middle", "Florida South"))
+district <- data %>% 
+  filter(districtName %in% c("Texas North", "Texas West", "Texas South", "Texas East","Louisiana East", "Louisiana West", "New Mexico", "Florida North", "Florida Middle", "Florida South")) %>% 
+  filter(str_detect(racesex_clean, 'Female'))
 
 postprotect <- district %>% 
   filter(postprotect) #06-24-04
@@ -52,18 +49,18 @@ present <- district %>%
 
 highlight_above_avg <- function(ft){
   ft %>% 
-     bg(i = ~ `Black Male`>Overall, 
-      j = ~ `Black Male`, 
-      bg="#Fba894") %>% 
-     bg(i = ~ `Hispanic Male`>Overall, 
-      j = ~ `Hispanic Male`, 
-     bg="#Fba894") %>% 
-     bg(i = ~ `White Male`>Overall, 
-        j = ~ `White Male`, 
-        bg="#Fba894") %>% 
-     bg(i = ~ `Other Male`>Overall, 
-        j = ~ `Other Male`, 
-        bg="#Fba894") %>% 
+     #bg(i = ~ `Black Male`>Overall, 
+      #j = ~ `Black Male`, 
+      #bg="#Fba894") %>% 
+     #bg(i = ~ `Hispanic Male`>Overall, 
+      #j = ~ `Hispanic Male`, 
+     #bg="#Fba894") %>% 
+     #bg(i = ~ `White Male`>Overall, 
+        #j = ~ `White Male`, 
+        #bg="#Fba894") %>% 
+     #bg(i = ~ `Other Male`>Overall, 
+        #j = ~ `Other Male`, 
+        #bg="#Fba894") %>% 
     bg(i = ~ `Black Female`>Overall, 
        j = ~ `Black Female`, 
        bg="#Fba894") %>% 

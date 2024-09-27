@@ -9,6 +9,10 @@ library(lubridate)
 library(here)
 source(here::here("utils.R"))
 
+#CML, Sept 27 2024 - I think the only difference between this file and the other labeled 0_data_download_2023 is that Linh
+#commented out the na_if lines here, which weren't working for her (maybe a package issue?)
+#I saved the 0_..._2023 version later, so I think it's the one to use--might not matter though
+
 # auth to bigquery
 
 #connection to google bigquery 
