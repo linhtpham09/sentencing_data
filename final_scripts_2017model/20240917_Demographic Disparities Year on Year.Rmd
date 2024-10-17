@@ -1,0 +1,600 @@
+---
+title: "Demographic Disparities Year by Year"
+output:
+    word_document: 
+        reference_docx: "template/template.docx"
+date: "September 17, 2024"
+
+---
+
+This year-by-year breakdown of the Commission's "refined model" of demographic disparities in sentencing is updated using the latest changes to our replication, stemming from our conversation over email with Ryan Cotter in summer of 2023. The refined model was current as of the Commission's 2017 report, but has been superseded by a more complex model in the 2023 report.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F, warning = F, message = F, fig.width = 14, fig.height = 8)
+
+library(tidyverse)
+library(flextable)
+library(janitor)
+library(scales)
+
+data <- read_csv(here::here("data/io_2002_2023.csv")) 
+
+fy02 <- data %>% 
+  filter(sentdate>="2001-10-01" & sentdate<="2002-09-30") 
+fy03 <- data %>% 
+  filter(sentdate>="2002-10-01" & sentdate<="2003-09-30") 
+fy04 <- data %>% 
+  filter(sentmonyr>="2003-10-01" & sentmonyr<="2004-09-01") 
+fy05 <- data %>% 
+  filter(sentmonyr>="2004-10-01" & sentmonyr<="2005-09-01") 
+fy06 <- data %>% 
+  filter(sentmonyr>="2005-10-01" & sentmonyr<="2006-09-01") 
+fy07 <- data %>% 
+  filter(sentmonyr>="2006-10-01" & sentmonyr<="2007-09-01") 
+fy08 <- data %>% 
+  filter(sentmonyr>="2007-10-01" & sentmonyr<="2008-09-01") 
+fy09 <- data %>% 
+  filter(sentmonyr>="2008-10-01" & sentmonyr<="2009-09-01") 
+fy10 <- data %>% 
+  filter(sentmonyr>="2009-10-01" & sentmonyr<="2010-09-01")
+fy11 <- data %>% 
+  filter(sentmonyr>="2010-10-01" & sentmonyr<="2011-09-01")
+fy12 <- data %>% 
+  filter(sentmonyr>="2011-10-01" & sentmonyr<="2012-09-01")
+fy13 <- data %>% 
+  filter(sentmonyr>="2012-10-01" & sentmonyr<="2013-09-01")
+fy14 <- data %>% 
+  filter(sentmonyr>="2013-10-01" & sentmonyr<="2014-09-01")
+fy15 <- data %>% 
+  filter(sentmonyr>="2014-10-01" & sentmonyr<="2015-09-01")
+fy16 <- data %>% 
+  filter(sentmonyr>="2015-10-01" & sentmonyr<="2016-09-01")
+fy17 <- data %>% 
+  filter(sentmonyr>="2016-10-01" & sentmonyr<="2017-09-01")
+fy18 <- data %>% 
+  filter(sentmonyr>="2017-10-01" & sentmonyr<="2018-09-01")
+fy19 <- data %>% 
+  filter(sentmonyr>="2018-10-01" & sentmonyr<="2019-09-01")
+fy20 <- data %>% 
+  filter(sentmonyr>="2019-10-01" & sentmonyr<="2020-09-01")
+fy21 <- data %>% 
+  filter(sentmonyr>="2020-10-01" & sentmonyr<="2021-09-01")
+fy22 <- data %>% 
+  filter(sentmonyr>="2021-10-01" & sentmonyr<="2022-09-01")
+fy23 <- data %>% 
+  filter(sentmonyr>="2022-10-01" & sentmonyr<="2023-09-01")
+
+
+source(here::here("utils.R"))
+
+```
+
+
+
+```{r}
+model2 <- function(df){
+  lm(logsplit ~ logmin + 
+               drugtraff +
+               sexual2 + 
+               porn +
+               immigration +
+               othtype +
+               whitecoll +
+               upward +
+               down +
+               subasst +
+               mandmin2 +
+               NEWCNVTN +
+               custody +
+               relevel(factor(racesex), ref = 8) +
+               agedummy +
+               educ +
+               citizen,
+             df)
+}
+```
+
+
+```{r}
+model2_factor_02 <- model2(fy02)
+model2_factor_03 <- model2(fy03)
+model2_factor_04 <- model2(fy04)
+model2_factor_05 <- model2(fy05)
+model2_factor_06 <- model2(fy06)
+model2_factor_07 <- model2(fy07)
+model2_factor_08 <- model2(fy08)
+model2_factor_09 <- model2(fy09)
+model2_factor_10 <- model2(fy10)
+model2_factor_11 <- model2(fy11)
+model2_factor_12 <- model2(fy12)
+model2_factor_13 <- model2(fy13)
+model2_factor_14 <- model2(fy14)
+model2_factor_15 <- model2(fy15)
+model2_factor_16 <- model2(fy16)
+model2_factor_17 <- model2(fy17)
+model2_factor_18 <- model2(fy18)
+model2_factor_19 <- model2(fy19)
+model2_factor_20 <- model2(fy20)
+model2_factor_21 <- model2(fy21)
+model2_factor_22 <- model2(fy22)
+model2_factor_23 <- model2(fy23)
+
+```
+
+
+<br>
+  
+
+```{r}
+
+demogbar <- function(df){
+  df %>% 
+    ggplot(aes(x = period, y = value, fill = period))+
+    geom_bar(stat="identity")+
+    geom_text(aes(label=round(value)), vjust=0.3, size = 4.5)+ 
+    labs(y = "Percent", x = "Period",
+         caption = "Values not statistically significant at the 0.01 level are omitted.")+
+    theme_minimal() + 
+    facet_wrap(~demog)+
+    theme(strip.text = element_text(size = 25),
+          legend.text = element_text(size = 20),
+          legend.title = element_text(size = 22),
+          axis.title.y = element_text(size = 22),
+          axis.title.x = element_text(size = 22),
+          plot.caption = element_text(size = 20),
+          axis.text.y = element_blank(),
+          axis.text.x=element_blank())
+  
+}
+
+```
+
+
+### White Male Baseline
+
+```{r}
+
+extract_coeffs_demog <- function(df){
+  df %>%
+    extract_coeffs_5() %>% 
+    filter(str_detect(var, "male")) %>% 
+    mutate(value = logtrans(coeff),
+           demog = case_when(
+            str_detect(var, "whitemale") ~ "White Male",
+            str_detect(var, "whitefemale") ~ "White Female",
+            str_detect(var, "blackmale") ~ "Black Male",
+            str_detect(var, "blackfemale") ~ "Black Female",
+            str_detect(var, "hispmale") ~ "Hispanic Male",
+            str_detect(var, "hispfemale") ~ "Hispanic Female",
+            str_detect(var, "othermale") ~ "Other Male",
+            str_detect(var, "otherfemale") ~ "Other Female")) %>% 
+    select(demog, value) %>% 
+    filter(!str_detect(demog, "Other"))
+}
+
+fy02_wm <- extract_coeffs_demog(model2_factor_02) %>% mutate(period = "FY02")
+fy03_wm <- extract_coeffs_demog(model2_factor_03) %>% mutate(period = "FY03")
+fy04_wm <- extract_coeffs_demog(model2_factor_04) %>% mutate(period = "FY04")
+fy05_wm <- extract_coeffs_demog(model2_factor_05) %>% mutate(period = "FY05")
+fy06_wm <- extract_coeffs_demog(model2_factor_06) %>% mutate(period = "FY06")
+fy07_wm <- extract_coeffs_demog(model2_factor_07) %>% mutate(period = "FY07")
+fy08_wm <- extract_coeffs_demog(model2_factor_08) %>% mutate(period = "FY08")
+fy09_wm <- extract_coeffs_demog(model2_factor_09) %>% mutate(period = "FY09")
+fy10_wm <- extract_coeffs_demog(model2_factor_10) %>% mutate(period = "FY10")
+fy11_wm <- extract_coeffs_demog(model2_factor_11) %>% mutate(period = "FY11")
+fy12_wm <- extract_coeffs_demog(model2_factor_12) %>% mutate(period = "FY12")
+fy13_wm <- extract_coeffs_demog(model2_factor_13) %>% mutate(period = "FY13")
+fy14_wm <- extract_coeffs_demog(model2_factor_14) %>% mutate(period = "FY14")
+fy15_wm <- extract_coeffs_demog(model2_factor_15) %>% mutate(period = "FY15")
+fy16_wm <- extract_coeffs_demog(model2_factor_16) %>% mutate(period = "FY16")
+fy17_wm <- extract_coeffs_demog(model2_factor_17) %>% mutate(period = "FY17")
+fy18_wm <- extract_coeffs_demog(model2_factor_18) %>% mutate(period = "FY18")
+fy19_wm <- extract_coeffs_demog(model2_factor_19) %>% mutate(period = "FY19")
+fy20_wm <- extract_coeffs_demog(model2_factor_20) %>% mutate(period = "FY20")
+fy21_wm <- extract_coeffs_demog(model2_factor_21) %>% mutate(period = "FY21")
+fy22_wm <- extract_coeffs_demog(model2_factor_22) %>% mutate(period = "FY22")
+fy23_wm <- extract_coeffs_demog(model2_factor_23) %>% mutate(period = "FY23")
+
+
+bar_data_wm <- bind_rows(fy02_wm,
+                          fy03_wm, 
+                          fy04_wm,
+                          fy05_wm,
+                          fy06_wm,
+                          fy07_wm,
+                          fy08_wm,
+                          fy09_wm,
+                          fy10_wm,
+                          fy11_wm,
+                          fy12_wm,
+                          fy13_wm, 
+                          fy14_wm,
+                          fy15_wm,
+                          fy16_wm,
+                          fy17_wm,
+                          fy18_wm,
+                          fy19_wm,
+                          fy20_wm,
+                          fy21_wm,
+                          fy22_wm,
+                          fy23_wm) 
+# 
+# %>% 
+#   mutate(period = fct_relevel(period, "Protect", "Booker", "Gall", "Post-Report", "Present"))
+```
+
+```{r}
+bar_data_wm %>% filter(str_detect(demog, "Female")) %>% demogbar()
+```
+  
+  
+```{r}
+bar_data_wm %>% filter(str_detect(demog, "Male")) %>% demogbar()
+
+#add in statistical significance dots
+#fix position of bar labels
+
+```
+<br>
+<br>
+
+
+### White Female Baseline
+
+
+```{r}
+model2_wf <- function(df){
+  lm(logsplit ~ logmin + 
+               drugtraff +
+               sexual2 + 
+               porn +
+               immigration +
+               othtype +
+               whitecoll +
+               upward +
+               down +
+               subasst +
+               mandmin2 +
+               NEWCNVTN +
+               custody +
+               relevel(factor(racesex), ref = 7) +
+               agedummy +
+               educ +
+               citizen,
+             df)
+}
+```
+
+```{r}
+
+model2_02_wf <- model2_wf(fy02)
+model2_03_wf <- model2_wf(fy03)
+model2_04_wf <- model2_wf(fy04)
+model2_05_wf <- model2_wf(fy05)
+model2_06_wf <- model2_wf(fy06)
+model2_07_wf <- model2_wf(fy07)
+model2_08_wf <- model2_wf(fy08)
+model2_09_wf <- model2_wf(fy09)
+model2_10_wf <- model2_wf(fy10)
+model2_11_wf <- model2_wf(fy11)
+model2_12_wf <- model2_wf(fy12)
+model2_13_wf <- model2_wf(fy13)
+model2_14_wf <- model2_wf(fy14)
+model2_15_wf <- model2_wf(fy15)
+model2_16_wf <- model2_wf(fy16)
+model2_17_wf <- model2_wf(fy17)
+model2_18_wf <- model2_wf(fy18)
+model2_19_wf <- model2_wf(fy19)
+model2_20_wf <- model2_wf(fy20)
+model2_21_wf <- model2_wf(fy21)
+model2_22_wf <- model2_wf(fy22)
+model2_23_wf <- model2_wf(fy23)
+
+```
+
+```{r}
+
+fy02_wf <- extract_coeffs_demog(model2_02_wf) %>% mutate(period = "FY02")
+fy03_wf <- extract_coeffs_demog(model2_03_wf) %>% mutate(period = "FY03")
+fy04_wf <- extract_coeffs_demog(model2_04_wf) %>% mutate(period = "FY04")
+fy05_wf <- extract_coeffs_demog(model2_05_wf) %>% mutate(period = "FY05")
+fy06_wf <- extract_coeffs_demog(model2_06_wf) %>% mutate(period = "FY06")
+fy07_wf <- extract_coeffs_demog(model2_07_wf) %>% mutate(period = "FY07")
+fy08_wf <- extract_coeffs_demog(model2_08_wf) %>% mutate(period = "FY08")
+fy09_wf <- extract_coeffs_demog(model2_09_wf) %>% mutate(period = "FY09")
+fy10_wf <- extract_coeffs_demog(model2_10_wf) %>% mutate(period = "FY10")
+fy11_wf <- extract_coeffs_demog(model2_11_wf) %>% mutate(period = "FY11")
+fy12_wf <- extract_coeffs_demog(model2_12_wf) %>% mutate(period = "FY12")
+fy13_wf <- extract_coeffs_demog(model2_13_wf) %>% mutate(period = "FY13")
+fy14_wf <- extract_coeffs_demog(model2_14_wf) %>% mutate(period = "FY14")
+fy15_wf <- extract_coeffs_demog(model2_15_wf) %>% mutate(period = "FY15")
+fy16_wf <- extract_coeffs_demog(model2_16_wf) %>% mutate(period = "FY16")
+fy17_wf <- extract_coeffs_demog(model2_17_wf) %>% mutate(period = "FY17")
+fy18_wf <- extract_coeffs_demog(model2_18_wf) %>% mutate(period = "FY18")
+fy19_wf <- extract_coeffs_demog(model2_19_wf) %>% mutate(period = "FY19")
+fy20_wf <- extract_coeffs_demog(model2_20_wf) %>% mutate(period = "FY20")
+fy21_wf <- extract_coeffs_demog(model2_21_wf) %>% mutate(period = "FY21")
+fy22_wf <- extract_coeffs_demog(model2_22_wf) %>% mutate(period = "FY22")
+fy23_wf <- extract_coeffs_demog(model2_23_wf) %>% mutate(period = "FY23")
+
+
+bar_data_wf <- bind_rows(fy02_wf,
+                          fy03_wf, 
+                          fy04_wf,
+                          fy05_wf,
+                          fy06_wf,
+                          fy07_wf,
+                          fy08_wf,
+                          fy09_wf,
+                          fy10_wf,
+                          fy11_wf,
+                          fy12_wf,
+                          fy13_wf, 
+                          fy14_wf,
+                          fy15_wf,
+                          fy16_wf,
+                          fy17_wf,
+                          fy18_wf,
+                          fy19_wf,
+                          fy20_wf,
+                          fy21_wf,
+                          fy22_wf,
+                          fy23_wf) 
+
+
+bar_data_wf %>% filter(str_detect(demog, "Female")) %>% demogbar() 
+  
+```
+  
+  
+```{r}
+bar_data_wf %>% filter(str_detect(demog, "Male")) %>% demogbar()
+```
+<br>
+<br>
+
+### Hispanic Female Baseline
+
+```{r}
+model2_hf <- function(df){
+  lm(logsplit ~ logmin + 
+               drugtraff +
+               sexual2 + 
+               porn +
+               immigration +
+               othtype +
+               whitecoll +
+               upward +
+               down +
+               subasst +
+               mandmin2 +
+               NEWCNVTN +
+               custody +
+               relevel(factor(racesex), ref = 3) +
+               agedummy +
+               educ +
+               citizen,
+             df)
+}
+```
+
+```{r}
+
+model2_02_hf <- model2_hf(fy02)
+model2_03_hf <- model2_hf(fy03)
+model2_04_hf <- model2_hf(fy04)
+model2_05_hf <- model2_hf(fy05)
+model2_06_hf <- model2_hf(fy06)
+model2_07_hf <- model2_hf(fy07)
+model2_08_hf <- model2_hf(fy08)
+model2_09_hf <- model2_hf(fy09)
+model2_10_hf <- model2_hf(fy10)
+model2_11_hf <- model2_hf(fy11)
+model2_12_hf <- model2_hf(fy12)
+model2_13_hf <- model2_hf(fy13)
+model2_14_hf <- model2_hf(fy14)
+model2_15_hf <- model2_hf(fy15)
+model2_16_hf <- model2_hf(fy16)
+model2_17_hf <- model2_hf(fy17)
+model2_18_hf <- model2_hf(fy18)
+model2_19_hf <- model2_hf(fy19)
+model2_20_hf <- model2_hf(fy20)
+model2_21_hf <- model2_hf(fy21)
+model2_22_hf <- model2_hf(fy22)
+model2_23_hf <- model2_hf(fy23)
+
+
+```
+
+```{r}
+
+fy02_hf <- extract_coeffs_demog(model2_02_hf) %>% mutate(period = "FY02")
+fy03_hf <- extract_coeffs_demog(model2_03_hf) %>% mutate(period = "FY03")
+fy04_hf <- extract_coeffs_demog(model2_04_hf) %>% mutate(period = "FY04")
+fy05_hf <- extract_coeffs_demog(model2_05_hf) %>% mutate(period = "FY05")
+fy06_hf <- extract_coeffs_demog(model2_06_hf) %>% mutate(period = "FY06")
+fy07_hf <- extract_coeffs_demog(model2_07_hf) %>% mutate(period = "FY07")
+fy08_hf <- extract_coeffs_demog(model2_08_hf) %>% mutate(period = "FY08")
+fy09_hf <- extract_coeffs_demog(model2_09_hf) %>% mutate(period = "FY09")
+fy10_hf <- extract_coeffs_demog(model2_10_hf) %>% mutate(period = "FY10")
+fy11_hf <- extract_coeffs_demog(model2_11_hf) %>% mutate(period = "FY11")
+fy12_hf <- extract_coeffs_demog(model2_12_hf) %>% mutate(period = "FY12")
+fy13_hf <- extract_coeffs_demog(model2_13_hf) %>% mutate(period = "FY13")
+fy14_hf <- extract_coeffs_demog(model2_14_hf) %>% mutate(period = "FY14")
+fy15_hf <- extract_coeffs_demog(model2_15_hf) %>% mutate(period = "FY15")
+fy16_hf <- extract_coeffs_demog(model2_16_hf) %>% mutate(period = "FY16")
+fy17_hf <- extract_coeffs_demog(model2_17_hf) %>% mutate(period = "FY17")
+fy18_hf <- extract_coeffs_demog(model2_18_hf) %>% mutate(period = "FY18")
+fy19_hf <- extract_coeffs_demog(model2_19_hf) %>% mutate(period = "FY19")
+fy20_hf <- extract_coeffs_demog(model2_20_hf) %>% mutate(period = "FY20")
+fy21_hf <- extract_coeffs_demog(model2_21_hf) %>% mutate(period = "FY21")
+fy22_hf <- extract_coeffs_demog(model2_22_hf) %>% mutate(period = "FY22")
+fy23_hf <- extract_coeffs_demog(model2_23_hf) %>% mutate(period = "FY23")
+
+
+bar_data_hf <- bind_rows(fy02_hf,
+                          fy03_hf, 
+                          fy04_hf,
+                          fy05_hf,
+                          fy06_hf,
+                          fy07_hf,
+                          fy08_hf,
+                          fy09_hf,
+                          fy10_hf,
+                          fy11_hf,
+                          fy12_hf,
+                          fy13_hf, 
+                          fy14_hf,
+                          fy15_hf,
+                          fy16_hf,
+                          fy17_hf,
+                          fy18_hf,
+                          fy19_hf,
+                          fy20_hf,
+                          fy21_hf,
+                          fy22_hf,
+                          fy23_hf) 
+
+
+bar_data_hf %>% filter(str_detect(demog, "Female")) %>% demogbar() 
+  
+```
+  
+  
+```{r}
+bar_data_hf %>% filter(str_detect(demog, "Male")) %>% demogbar()
+```
+<br>
+<br>
+
+
+### Black Female Baseline
+
+
+```{r}
+model2_bf <- function(df){
+  lm(logsplit ~ logmin + 
+               drugtraff +
+               sexual2 + 
+               porn +
+               immigration +
+               othtype +
+               whitecoll +
+               upward +
+               down +
+               subasst +
+               mandmin2 +
+               NEWCNVTN +
+               custody +
+               relevel(factor(racesex), ref = 1) +
+               agedummy +
+               educ +
+               citizen,
+             df)
+}
+```
+
+```{r}
+
+model2_02_bf <- model2_bf(fy02)
+model2_03_bf <- model2_bf(fy03)
+model2_04_bf <- model2_bf(fy04)
+model2_05_bf <- model2_bf(fy05)
+model2_06_bf <- model2_bf(fy06)
+model2_07_bf <- model2_bf(fy07)
+model2_08_bf <- model2_bf(fy08)
+model2_09_bf <- model2_bf(fy09)
+model2_10_bf <- model2_bf(fy10)
+model2_11_bf <- model2_bf(fy11)
+model2_12_bf <- model2_bf(fy12)
+model2_13_bf <- model2_bf(fy13)
+model2_14_bf <- model2_bf(fy14)
+model2_15_bf <- model2_bf(fy15)
+model2_16_bf <- model2_bf(fy16)
+model2_17_bf <- model2_bf(fy17)
+model2_18_bf <- model2_bf(fy18)
+model2_19_bf <- model2_bf(fy19)
+model2_20_bf <- model2_bf(fy20)
+model2_21_bf <- model2_bf(fy21)
+model2_22_bf <- model2_bf(fy22)
+model2_23_bf <- model2_bf(fy23)
+
+```
+
+```{r}
+
+fy02_bf <- extract_coeffs_demog(model2_02_bf) %>% mutate(period = "FY02")
+fy03_bf <- extract_coeffs_demog(model2_03_bf) %>% mutate(period = "FY03")
+fy04_bf <- extract_coeffs_demog(model2_04_bf) %>% mutate(period = "FY04")
+fy05_bf <- extract_coeffs_demog(model2_05_bf) %>% mutate(period = "FY05")
+fy06_bf <- extract_coeffs_demog(model2_06_bf) %>% mutate(period = "FY06")
+fy07_bf <- extract_coeffs_demog(model2_07_bf) %>% mutate(period = "FY07")
+fy08_bf <- extract_coeffs_demog(model2_08_bf) %>% mutate(period = "FY08")
+fy09_bf <- extract_coeffs_demog(model2_09_bf) %>% mutate(period = "FY09")
+fy10_bf <- extract_coeffs_demog(model2_10_bf) %>% mutate(period = "FY10")
+fy11_bf <- extract_coeffs_demog(model2_11_bf) %>% mutate(period = "FY11")
+fy12_bf <- extract_coeffs_demog(model2_12_bf) %>% mutate(period = "FY12")
+fy13_bf <- extract_coeffs_demog(model2_13_bf) %>% mutate(period = "FY13")
+fy14_bf <- extract_coeffs_demog(model2_14_bf) %>% mutate(period = "FY14")
+fy15_bf <- extract_coeffs_demog(model2_15_bf) %>% mutate(period = "FY15")
+fy16_bf <- extract_coeffs_demog(model2_16_bf) %>% mutate(period = "FY16")
+fy17_bf <- extract_coeffs_demog(model2_17_bf) %>% mutate(period = "FY17")
+fy18_bf <- extract_coeffs_demog(model2_18_bf) %>% mutate(period = "FY18")
+fy19_bf <- extract_coeffs_demog(model2_19_bf) %>% mutate(period = "FY19")
+fy20_bf <- extract_coeffs_demog(model2_20_bf) %>% mutate(period = "FY20")
+fy21_bf <- extract_coeffs_demog(model2_21_bf) %>% mutate(period = "FY21")
+fy22_bf <- extract_coeffs_demog(model2_22_bf) %>% mutate(period = "FY22")
+fy23_bf <- extract_coeffs_demog(model2_23_bf) %>% mutate(period = "FY23")
+
+
+bar_data_bf <- bind_rows(fy02_bf,
+                          fy03_bf, 
+                          fy04_bf,
+                          fy05_bf,
+                          fy06_bf,
+                          fy07_bf,
+                          fy08_bf,
+                          fy09_bf,
+                          fy10_bf,
+                          fy11_bf,
+                          fy12_bf,
+                          fy13_bf, 
+                          fy14_bf,
+                          fy15_bf,
+                          fy16_bf,
+                          fy17_bf,
+                          fy18_bf,
+                          fy19_bf,
+                          fy20_bf,
+                          fy21_bf,
+                          fy22_bf,
+                          fy23_bf) 
+
+
+bar_data_bf %>% filter(str_detect(demog, "Female")) %>% demogbar() 
+  
+``` 
+  
+```{r}
+bar_data_bf %>% filter(str_detect(demog, "Male")) %>% demogbar()
+```
+
+
+
+
+
+
+```{r}
+# New Data Vis
+
+
+# bar_data_wf %>% filter(!str_detect(demog, "Other")) %>%  demogbar()
+# bar_data_bf %>% filter(!str_detect(demog, "Other") & demog!="White Female") %>% demogbar()
+# bar_data_hf %>% filter(!str_detect(demog, "Other") & str_detect(demog, "Female")) %>% demogbar()
+
+
+```
+
+
+
+
