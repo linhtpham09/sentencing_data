@@ -1,5 +1,38 @@
 
 
+#read choff vars for violence in crim history
+
+
+numvecs <- function(df) {
+  df %>% 
+    mutate(across(contains("CHOFF"), function(x) str_replace_all(x, "c\\(|\\)", "") %>% str_squish)) %>%
+    mutate(across(contains("CHOFF"), function(x) str_split(x, "\\s+"))) %>% 
+    mutate(across(contains("CHOFF"), function(x) lapply(x, as.numeric)))
+}
+
+check_intersections <- function(df, vec, cols) {
+  # Ensure specified columns are in the dataframe and are of type list
+  if (!all(cols %in% names(df))) {
+    stop("Some specified columns are not present in the dataframe.")
+  }
+  if (!all(sapply(df[cols], is.list))) {
+    stop("All specified columns in the dataframe should contain vectors.")
+  }
+  # Apply the intersection check to the specified columns
+  result <- df %>%
+    rowwise() %>%
+    mutate(
+      intersects = any(sapply(c_across(all_of(cols)), function(x) any(x %in% vec))),
+      intersect_elements = list(sapply(c_across(all_of(cols)), function(x) intersect(x, vec)) %>% unlist() %>% unique())
+    ) %>%
+    ungroup() %>%
+    mutate(intersect_elements = ifelse(lengths(intersect_elements) == 0, NA, intersect_elements))
+  return(result)
+}
+
+
+
+
 
 
 #aggregate reasons function
@@ -119,6 +152,14 @@ extract_coeffs <- function(model){
         pr_t>0.01 ~ 0,
         TRUE ~ NA_real_),
       coeffinterp = ifelse(var=="logmin", loglogtrans(coeff), logtrans(coeff))) 
+}
+
+extract_coeffs_mprob <- function(model){
+  model[[1]] %>% 
+    as.data.frame() %>% 
+    tibble::rownames_to_column("var") %>% 
+    clean_names() %>% 
+    select(var, "coeff"=x)
 }
 
 extract_coeffs_5 <- function(model){

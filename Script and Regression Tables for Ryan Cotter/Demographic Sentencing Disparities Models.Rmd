@@ -1,0 +1,117 @@
+---
+title: "Demographic Disparities in Federal Sentencing"
+output:
+    word_document
+date: "February 22, 2023"
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F, warning = F, message = F, fig.width = 14, fig.height = 8)
+
+library(tidyverse)
+library(flextable)
+library(janitor)
+library(scales)
+
+data <- read_csv(here::here("data/io_processed.csv"))
+
+
+postprotect <- data %>% 
+  filter(postprotect) #06-24-04
+
+postbooker <- data %>% 
+  filter(postbooker) #dates are not right #12-10-2007
+
+postgall <- data %>% 
+  filter(postgall)
+
+postreport <- data %>% 
+  filter(postreport)
+
+present <- data %>% 
+  filter(present)
+
+
+```
+
+
+```{r}
+model2 <- function(df){
+  lm(logsplit ~ logmin + 
+               drugtraff +
+               sexual2 + 
+               porn +
+               immigration +
+               othtype +
+               whitecoll +
+               upward +
+               downdep +
+               subasst +
+               mandmin2 +
+               NEWCNVTN +
+               custody +
+               relevel(factor(racesex), ref = 8) +
+               agedummy +
+               educ +
+               citizen,
+             df)
+}
+```
+
+### Post-Protect
+
+```{r}
+model2_factor_protect <- model2(postprotect)
+
+as_flextable(model2_factor_protect)
+```
+<br>
+<br>
+
+### Post-Booker
+
+```{r}
+model2_factor_booker <- model2(postbooker)
+
+as_flextable(model2_factor_booker)
+```
+
+```{r, include = F}
+summary(model2_factor_booker)
+```
+<br>
+<br>
+
+### Post-Gall
+
+```{r}
+model2_factor_gall <- model2(postgall)
+
+as_flextable(model2_factor_gall)
+```
+
+```{r, include = F}
+summary(model2_factor_gall)
+```
+<br>
+<br>
+
+### Post-Report
+
+```{r}
+model2_factor_report <- model2(postreport)
+
+as_flextable(model2_factor_report)
+```
+<br>
+<br>
+
+### Present
+
+```{r}
+model2_factor_present <- model2(present)
+
+as_flextable(model2_factor_present)
+```
+
