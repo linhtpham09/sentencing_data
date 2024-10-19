@@ -21,9 +21,6 @@ matchwna <- function(string, list){
 #and SENTRNGE (only available post 2018)-
 #for this time period, we use BOOKERCD
 
-# t<- io_raw_2012_2016 %>% filter(SOURCES ==1) 
-# t2 <- io_raw_2012_2016 %>% filter(SOURCES != 1)
-# na_rows <- io_raw_2012_2016 %>% filter(is.na(SOURCES))
 
 data <- io_raw_2012_2016 %>%
   #sources- information represents known court findings 
@@ -45,67 +42,79 @@ data <- io_raw_2012_2016 %>%
     #   str_replace("Nov", "11") %>% 
     #   str_replace("Dec", "12") %>% 
     #   dmy(), 
-    #for FYs that use SENTMON and SENTYR, make a variable for the floor of each month to use for splitting data into periods
+    #for FYs that use SENTMON and SENTYR, make a variable for the floor of each
+    #month to use for splitting data into periods
     sentmonyr = ymd(glue("{SENTYR}-{SENTMON}-01")),
-    #length of confinement
+    #length of confinement, confines range of sentencing 
     logsplit = case_when(
       SENSPLT0==0.00 ~ log(0.01), 
       SENSPLT0>470 ~ log(470),
       TRUE ~ log(SENSPLT0)),
-    #trumped guideline minimum
+    #trumped guideline minimum, confines range of guideline minimum 
     logmin = case_when(
       GLMIN==0.00 ~ log(0.01), 
       GLMIN>470 ~ log(470),
       TRUE ~ log(GLMIN))) %>% 
   #construct crime type variables
+  #https://www.ussc.gov/guidelines/2023-guidelines-manual-annotated 
   #in the 2017 report, there are two different ways of breaking guidelines into crime categories
-  mutate(PART = substr(GDLINEHI, 1, 2)) %>%
+  mutate(PART = substr(GDLINEHI, 1, 2)) %>% #separates out the first part, so we can group into categories
   mutate(VIOLENT = case_when(PART %in% c("2K", "2A") ~ TRUE, # ours has 4921 missings
+                             #2K - Offenses involving public safety 
+                             #2A - Offenses against the person 
                              GDLINEHI %in% c('2E1.3','2E1.4','2E2.1','2B3.1','2B3.2','2B3.3') ~ TRUE,
                              TRUE ~ FALSE)) %>%
+                              #2E1.3 - gambling, 2E1.4 - trafficking tobacco, 2E2.1 -Extortion credit 
+                              #2B3.1- robbery, 2B3.2 - extortion by force, 2B3.3 - blackmail 
   mutate(violent = case_when(GDLINEHI %in% c('2A3.1','2A3.2','2A3.3','2A3.4') ~ FALSE,
                              TRUE ~ VIOLENT)) %>% 
-  
+                              #2A3.1 - Criminal sexual abuse, 2A3.2 - Criminal sexual abuse of a minor 
+                              #2A3.3 - Criminal sexual abuse of a ward, 2A3.4 - Abusive sexual contact
   mutate(SEXUAL = case_when(PART %in% c("2G") ~ TRUE, # ours has 4921 missings, and his has 4 more TRUEs
                             GDLINEHI %in% c('2A3.1','2A3.2','2A3.3','2A3.4') ~ TRUE,
                             TRUE ~ FALSE)) %>%
+                            #2G - Offenses involving commercial sex acts, sexual explotation of minors
+                            # and obscenity 
   mutate(sexual = case_when(GDLINEHI %in% c('2G3.1', '2G3.2') ~ FALSE,
                             TRUE ~ SEXUAL)) %>% 
-  
+                            #2G3.1 - transporting obscene matter 
+                            #2G3.2 - obscene phone comm for commercial purpose 
   mutate(whitecoll = case_when(PART %in% c("2T", "2S") ~ TRUE, # ours has 4921 missings and Ryan's has 18 more TRUEs
-                               GDLINEHI %in% c('2B1.1', 
-                                               '2F1.1', 
-                                               '2F1.2', 
-                                               '2B1.4', 
-                                               '2B1.6', 
-                                               '2B4.1', 
-                                               '2B5.1', 
-                                               '2B5.3', 
-                                               '2R1.1') ~ TRUE,
+                               #2S - money laundering and monetary transaction reporting
+                               #2T- offenses involving taxation 
+                               GDLINEHI %in% c('2B1.1', #larceny, embezzlement and other forms of theft
+                                               '2F1.1', #deleted
+                                               '2F1.2', #deleted
+                                               '2B1.4', #insider trading
+                                               '2B1.6', #aggravated identity thet
+                                               '2B4.1', #bribery in procurement of bank loan
+                                               '2B5.1', #offenses involving counterfeit bearer obligations
+                                               '2B5.3', #criminal infringement of copyright or trademark
+                                               '2R1.1') ~ TRUE,#bid ridding, price fixing, market allocation
                                TRUE ~ FALSE)) %>%
   
-  mutate(immigration = case_when(PART %in% c("2L") ~ TRUE,
+  mutate(immigration = case_when(PART %in% c("2L") ~ TRUE, #offenses involving immigration, naturalization
                                  TRUE ~ FALSE)) %>%
   
   mutate(DRUGTRAFF = case_when(PART %in% c("2D") ~ TRUE, #ours has 4921 missings
-                               TRUE ~ FALSE)) %>%
-  mutate(drugtraff = case_when(GDLINEHI %in% c('2D2.1', 
-                                               '2D2.2', 
-                                               '2D2.3',
-                                               '2D3.1',
-                                               '2D3.2',
-                                               '2D3.3',
-                                               '2D3.4',
-                                               '2D3.5') ~ FALSE,
+                               TRUE ~ FALSE)) %>% #2D - offenses involving drugs and narco terrorism 
+  mutate(drugtraff = case_when(GDLINEHI %in% c('2D2.1', #unlawful possession
+                                               '2D2.2', #acquiring controlled substance by fraud
+                                               '2D2.3', #operating operation of common carrier
+                                               '2D3.1', #regulatory offenses involving registration numbers
+                                               '2D3.2', # regulatory offenses involving controlled substances
+                                               '2D3.3', #deleted
+                                               '2D3.4',#deleted
+                                               '2D3.5') ~ FALSE, #deleted
                                TRUE ~ DRUGTRAFF)) %>% 
   
   mutate(drugposs =  case_when(GDLINEHI %in% c('2D2.1', '2D2.2') ~ TRUE,
                                TRUE ~ FALSE)) %>%
   
-  mutate(PART1_3 = substr(GDLINEHI, 1, 3)) %>%
+  mutate(PART1_3 = substr(GDLINEHI, 1, 3)) %>% #selects substring of GDLINEHI code (ex.2D2.1 -> 2D2)
   
   mutate(SEXUAL2 = sexual) %>%
-  mutate(sexual2 = case_when(PART1_3 %in% c("2G2") ~ FALSE,
+  mutate(sexual2 = case_when(PART1_3 %in% c("2G2") ~ FALSE,#sexual exploitation of a minor
                              TRUE ~ SEXUAL2)) %>%
   
   mutate(porn = case_when(PART1_3 %in% c("2G2") ~ TRUE,
@@ -135,48 +144,46 @@ data <- io_raw_2012_2016 %>%
   #because this script combines data from many years and the commission's approach towards the variance/departure variable has changed somewhat over the years,
   #this script is more complicated than what we have from Ryan, which only replicated years using BOOKERCD. this should do the same thing
    mutate(upward = case_when(
-           #SENTRNGE %in% c(1, 6) ~ TRUE,
+     #BOOKERCD - Assigns cases to one of the 12 postBooker reporting categories
+     #based on relationship between the sentence and guideline range and the 
+     #reason(s) given for being outside of the range.
            BOOKERCD %in% c(1:4) ~ TRUE,
-           #DEPART==1 ~ TRUE,
-           #DEPART_A==1 ~ TRUE,
-           #DEPART==8 ~ NA,
-           #DEPART_A==8 ~ NA,
-           #!SENTRNGE %in% c(1, 6) & !is.na(SENTRNGE) ~ FALSE,
-           !BOOKERCD %in% c(1:4) & !is.na(BOOKERCD) ~ FALSE,
-           #DEPART!=1 & !is.na(DEPART) ~ FALSE,
-           #DEPART_A!=1 & !is.na(DEPART_A) ~ FALSE,
+           #1-upward departure
+           #2-upward departure w/Booker
+           #3-above range w/Booker
+           #4-Remaining above range 
+           !BOOKERCD %in% c(1:4) & !is.na(BOOKERCD) ~ FALSE, #everything is false 
            TRUE ~ NA),
          down = case_when(
-           #SENTRNGE %in% c(3, 4, 5, 7, 8) ~ TRUE,
            BOOKERCD %in% c(6, 7, 8, 9, 10, 11) ~ TRUE,
-           #!SENTRNGE %in% c(3, 4, 5, 7, 8) & !is.na(SENTRNGE) ~ FALSE,
+           #6-early disposition 5K3.1 
+           #7 - govt sponsored - below range
+           #8 - downward departure 
+           #9- downward departure w/booker 
+           #10- below range w/Booker 
+           #11- remaining below range 
            !BOOKERCD %in% c(6, 7, 8, 9, 10, 11) & !is.na(BOOKERCD) ~ FALSE,
-           #DEPART %in% c(2, 4, 6) ~ TRUE,
-           #DEPART_A %in% c(3, 4, 5) ~ TRUE,
-           #DEPART==8 ~ NA,
-           #DEPART_A==8 ~ NA,
-           #!DEPART %in% c(2, 4, 6) & !is.na(DEPART) ~ FALSE,
-           #!DEPART_A %in% c(3, 4, 5) & !is.na(DEPART_A) ~ FALSE,
            TRUE ~ NA), 
          subasst = case_when(
-           #SENTRNGE ==2 ~ TRUE,
-           BOOKERCD==5 ~ TRUE,
-           #DEPART %in% c(3, 5, 7, 9) ~ TRUE,
-           #DEPART_A==2 ~ TRUE,
-           #DEPART==8 ~ NA,
-           #DEPART_A==8 ~ NA,
+           BOOKERCD==5 ~ TRUE,#5-5K1.1/substantial assistance 
            BOOKERCD !=5 ~ FALSE,
-           #SENTRNGE !=2 ~ FALSE, 
-           #!DEPART %in% c(3, 5, 7, 9) & !is.na(DEPART) ~ FALSE,
-           #DEPART_A!=2 & !is.na(DEPART_A) ~ FALSE,
            TRUE ~ NA)) %>% 
-  mutate(VALVE = ifelse(SAFE > 0, 1, 0)) %>%
+  mutate(VALVE = ifelse(SAFE > 0, 1, 0)) %>% #SAFE - indicator of safety valve application
+                                            #under both 2D1.1 and 5C1.2 
   mutate(valve = ifelse(is.na(VALVE), 0, VALVE)) %>%
   ##CML: does not capture expanded safety valve eligibility under the First Step Act, which became relevant in 2019
   ##see codebook entries for SAFE and FSASV
   mutate(agedummy = AGE>25,
          educ = case_when(
-           EDUCATN %in% c(13:16, 23, 24, 34, 35) ~ TRUE,
+           EDUCATN %in% c(13:16, 23, 24, 34, 35) ~ TRUE, 
+           #13-One year of college 
+           #14-two years of college 
+           #15-three years of college 
+           #16- college grad
+           #23-associates degree 
+           #24 - graduate degree 
+           #34 - some college 
+           #35- some grad school 
            !EDUCATN %in% c(13:16, 23, 24, 34, 35) & !is.na(EDUCATN) ~ FALSE,
            TRUE ~ NA),
          citizen = NEWCIT==0,
