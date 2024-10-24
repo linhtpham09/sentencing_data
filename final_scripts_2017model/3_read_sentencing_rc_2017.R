@@ -14,13 +14,12 @@ matchwna <- function(string, list){
   )
 }
 
-#the primary differences between 2012-2016 
+#the primary differences between 2012-2016  
 #and other periods are the date columns
 #i.e instead of SENTDATE there is a 
 #SENTMON and SENTYR
 #and SENTRNGE (only available post 2018)-
 #for this time period, we use BOOKERCD
-
 
 data <- io_raw_2012_2016 %>%
   #sources- information represents known court findings 
