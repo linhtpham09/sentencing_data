@@ -7,7 +7,7 @@ library(scales)
 library(glue)
 library(lubridate)
 library(here)
-source(here::here("../utils.R")) #note to check this filepath since I'm re-orging the repo folder
+source(here::here("utils.R"))
 
 #connection to google bigquery 
 con <- dbConnect(
